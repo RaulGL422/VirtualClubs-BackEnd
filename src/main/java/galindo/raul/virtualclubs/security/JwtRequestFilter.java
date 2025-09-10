@@ -1,6 +1,8 @@
 package galindo.raul.virtualclubs.security;
 
-import galindo.raul.virtualclubs.services.VirtualClubsUsersDetailsService;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import galindo.raul.virtualclubs.dtos.ApiResponse;
+import galindo.raul.virtualclubs.dtos.ResponseType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,55 +11,65 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * Filtro para validar JWT en cada petición.
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-    private final VirtualClubsUsersDetailsService userDetailsService;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain)
-            throws ServletException, IOException {
+                                    FilterChain filterChain) throws ServletException, IOException {
 
-        final String authorizationHeader = request.getHeader("Authorization");
+        String requestPath = request.getRequestURI();
+        log.debug("[JWT] Procesando petición: {}", requestPath);
 
-        String email = null;
-        String jwt = null;
+        try {
+            String token = jwtService.extractToken(request);
 
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwt = authorizationHeader.substring(7);
-            try {
-                email = jwtUtil.extractEmail(jwt);
-            } catch (Exception e) {
-                log.warn("JWT Token Invalid or Expired: {}", e.getMessage());
+            if (token != null && jwtService.isValidAccessToken(token)) {
+                UsernamePasswordAuthenticationToken auth = jwtService.getAuthentication(token);
+                if (auth != null) {
+                    auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                    log.debug("[JWT] Autenticación exitosa para {}", auth.getName());
+                } else {
+                    log.warn("[JWT] No se pudo obtener autenticación del token");
+                    sendUnauthorized(response, "authentication_error");
+                    return;
+                }
+
+            } else {
+                log.warn("[JWT] Token inválido o expirado en petición {}", requestPath);
+                sendUnauthorized(response, "access_token_invalid_or_expired");
+                return;
             }
-        }
 
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-
-            if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities());
-
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
+        } catch (Exception e) {
+            log.error("[JWT] Error autenticando token: {}", e.getMessage(), e);
+            sendUnauthorized(response, "authentication_error");
+            return;
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void sendUnauthorized(HttpServletResponse response, String message) throws IOException {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json");
+        objectMapper.writeValue(response.getWriter(),
+                new ApiResponse<>(false, message, ResponseType.ERROR, null));
     }
 }

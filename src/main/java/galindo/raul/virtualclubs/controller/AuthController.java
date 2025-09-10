@@ -3,13 +3,14 @@ package galindo.raul.virtualclubs.controller;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import galindo.raul.virtualclubs.dtos.*;
 import galindo.raul.virtualclubs.models.entities.User;
-import galindo.raul.virtualclubs.security.JwtUtil;
+import galindo.raul.virtualclubs.security.JwtService;
 import galindo.raul.virtualclubs.services.GoogleAuthService;
 import galindo.raul.virtualclubs.services.RefreshTokenService;
 import galindo.raul.virtualclubs.services.VirtualClubsUsersDetailsService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -34,7 +35,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final VirtualClubsUsersDetailsService userDetailsService;
     private final GoogleAuthService googleAuthService;
-    private final JwtUtil jwtUtil;
+    private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
     // Login user (email + password)
@@ -60,8 +61,8 @@ public class AuthController {
         }
 
         var userDetails = userDetailsService.loadUserByUsername(authRequest.email());
-        String accessToken = jwtUtil.generateToken(userDetails.getUsername());
-        String refreshToken = jwtUtil.generateRefreshToken(userDetails.getUsername());
+        String accessToken = jwtService.generateAccessToken(userDetails.getUsername());
+        String refreshToken = jwtService.generateRefreshToken(userDetails.getUsername());
 
         refreshTokenService.createRefreshToken(userDetails.getUsername(), refreshToken);
 
@@ -117,8 +118,8 @@ public class AuthController {
 
             log.info("✅ User '{}' registered successfully", registerRequest.email());
 
-            String accessToken = jwtUtil.generateToken(newUser.getEmail());
-            String refreshToken = jwtUtil.generateRefreshToken(newUser.getEmail());
+            String accessToken = jwtService.generateAccessToken(newUser.getEmail());
+            String refreshToken = jwtService.generateRefreshToken(newUser.getEmail());
 
             refreshTokenService.createRefreshToken(newUser.getEmail(), refreshToken);
             log.info("🎟️ Tokens generated for new user '{}'", registerRequest.email());
@@ -141,39 +142,28 @@ public class AuthController {
 
     // Refresh token endpoint
     @PostMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestBody RefreshRequest request) {
-        log.info("♻️ Refresh token attempt");
+    public ResponseEntity<ApiResponse<Map<String, String>>> refreshToken(@RequestBody String refreshToken) {
+        log.info("[AUTH] Refresh token request received");
 
-        String refreshToken = request.refreshToken();
-        try {
-            String email = refreshTokenService.getEmailFromRefreshToken(refreshToken);
-            log.info("✅ Refresh token belongs to '{}'", email);
-
-            if (!jwtUtil.validateToken(refreshToken, email)) {
-                log.warn("❌ Refresh token invalid or expired for '{}'", email);
-                throw new RuntimeException("Expired Token");
-            }
-
-            refreshTokenService.deleteByToken(refreshToken);
-
-            String newAccessToken = jwtUtil.generateToken(email);
-            String newRefreshToken = jwtUtil.generateRefreshToken(email);
-            log.info("🎟️ New access token and refresh token generated for '{}'", email);
-
-            return ResponseEntity.ok(
-                    new ApiResponse<>(true, "", ResponseType.NONE,
-                            Map.of(
-                                    "accessToken", newAccessToken,
-                                    "refreshToken", newRefreshToken
-                            )
-                    )
-            );
-        } catch (Exception e) {
-            log.warn("❌ Refresh failed: {}", e.getMessage());
-            return ResponseEntity.status(403).body(
-                    new ApiResponse<>(false, "invalid_or_expired_refresh_session", ResponseType.ERROR, null)
-            );
+        if (!jwtService.isValidRefreshToken(refreshToken)) {
+            log.warn("[AUTH] Invalid or expired refresh token: {}", refreshToken);
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(new ApiResponse<>(false, "invalid_or_expired_refresh_token", ResponseType.ERROR, null));
         }
+
+        String email = refreshTokenService.getEmailFromRefreshToken(refreshToken);
+        String newAccessToken = jwtService.generateAccessToken(email);
+        log.info("[AUTH] New access token generated successfully");
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, "", ResponseType.NONE,
+                        Map.of(
+                                "accessToken", newAccessToken,
+                                "refreshToken", refreshToken
+                        )
+                )
+        );
     }
 
     // Logout endpoint
@@ -216,8 +206,8 @@ public class AuthController {
 
         User user = userDetailsService.registerOrLoadUserWithGoogle(email, name, googleId);
 
-        String accessToken = jwtUtil.generateToken(user.getEmail());
-        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+        String accessToken = jwtService.generateAccessToken(user.getEmail());
+        String refreshToken = jwtService.generateRefreshToken(user.getEmail());
 
         refreshTokenService.createRefreshToken(user.getEmail(), refreshToken);
         log.info("🎟️ Tokens generated and user '{}' logged in with Google", user.getEmail());
