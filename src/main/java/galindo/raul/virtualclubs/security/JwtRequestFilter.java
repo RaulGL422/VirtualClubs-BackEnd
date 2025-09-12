@@ -30,7 +30,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     private static final List<String> PUBLIC_PATHS = List.of(
-            "/api/auth/**",
+            "/api/auth/authenticate",
+            "/api/auth/logout",
+            "/api/auth/register",
+            "/api/auth/refresh",
+            "/api/auth/google",
             "/actuator/health",
             "/actuator/info"
     );
