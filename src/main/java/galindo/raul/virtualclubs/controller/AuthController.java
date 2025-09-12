@@ -50,12 +50,12 @@ public class AuthController {
             log.info("✅ Credentials verified for '{}'", authRequest.email());
         } catch (BadCredentialsException e) {
             log.warn("❌ Invalid credentials for '{}'", authRequest.email());
-            return ResponseEntity.status(401).body(
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
                     new ApiResponse<>(false, "invalid_credentials", ResponseType.ERROR, null)
             );
         } catch (Exception e) {
             log.error("⚠️ Unexpected error during authentication for '{}': {}", authRequest.email(), e.getMessage(), e);
-            return ResponseEntity.status(500).body(
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new ApiResponse<>(false, "internal_error", ResponseType.ERROR, null)
             );
         }
@@ -93,7 +93,7 @@ public class AuthController {
             log.info("✅ User '{}' not found, proceeding with registration", registerRequest.email());
         } catch (Exception e) {
             log.error("⚠️ Unexpected error during user existence check: {}", e.getMessage(), e);
-            return ResponseEntity.status(500).body(
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new ApiResponse<>(false, "internal_error", ResponseType.ERROR, null)
             );
         }
@@ -134,7 +134,7 @@ public class AuthController {
             );
         } catch (Exception e) {
             log.error("❌ Registration failed for user '{}': {}", registerRequest.email(), e.getMessage(), e);
-            return ResponseEntity.status(500).body(
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new ApiResponse<>(false, "internal_error", ResponseType.ERROR, null)
             );
         }
@@ -148,7 +148,7 @@ public class AuthController {
         if (!jwtService.isValidRefreshToken(refreshToken)) {
             log.warn("[AUTH] Invalid or expired refresh token: {}", refreshToken);
             return ResponseEntity
-                    .status(HttpStatus.FORBIDDEN)
+                    .status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse<>(false, "invalid_or_expired_refresh_token", ResponseType.ERROR, null));
         }
 
@@ -178,7 +178,7 @@ public class AuthController {
             );
         } catch (Exception e) {
             log.error("⚠️ Error during logout: {}", e.getMessage(), e);
-            return ResponseEntity.status(500).body(
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new ApiResponse<>(false, "internal_error", ResponseType.ERROR, null)
             );
         }
@@ -195,7 +195,7 @@ public class AuthController {
             payload = googleAuthService.verifyToken(idToken);
         } catch (Exception e) {
             log.warn("❌ Invalid Google ID token: {}", e.getMessage());
-            return ResponseEntity.status(401).body(
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
                     new ApiResponse<>(false, "invalid_google_token", ResponseType.ERROR, null)
             );
         }
