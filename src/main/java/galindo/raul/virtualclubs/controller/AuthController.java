@@ -64,7 +64,7 @@ public class AuthController {
         String accessToken = jwtService.generateAccessToken(userDetails.getUsername());
         String refreshToken = jwtService.generateRefreshToken(userDetails.getUsername());
 
-        refreshTokenService.createRefreshToken(userDetails.getUsername(), refreshToken);
+        refreshTokenService.createOrUpdateRefreshToken(userDetails.getUsername(), refreshToken);
 
         log.info("🎟️ Tokens generated and user '{}' logged in successfully", authRequest.email());
 
@@ -99,14 +99,11 @@ public class AuthController {
         }
 
         try {
-            // Construimos el password hash
             String encodedPassword = passwordEncoder.encode(registerRequest.password());
 
             User newUser = new User();
             newUser.setEmail(registerRequest.email());
             newUser.setRoles(Set.of("ROLE_USER"));
-
-            // Añadimos provider LOCAL con password hash
             newUser.addAuthProvider(
                     galindo.raul.virtualclubs.models.entities.AuthProvider.builder()
                             .providerName("LOCAL")
@@ -121,7 +118,7 @@ public class AuthController {
             String accessToken = jwtService.generateAccessToken(newUser.getEmail());
             String refreshToken = jwtService.generateRefreshToken(newUser.getEmail());
 
-            refreshTokenService.createRefreshToken(newUser.getEmail(), refreshToken);
+            refreshTokenService.createOrUpdateRefreshToken(newUser.getEmail(), refreshToken);
             log.info("🎟️ Tokens generated for new user '{}'", registerRequest.email());
 
             return ResponseEntity.ok(
@@ -209,7 +206,7 @@ public class AuthController {
         String accessToken = jwtService.generateAccessToken(user.getEmail());
         String refreshToken = jwtService.generateRefreshToken(user.getEmail());
 
-        refreshTokenService.createRefreshToken(user.getEmail(), refreshToken);
+        refreshTokenService.createOrUpdateRefreshToken(user.getEmail(), refreshToken);
         log.info("🎟️ Tokens generated and user '{}' logged in with Google", user.getEmail());
 
         return ResponseEntity.ok(

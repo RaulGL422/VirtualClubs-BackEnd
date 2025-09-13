@@ -14,7 +14,7 @@ public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final VirtualClubsUsersDetailsRepository userRepository;
 
-    public void createRefreshToken(String email, String token) {
+    public void createOrUpdateRefreshToken(String email, String token) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -23,6 +23,7 @@ public class RefreshTokenService {
                 .token(token)
                 .build();
 
+        refreshTokenRepository.findByUser(user).ifPresent(refreshTokenRepository::delete);
         refreshTokenRepository.save(refreshToken);
     }
 
