@@ -84,22 +84,6 @@ public class JwtService {
     }
 
     /**
-     * Valida si el token es válido y coincide con el email esperado.
-     * No verifica tipo de token.
-     */
-    public boolean validateToken(String token, String email) {
-        try {
-            String subject = extractEmail(token);
-            boolean isValid = subject != null && subject.equals(email) && !isTokenExpired(token);
-            log.debug("Validación token para {}: {}", email, isValid);
-            return isValid;
-        } catch (Exception e) {
-            log.warn("Error validando token: {}", e.getMessage());
-            return false;
-        }
-    }
-
-    /**
      * Valida un token de acceso: verifica tipo, expiración y firma.
      */
     public boolean isValidAccessToken(String token) {
@@ -118,6 +102,8 @@ public class JwtService {
      */
     private boolean isValidTokenOfType(String token, String expectedType) {
         try {
+            token = token.replace("\"", "");
+
             Claims claims = parseClaims(token);
             String type = claims.get("type", String.class);
             if (!expectedType.equals(type)) {
@@ -152,19 +138,6 @@ public class JwtService {
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-    }
-
-    /**
-     * Chequea si el token ha expirado.
-     */
-    private boolean isTokenExpired(String token) {
-        try {
-            Date expiration = parseClaims(token).getExpiration();
-            return expiration.before(new Date());
-        } catch (JwtException e) {
-            log.warn("Token inválido al chequear expiración: {}", e.getMessage());
-            return true;
-        }
     }
 
     /**

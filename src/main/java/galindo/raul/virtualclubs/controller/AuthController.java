@@ -86,7 +86,7 @@ public class AuthController {
         try {
             userDetailsService.loadUserByUsername(registerRequest.email());
             log.warn("⚠️ Registration failed: user '{}' already exists", registerRequest.email());
-            return ResponseEntity.badRequest().body(
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
                     new ApiResponse<>(false, "user_already_exists", ResponseType.ERROR, null)
             );
         } catch (UsernameNotFoundException ignored) {
@@ -166,10 +166,12 @@ public class AuthController {
     // Logout endpoint
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestBody LogoutRequest request) {
-        String requestToken = request.refreshToken();
+        String refreshToken = request.refreshToken();
         try {
-            refreshTokenService.deleteByToken(requestToken);
-            log.info("👋 User logged out, refresh token invalidated");
+            if (!refreshToken.isBlank()) {
+                refreshTokenService.deleteByToken(refreshToken);
+                log.info("👋 User logged out, refresh token invalidated");
+            }
             return ResponseEntity.ok(
                     new ApiResponse<>(true, "", ResponseType.NONE, null)
             );
