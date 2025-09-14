@@ -139,8 +139,9 @@ public class AuthController {
 
     // Refresh token endpoint
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<Map<String, String>>> refreshToken(@RequestBody String refreshToken) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> refreshToken(@Valid @RequestBody RefreshRequest refreshRequest) {
         log.info("[AUTH] Refresh token request received");
+        String refreshToken = refreshRequest.refreshToken();
 
         if (!jwtService.isValidRefreshToken(refreshToken)) {
             log.warn("[AUTH] Invalid or expired refresh token: {}", refreshToken);
