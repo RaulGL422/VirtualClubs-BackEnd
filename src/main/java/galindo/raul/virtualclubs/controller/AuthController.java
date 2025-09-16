@@ -2,11 +2,11 @@ package galindo.raul.virtualclubs.controller;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import galindo.raul.virtualclubs.dtos.*;
+import galindo.raul.virtualclubs.models.entities.AuthProvider;
 import galindo.raul.virtualclubs.models.entities.User;
+import galindo.raul.virtualclubs.models.enums.TokenType;
 import galindo.raul.virtualclubs.security.JwtService;
-import galindo.raul.virtualclubs.services.GoogleAuthService;
-import galindo.raul.virtualclubs.services.RefreshTokenService;
-import galindo.raul.virtualclubs.services.VirtualClubsUsersDetailsService;
+import galindo.raul.virtualclubs.services.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,11 +17,10 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,6 +36,8 @@ public class AuthController {
     private final GoogleAuthService googleAuthService;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+    private final UserTokenService userTokenService;
+    private final MailerService mailerService;
 
     // Login user (email + password)
     @PostMapping("/authenticate")
@@ -81,9 +82,9 @@ public class AuthController {
     // Register user (local email + password)
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
-        log.info("📝 Registration attempt: email='{}'", registerRequest.email());
-
         String email = registerRequest.email();
+        log.info("📝 Registration attempt: email='{}'", email);
+
         try {
             userDetailsService.loadUserByUsername(email);
             log.warn("⚠️ Registration failed: user '{}' already exists", email);
@@ -106,7 +107,7 @@ public class AuthController {
             newUser.setEmail(email);
             newUser.setRoles(Set.of("ROLE_USER"));
             newUser.addAuthProvider(
-                    galindo.raul.virtualclubs.models.entities.AuthProvider.builder()
+                    AuthProvider.builder()
                             .providerName("LOCAL")
                             .passwordHash(encodedPassword)
                             .build()
@@ -116,10 +117,20 @@ public class AuthController {
 
             log.info("✅ User '{}' registered successfully", email);
 
+            // Crear token de verificación de email
+            String emailToken = userTokenService.createTokenFor(newUser, TokenType.EMAIL_VERIFICATION,
+                    Duration.ofHours(24), "verify-email");
+
+            // Enviar email
+            String verificationUrl = /* construye: app.base-url + "/api/auth/verify?token=" + emailToken */;
+            mailerService.sendSimpleEmail(newUser.getEmail(), "Verifica tu email", "Enlace: " + verificationUrl);
+            log.info("✉️ Verification email sent to '{}'", email);
+
+            // Generar tokens
             String accessToken = jwtService.generateAccessToken(email);
             String refreshToken = jwtService.generateRefreshToken(email);
-
             refreshTokenService.createOrUpdateRefreshToken(email, refreshToken);
+
             log.info("🎟️ Tokens generated for new user '{}'", email);
 
             return ResponseEntity.ok(
@@ -174,9 +185,7 @@ public class AuthController {
                 refreshTokenService.deleteByToken(refreshToken);
                 log.info("👋 User logged out, refresh token invalidated");
             }
-            return ResponseEntity.ok(
-                    new ApiResponse<>(true, "", ResponseType.NONE, null)
-            );
+            return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE, null));
         } catch (Exception e) {
             log.error("⚠️ Error during logout: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
@@ -209,8 +218,8 @@ public class AuthController {
 
         String accessToken = jwtService.generateAccessToken(user.getEmail());
         String refreshToken = jwtService.generateRefreshToken(user.getEmail());
-
         refreshTokenService.createOrUpdateRefreshToken(user.getEmail(), refreshToken);
+
         log.info("🎟️ Tokens generated and user '{}' logged in with Google", user.getEmail());
 
         return ResponseEntity.ok(
@@ -221,5 +230,67 @@ public class AuthController {
                         )
                 )
         );
+    }
+
+    // Request password reset
+    @PostMapping("/request-password-reset")
+    public ResponseEntity<?> requestPasswordReset(@RequestBody RequestPasswordResetRequest req) {
+        var maybeUser = userDetailsService.findByEmailOptional(req.email());
+        if (maybeUser.isEmpty()) {
+            return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE, null));
+        }
+        User user = maybeUser.get();
+        String token = userTokenService.createTokenFor(user, TokenType.PASSWORD_RESET,
+                Duration.ofHours(1), "request-password-reset");
+
+        String resetUrl = /* construye: app.base-url + "/api/auth/reset-password?token=" + token */;
+        mailerService.sendSimpleEmail(user.getEmail(), "Restablecer contraseña", "Enlace: " + resetUrl);
+        log.info("✉️ Password reset email sent to '{}'", user.getEmail());
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE, null));
+    }
+
+    // Reset password
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest req) {
+        var maybeUser = userTokenService.validateAndConsume(req.token(), TokenType.PASSWORD_RESET);
+        if (maybeUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, "invalid_or_expired_token", ResponseType.ERROR, null));
+        }
+        User user = maybeUser.get();
+
+        var localProviderOpt = user.getAuthProviders().stream()
+                .filter(ap -> "LOCAL".equalsIgnoreCase(ap.getProviderName()))
+                .findFirst();
+        if (localProviderOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, "no_local_provider", ResponseType.ERROR, null));
+        }
+        AuthProvider local = localProviderOpt.get();
+        local.setPasswordHash(passwordEncoder.encode(req.newPassword()));
+
+        refreshTokenService.deleteByUserEmail(user.getEmail());
+        userDetailsService.saveUser(user);
+        log.info("🔑 Password reset successfully for '{}'", user.getEmail());
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE, null));
+    }
+
+    // Verify email
+    @GetMapping("/verify")
+    public ResponseEntity<?> verifyEmail(@RequestParam("token") String token) {
+        var maybeUser = userTokenService.validateAndConsume(token, TokenType.EMAIL_VERIFICATION);
+        if (maybeUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(false, "invalid_or_expired_token", ResponseType.ERROR, null));
+        }
+        User user = maybeUser.get();
+        user.setEmailVerified(true);
+        user.setEmailVerifiedAt(Instant.now());
+        userDetailsService.saveUser(user);
+
+        log.info("✅ Email verified for '{}'", user.getEmail());
+        return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE, null));
     }
 }
