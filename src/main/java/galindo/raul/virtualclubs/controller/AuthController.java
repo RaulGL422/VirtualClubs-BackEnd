@@ -83,14 +83,15 @@ public class AuthController {
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
         log.info("📝 Registration attempt: email='{}'", registerRequest.email());
 
+        String email = registerRequest.email();
         try {
-            userDetailsService.loadUserByUsername(registerRequest.email());
-            log.warn("⚠️ Registration failed: user '{}' already exists", registerRequest.email());
+            userDetailsService.loadUserByUsername(email);
+            log.warn("⚠️ Registration failed: user '{}' already exists", email);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
                     new ApiResponse<>(false, "user_already_exists", ResponseType.ERROR, null)
             );
         } catch (UsernameNotFoundException ignored) {
-            log.info("✅ User '{}' not found, proceeding with registration", registerRequest.email());
+            log.info("✅ User '{}' not found, proceeding with registration", email);
         } catch (Exception e) {
             log.error("⚠️ Unexpected error during user existence check: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
@@ -102,7 +103,7 @@ public class AuthController {
             String encodedPassword = passwordEncoder.encode(registerRequest.password());
 
             User newUser = new User();
-            newUser.setEmail(registerRequest.email());
+            newUser.setEmail(email);
             newUser.setRoles(Set.of("ROLE_USER"));
             newUser.addAuthProvider(
                     galindo.raul.virtualclubs.models.entities.AuthProvider.builder()
@@ -113,13 +114,13 @@ public class AuthController {
 
             userDetailsService.saveUser(newUser);
 
-            log.info("✅ User '{}' registered successfully", registerRequest.email());
+            log.info("✅ User '{}' registered successfully", email);
 
-            String accessToken = jwtService.generateAccessToken(newUser.getEmail());
-            String refreshToken = jwtService.generateRefreshToken(newUser.getEmail());
+            String accessToken = jwtService.generateAccessToken(email);
+            String refreshToken = jwtService.generateRefreshToken(email);
 
-            refreshTokenService.createOrUpdateRefreshToken(newUser.getEmail(), refreshToken);
-            log.info("🎟️ Tokens generated for new user '{}'", registerRequest.email());
+            refreshTokenService.createOrUpdateRefreshToken(email, refreshToken);
+            log.info("🎟️ Tokens generated for new user '{}'", email);
 
             return ResponseEntity.ok(
                     new ApiResponse<>(true, "", ResponseType.NONE,
@@ -130,7 +131,7 @@ public class AuthController {
                     )
             );
         } catch (Exception e) {
-            log.error("❌ Registration failed for user '{}': {}", registerRequest.email(), e.getMessage(), e);
+            log.error("❌ Registration failed for user '{}': {}", email, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new ApiResponse<>(false, "internal_error", ResponseType.ERROR, null)
             );
@@ -186,7 +187,7 @@ public class AuthController {
 
     // Login or register with Google
     @PostMapping("/google")
-    public ResponseEntity<?> google(@RequestBody GoogleAuthRequest request) {
+    public ResponseEntity<?> google(@Valid @RequestBody GoogleAuthRequest request) {
         String idToken = request.idToken();
         log.info("🔵 Google login attempt");
 
