@@ -21,7 +21,6 @@ public class UserTokenService {
 
     @Transactional
     public String createTokenFor(User user, TokenType type, Duration validFor, String meta) {
-        // invalidar tokens previos del mismo tipo (opcional)
         tokenRepository.deleteAllByUserAndType(user, type);
 
         String token = TokenUtils.generateTokenString(32);

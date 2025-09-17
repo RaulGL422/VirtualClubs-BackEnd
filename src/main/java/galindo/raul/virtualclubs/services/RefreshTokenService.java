@@ -32,6 +32,11 @@ public class RefreshTokenService {
                 .ifPresent(refreshTokenRepository::delete);
     }
 
+    public void deleteByUser(User user) {
+        refreshTokenRepository.findByUser(user)
+                .ifPresent(refreshTokenRepository::delete);
+    }
+
     public String getEmailFromRefreshToken(String token) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(token)
                 .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
