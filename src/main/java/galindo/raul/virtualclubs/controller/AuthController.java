@@ -39,47 +39,44 @@ public class AuthController {
     private final UserTokenService userTokenService;
     private final MailerService mailerService;
 
-    // Login user (email + password)
+    // -----------------------------
+    // LOGIN (local)
+    // -----------------------------
     @PostMapping("/authenticate")
     public ResponseEntity<?> authenticate(@RequestBody AuthRequest authRequest) {
-        log.info("🔑 Login attempt: email='{}'", authRequest.email());
+        String email = authRequest.email();
+        log.info("🔑 Login attempt: email='{}'", email);
 
         try {
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authRequest.email(), authRequest.password())
+                    new UsernamePasswordAuthenticationToken(email, authRequest.password())
             );
-            log.info("✅ Credentials verified for '{}'", authRequest.email());
+            log.info("✅ Credentials verified for '{}'", email);
         } catch (BadCredentialsException e) {
-            log.warn("❌ Invalid credentials for '{}'", authRequest.email());
+            log.warn("❌ Invalid credentials for '{}'", email);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
                     new ApiResponse<>(false, "invalid_credentials", ResponseType.ERROR, null)
             );
         } catch (Exception e) {
-            log.error("⚠️ Unexpected error during authentication for '{}': {}", authRequest.email(), e.getMessage(), e);
+            log.error("⚠️ Unexpected error during authentication for '{}': {}", email, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new ApiResponse<>(false, "internal_error", ResponseType.ERROR, null)
             );
         }
 
-        var userDetails = userDetailsService.loadUserByUsername(authRequest.email());
-        String accessToken = jwtService.generateAccessToken(userDetails.getUsername());
-        String refreshToken = jwtService.generateRefreshToken(userDetails.getUsername());
+        String accessToken = jwtService.generateAccessToken(email);
+        String refreshToken = jwtService.generateRefreshToken(email);
+        refreshTokenService.createOrUpdateRefreshToken(email, refreshToken);
 
-        refreshTokenService.createOrUpdateRefreshToken(userDetails.getUsername(), refreshToken);
+        log.info("🎟️ Tokens generated and user '{}' logged in successfully", email);
 
-        log.info("🎟️ Tokens generated and user '{}' logged in successfully", authRequest.email());
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(true, "", ResponseType.NONE,
-                        Map.of(
-                                "accessToken", accessToken,
-                                "refreshToken", refreshToken
-                        )
-                )
-        );
+        return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE,
+                Map.of("accessToken", accessToken, "refreshToken", refreshToken)));
     }
 
-    // Register user (local email + password)
+    // -----------------------------
+    // REGISTER (local)
+    // -----------------------------
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
         String email = registerRequest.email();
@@ -94,89 +91,59 @@ public class AuthController {
         } catch (UsernameNotFoundException ignored) {
             log.info("✅ User '{}' not found, proceeding with registration", email);
         } catch (Exception e) {
-            log.error("⚠️ Unexpected error during user existence check: {}", e.getMessage(), e);
+            log.error("⚠️ Error checking existence of '{}': {}", email, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new ApiResponse<>(false, "internal_error", ResponseType.ERROR, null)
             );
         }
 
         try {
+            // Crear usuario
             String encodedPassword = passwordEncoder.encode(registerRequest.password());
-
             User newUser = new User();
             newUser.setEmail(email);
             newUser.setRoles(Set.of("ROLE_USER"));
-            newUser.addAuthProvider(
-                    AuthProvider.builder()
-                            .providerName("LOCAL")
-                            .passwordHash(encodedPassword)
-                            .build()
+            newUser.addAuthProvider(AuthProvider.builder()
+                    .providerName("LOCAL")
+                    .passwordHash(encodedPassword)
+                    .build()
             );
-
             userDetailsService.saveUser(newUser);
 
-            log.info("✅ User '{}' registered successfully", email);
-
-            // Crear token de verificación de email
-            String emailToken = userTokenService.createTokenFor(newUser, TokenType.EMAIL_VERIFICATION,
-                    Duration.ofHours(24), "verify-email");
-
-            // Enviar email
-            String verificationUrl = /* construye: app.base-url + "/api/auth/verify?token=" + emailToken */;
-            mailerService.sendSimpleEmail(newUser.getEmail(), "Verifica tu email", "Enlace: " + verificationUrl);
-            log.info("✉️ Verification email sent to '{}'", email);
-
-            // Generar tokens
-            String accessToken = jwtService.generateAccessToken(email);
-            String refreshToken = jwtService.generateRefreshToken(email);
-            refreshTokenService.createOrUpdateRefreshToken(email, refreshToken);
-
-            log.info("🎟️ Tokens generated for new user '{}'", email);
-
-            return ResponseEntity.ok(
-                    new ApiResponse<>(true, "", ResponseType.NONE,
-                            Map.of(
-                                    "accessToken", accessToken,
-                                    "refreshToken", refreshToken
-                            )
-                    )
-            );
+            return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE, null));
         } catch (Exception e) {
-            log.error("❌ Registration failed for user '{}': {}", email, e.getMessage(), e);
+            log.error("❌ Registration failed for '{}': {}", email, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
                     new ApiResponse<>(false, "internal_error", ResponseType.ERROR, null)
             );
         }
     }
 
-    // Refresh token endpoint
+    // -----------------------------
+    // REFRESH TOKEN
+    // -----------------------------
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<Map<String, String>>> refreshToken(@Valid @RequestBody RefreshRequest refreshRequest) {
-        log.info("[AUTH] Refresh token request received");
         String refreshToken = refreshRequest.refreshToken();
+        log.info("🔄 Refresh token request");
 
         if (!jwtService.isValidRefreshToken(refreshToken)) {
-            log.warn("[AUTH] Invalid or expired refresh token: {}", refreshToken);
-            return ResponseEntity
-                    .status(HttpStatus.UNAUTHORIZED)
+            log.warn("❌ Invalid or expired refresh token");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse<>(false, "invalid_or_expired_refresh_token", ResponseType.ERROR, null));
         }
 
         String email = refreshTokenService.getEmailFromRefreshToken(refreshToken);
         String newAccessToken = jwtService.generateAccessToken(email);
-        log.info("[AUTH] New access token generated successfully");
+        log.info("✅ New access token issued for '{}'", email);
 
-        return ResponseEntity.ok(
-                new ApiResponse<>(true, "", ResponseType.NONE,
-                        Map.of(
-                                "accessToken", newAccessToken,
-                                "refreshToken", refreshToken
-                        )
-                )
-        );
+        return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE,
+                Map.of("accessToken", newAccessToken, "refreshToken", refreshToken)));
     }
 
-    // Logout endpoint
+    // -----------------------------
+    // LOGOUT
+    // -----------------------------
     @PostMapping("/logout")
     public ResponseEntity<?> logout(@RequestBody LogoutRequest request) {
         String refreshToken = request.refreshToken();
@@ -194,15 +161,16 @@ public class AuthController {
         }
     }
 
-    // Login or register with Google
+    // -----------------------------
+    // LOGIN / REGISTER WITH GOOGLE
+    // -----------------------------
     @PostMapping("/google")
     public ResponseEntity<?> google(@Valid @RequestBody GoogleAuthRequest request) {
-        String idToken = request.idToken();
         log.info("🔵 Google login attempt");
 
         GoogleIdToken.Payload payload;
         try {
-            payload = googleAuthService.verifyToken(idToken);
+            payload = googleAuthService.verifyToken(request.idToken());
         } catch (Exception e) {
             log.warn("❌ Invalid Google ID token: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
@@ -222,69 +190,74 @@ public class AuthController {
 
         log.info("🎟️ Tokens generated and user '{}' logged in with Google", user.getEmail());
 
-        return ResponseEntity.ok(
-                new ApiResponse<>(true, "", ResponseType.NONE,
-                        Map.of(
-                                "accessToken", accessToken,
-                                "refreshToken", refreshToken
-                        )
-                )
-        );
+        return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE,
+                Map.of("accessToken", accessToken, "refreshToken", refreshToken)));
     }
 
-    // Request password reset
+    // -----------------------------
+    // REQUEST PASSWORD RESET
+    // -----------------------------
     @PostMapping("/request-password-reset")
     public ResponseEntity<?> requestPasswordReset(@RequestBody RequestPasswordResetRequest req) {
         var maybeUser = userDetailsService.findByEmailOptional(req.email());
         if (maybeUser.isEmpty()) {
+            log.info("ℹ️ Password reset requested for non-existing email (ignored): '{}'", req.email());
             return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE, null));
         }
+
         User user = maybeUser.get();
         String token = userTokenService.createTokenFor(user, TokenType.PASSWORD_RESET,
-                Duration.ofHours(1), "request-password-reset");
-
-        String resetUrl = /* construye: app.base-url + "/api/auth/reset-password?token=" + token */;
+                Duration.ofMinutes(5), "request-password-reset");
+        String resetUrl = "https://your-app.com/api/auth/reset-password?token=" + token;
         mailerService.sendSimpleEmail(user.getEmail(), "Restablecer contraseña", "Enlace: " + resetUrl);
-        log.info("✉️ Password reset email sent to '{}'", user.getEmail());
 
+        log.info("✉️ Password reset email sent to '{}'", user.getEmail());
         return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE, null));
     }
 
-    // Reset password
+    // -----------------------------
+    // RESET PASSWORD
+    // -----------------------------
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest req) {
         var maybeUser = userTokenService.validateAndConsume(req.token(), TokenType.PASSWORD_RESET);
         if (maybeUser.isEmpty()) {
+            log.warn("❌ Invalid or expired password reset token");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse<>(false, "invalid_or_expired_token", ResponseType.ERROR, null));
         }
-        User user = maybeUser.get();
 
+        User user = maybeUser.get();
         var localProviderOpt = user.getAuthProviders().stream()
                 .filter(ap -> "LOCAL".equalsIgnoreCase(ap.getProviderName()))
                 .findFirst();
+
         if (localProviderOpt.isEmpty()) {
+            log.warn("⚠️ User '{}' requested password reset but has no LOCAL provider", user.getEmail());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse<>(false, "no_local_provider", ResponseType.ERROR, null));
         }
-        AuthProvider local = localProviderOpt.get();
-        local.setPasswordHash(passwordEncoder.encode(req.newPassword()));
 
-        refreshTokenService.deleteByUserEmail(user.getEmail());
+        localProviderOpt.get().setPasswordHash(passwordEncoder.encode(req.newPassword()));
+        refreshTokenService.deleteByUser(user);
         userDetailsService.saveUser(user);
-        log.info("🔑 Password reset successfully for '{}'", user.getEmail());
 
+        log.info("🔑 Password reset successfully for '{}'", user.getEmail());
         return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE, null));
     }
 
-    // Verify email
+    // -----------------------------
+    // VERIFY EMAIL
+    // -----------------------------
     @GetMapping("/verify")
     public ResponseEntity<?> verifyEmail(@RequestParam("token") String token) {
         var maybeUser = userTokenService.validateAndConsume(token, TokenType.EMAIL_VERIFICATION);
         if (maybeUser.isEmpty()) {
+            log.warn("❌ Invalid or expired email verification token");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse<>(false, "invalid_or_expired_token", ResponseType.ERROR, null));
         }
+
         User user = maybeUser.get();
         user.setEmailVerified(true);
         user.setEmailVerifiedAt(Instant.now());

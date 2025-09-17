@@ -3,6 +3,8 @@ package galindo.raul.virtualclubs.services;
 import galindo.raul.virtualclubs.models.entities.AuthProvider;
 import galindo.raul.virtualclubs.models.entities.User;
 import galindo.raul.virtualclubs.repositories.VirtualClubsUsersDetailsRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,39 +14,32 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class VirtualClubsUsersDetailsService implements UserDetailsService {
 
     private final VirtualClubsUsersDetailsRepository userRepository;
-
-    public VirtualClubsUsersDetailsService(VirtualClubsUsersDetailsRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException(STR."User not found: \{email}"));
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
 
         Set<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> {
-                    // Asegura prefijo ROLE_
                     if (!role.startsWith("ROLE_")) {
-                        return new SimpleGrantedAuthority(STR."ROLE_\{role.toUpperCase()}");
+                        return new SimpleGrantedAuthority("ROLE_" + role.toUpperCase());
                     } else {
                         return new SimpleGrantedAuthority(role.toUpperCase());
                     }
                 })
                 .collect(Collectors.toSet());
 
-        // Aquí usamos la contraseña del proveedor LOCAL si existe, si no, cadena vacía
         String password = user.getAuthProviders().stream()
                 .filter(ap -> "LOCAL".equalsIgnoreCase(ap.getProviderName()))
                 .findFirst()
@@ -60,36 +55,68 @@ public class VirtualClubsUsersDetailsService implements UserDetailsService {
 
     @Transactional
     public User registerOrLoadUserWithGoogle(String email, String name, String googleId) {
-        // 1. Buscar usuario con Google providerId o email
-        Optional<User> existingUserOpt = userRepository.findByProvider(
-                "GOOGLE", googleId, email);
+        log.info("🔵 Processing Google login/register for email='{}'", email);
 
-        if (existingUserOpt.isPresent()) {
-            // Usuario encontrado (login)
-            return existingUserOpt.get();
+        // 1. Buscar usuario con Google provider
+        Optional<User> googleUserOpt = userRepository.findByProvider("GOOGLE", googleId, email);
+        if (googleUserOpt.isPresent()) {
+            log.info("✅ Found existing Google user '{}'", email);
+            return googleUserOpt.get();
         }
 
-        // 2. No existe usuario, crear nuevo
-        User newUser = User.builder()
-                .email(email)
-                .name(name)
-                .roles(new HashSet<>(List.of("ROLE_USER")))
-                .createdAt(Instant.now())
-                .build();
+        // 2. Buscar usuario con LOCAL
+        Optional<User> localUserOpt = userRepository.findByEmail(email);
+        if (localUserOpt.isPresent()) {
+            User localUser = localUserOpt.get();
+            if (localUser.isEmailVerified()) {
+                log.info("🔗 Linking Google provider to existing verified LOCAL account '{}'", email);
+                addGoogleProvider(localUser, googleId);
+                return userRepository.save(localUser);
+            } else {
+                log.warn("⚠️ Local account '{}' is unverified, deleting and creating Google account", email);
+                userRepository.delete(localUser);
+            }
+        }
 
-        AuthProvider googleProvider = AuthProvider.builder()
-                .providerName("GOOGLE")
-                .providerUserId(googleId)
-                .user(newUser)
-                .build();
-
-        newUser.getAuthProviders().add(googleProvider);
-
+        // 3. Crear nuevo usuario con Google
+        log.info("🆕 Creating new user with Google account '{}'", email);
+        User newUser = createGoogleUser(email, name, googleId);
         return userRepository.save(newUser);
     }
 
     @Transactional
     public void saveUser(User user) {
         userRepository.save(user);
+    }
+
+    // -------------------------------
+    // Métodos auxiliares
+    // -------------------------------
+
+    private void addGoogleProvider(User user, String googleId) {
+        AuthProvider googleProvider = AuthProvider.builder()
+                .providerName("GOOGLE")
+                .providerUserId(googleId)
+                .user(user)
+                .build();
+        user.addAuthProvider(googleProvider);
+    }
+
+    public Optional<User> findByEmailOptional(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+    private User createGoogleUser(String email, String name, String googleId) {
+        User user = User.builder()
+                .email(email)
+                .name(name)
+                .roles(new HashSet<>(List.of("ROLE_USER")))
+                .createdAt(Instant.now())
+                .emailVerified(true) // Google ya valida el correo
+                .emailVerifiedAt(Instant.now())
+                .build();
+
+        addGoogleProvider(user, googleId);
+        return user;
     }
 }
