@@ -208,8 +208,9 @@ public class AuthController {
         User user = maybeUser.get();
         String token = userTokenService.createTokenFor(user, TokenType.PASSWORD_RESET,
                 Duration.ofMinutes(5), "request-password-reset");
-        String resetUrl = "https://your-app.com/api/auth/reset-password?token=" + token;
-        mailerService.sendSimpleEmail(user.getEmail(), "Restablecer contraseña", "Enlace: " + resetUrl);
+
+        String emailContent = mailerService.generatePasswordResetEmail(user.getName() != null ? user.getName() : user.getEmail(), token);
+        mailerService.sendHtmlEmail(user.getEmail(), "Reset VirtualClubs Password", emailContent);
 
         log.info("✉️ Password reset email sent to '{}'", user.getEmail());
         return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE, null));
