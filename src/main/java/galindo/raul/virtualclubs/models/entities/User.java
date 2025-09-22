@@ -43,6 +43,10 @@ public class User {
     @Column(name = "role")
     @Builder.Default
     private Set<String> roles = new HashSet<>();
+ 
+		@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+		@Builder.Default
+		private Set<UserToken> authTokens = new HashSet<>();
 
     public void addAuthProvider(AuthProvider authProvider) {
         authProviders.add(authProvider);
