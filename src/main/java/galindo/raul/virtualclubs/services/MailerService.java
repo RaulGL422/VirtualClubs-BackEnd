@@ -39,7 +39,7 @@ public class MailerService {
     }
 
     public String generatePasswordResetEmail(String name, String token) {
-        String resetUrl = String.format("https://%s/api/auth/reset-password?token=%s", baseUrl, token);
+        String resetUrl = String.format("%s/api/auth/reset-password?token=%s", baseUrl, token);
 
         Context context = new Context();
         context.setVariable("name", name);
