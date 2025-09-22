@@ -1,4 +1,4 @@
-package galindo.raul.virtualclubs.util;
+package galindo.raul.virtualclubs.utils;
 
 import java.security.MessageDigest;
 import java.security.SecureRandom;
