@@ -75,6 +75,7 @@ public class VirtualClubsUsersDetailsService implements UserDetailsService {
             } else {
                 log.warn("⚠️ Local account '{}' is unverified, deleting and creating Google account", email);
                 userRepository.delete(localUser);
+								userRepository.flush();
             }
         }
 
