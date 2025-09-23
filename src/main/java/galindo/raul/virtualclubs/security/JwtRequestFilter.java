@@ -37,7 +37,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             "/api/auth/request-password-reset",
             "/api/auth/google",
             "/actuator/health",
-            "/actuator/info"
+            "/actuator/info",
+            "/"
     );
 
     @Override
