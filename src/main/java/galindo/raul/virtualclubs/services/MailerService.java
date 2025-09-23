@@ -24,7 +24,7 @@ public class MailerService {
         try {
             // Crear el mensaje MIME para correos HTML
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
             helper.setSubject(subject);
@@ -39,7 +39,7 @@ public class MailerService {
     }
 
     public String generatePasswordResetEmail(String name, String token) {
-        String resetUrl = String.format("%s://reset-password?token=%s", baseUrl, token);
+        String resetUrl = String.format("%s/api/auth/reset-password-redirect?token=%s", baseUrl, token);
 
         Context context = new Context();
         context.setVariable("name", name);
