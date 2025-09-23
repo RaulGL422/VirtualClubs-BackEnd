@@ -21,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
@@ -220,7 +222,8 @@ public class AuthController {
 
     @GetMapping("/reset-password-redirect")
     public void redirectResetPassword(@RequestParam String token, HttpServletResponse response) throws IOException {
-        String deeplink = "virtualclubs://pass/reset-password?token=" + token;
+        String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8);
+        String deeplink = "virtualclubs://pass/reset-password?token=" + encodedToken;
         log.info("✉️ Password Reset Redirecting to '{}'", deeplink);
         response.sendRedirect(deeplink);
     }
