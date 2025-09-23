@@ -220,7 +220,7 @@ public class AuthController {
 
     @GetMapping("/reset-password-redirect")
     public void redirectResetPassword(@RequestParam String token, HttpServletResponse response) throws IOException {
-        String deeplink = "virtualclubs://reset-password?token=" + token;
+        String deeplink = "virtualclubs://pass/reset-password?token=" + token;
         response.sendRedirect(deeplink);
     }
 
