@@ -7,6 +7,7 @@ import galindo.raul.virtualclubs.models.entities.User;
 import galindo.raul.virtualclubs.models.enums.TokenType;
 import galindo.raul.virtualclubs.security.JwtService;
 import galindo.raul.virtualclubs.services.*;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
@@ -214,6 +216,12 @@ public class AuthController {
 
         log.info("✉️ Password reset email sent to '{}'", user.getEmail());
         return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE, null));
+    }
+
+    @GetMapping("/reset-password-redirect")
+    public void redirectResetPassword(@RequestParam String token, HttpServletResponse response) throws IOException {
+        String deeplink = "virtualclubs://reset-password?token=" + token;
+        response.sendRedirect(deeplink);
     }
 
     // -----------------------------
