@@ -1,43 +1,62 @@
 package galindo.raul.virtualclubs.services;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.Response;
+import com.sendgrid.SendGrid;
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Email;
+import galindo.raul.virtualclubs.models.exceptions.MailSendException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
 public class MailerService {
 
-    private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
+
+    @Value("${spring.mail.from}")
+    private String fromEmail;
+
+    @Value("${app.mail.sendGridApiKey}")
+    private String sendGridApiKey;
 
     @Value("${app.deeplink-url}")
     private String baseUrl;
 
-    public void sendHtmlEmail(String to, String subject, String body) {
+    @Async
+    public void sendHtmlEmail(String to, String subject, String htmlBody) {
+        Email from = new Email(fromEmail);
+        Email recipient = new Email(to);
+        Content content = new Content("text/html", htmlBody);
+        Mail mail = new Mail(from, subject, recipient, content);
+
+        SendGrid sg = new SendGrid(sendGridApiKey);
+        Request request = new Request();
+
         try {
-            // Crear el mensaje MIME para correos HTML
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            Response response = sg.api(request);
 
-            helper.setTo(to);
-            helper.setSubject(subject);
-
-            helper.setText(body, true);
-
-            // Enviar el correo
-            mailSender.send(message);
-        } catch (MessagingException e) {
-            throw new RuntimeException(e.getMessage());
+            if (response.getStatusCode() >= 400) {
+                throw new MailSendException(response.getBody());
+            }
+        } catch (IOException e) {
+            throw new MailSendException("Failed to send email: " + e.getMessage());
         }
     }
 
+    // --- Generate HTML content from Thymeleaf template ---
     public String generatePasswordResetEmail(String name, String token) {
         String resetUrl = String.format("%s/api/auth/reset-password-redirect?token=%s", baseUrl, token);
 
@@ -45,7 +64,6 @@ public class MailerService {
         context.setVariable("name", name);
         context.setVariable("resetUrl", resetUrl);
 
-        // Procesar la plantilla y devolver el contenido generado
         return templateEngine.process("password-reset-email", context);
     }
 }

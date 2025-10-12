@@ -5,6 +5,7 @@ import galindo.raul.virtualclubs.dtos.*;
 import galindo.raul.virtualclubs.models.entities.AuthProvider;
 import galindo.raul.virtualclubs.models.entities.User;
 import galindo.raul.virtualclubs.models.enums.TokenType;
+import galindo.raul.virtualclubs.models.exceptions.MailSendException;
 import galindo.raul.virtualclubs.security.JwtService;
 import galindo.raul.virtualclubs.services.*;
 import jakarta.servlet.http.HttpServletResponse;
@@ -43,11 +44,16 @@ public class AuthController {
     private final UserTokenService userTokenService;
     private final MailerService mailerService;
 
+    private static final String INTERNALERROR = "internal_error";
+    private static final String REFRESHTOKEN = "accessToken";
+    private static final String ACCESSTOKEN = "refreshToken";
+
+
     // -----------------------------
     // LOGIN (local)
     // -----------------------------
     @PostMapping("/authenticate")
-    public ResponseEntity<?> authenticate(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> authenticate(@RequestBody AuthRequest authRequest) {
         String email = authRequest.email();
         log.info("🔑 Login attempt: email='{}'", email);
 
@@ -64,7 +70,7 @@ public class AuthController {
         } catch (Exception e) {
             log.error("⚠️ Unexpected error during authentication for '{}': {}", email, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ApiResponse<>(false, "internal_error", ResponseType.ERROR, null)
+                    new ApiResponse<>(false, INTERNALERROR, ResponseType.ERROR, null)
             );
         }
 
@@ -75,14 +81,14 @@ public class AuthController {
         log.info("🎟️ Tokens generated and user '{}' logged in successfully", email);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE,
-                Map.of("accessToken", accessToken, "refreshToken", refreshToken)));
+                Map.of(ACCESSTOKEN, accessToken, REFRESHTOKEN, refreshToken)));
     }
 
     // -----------------------------
     // REGISTER (local)
     // -----------------------------
     @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> register(@Valid @RequestBody RegisterRequest registerRequest) {
         String email = registerRequest.email();
         log.info("📝 Registration attempt: email='{}'", email);
 
@@ -97,7 +103,7 @@ public class AuthController {
         } catch (Exception e) {
             log.error("⚠️ Error checking existence of '{}': {}", email, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ApiResponse<>(false, "internal_error", ResponseType.ERROR, null)
+                    new ApiResponse<>(false, INTERNALERROR, ResponseType.ERROR, null)
             );
         }
 
@@ -118,7 +124,7 @@ public class AuthController {
         } catch (Exception e) {
             log.error("❌ Registration failed for '{}': {}", email, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ApiResponse<>(false, "internal_error", ResponseType.ERROR, null)
+                    new ApiResponse<>(false, INTERNALERROR, ResponseType.ERROR, null)
             );
         }
     }
@@ -142,14 +148,14 @@ public class AuthController {
         log.info("✅ New access token issued for '{}'", email);
 
         return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE,
-                Map.of("accessToken", newAccessToken, "refreshToken", refreshToken)));
+                Map.of(ACCESSTOKEN, newAccessToken, REFRESHTOKEN, refreshToken)));
     }
 
     // -----------------------------
     // LOGOUT
     // -----------------------------
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(@RequestBody LogoutRequest request) {
+    public ResponseEntity<ApiResponse<Void>> logout(@RequestBody LogoutRequest request) {
         String refreshToken = request.refreshToken();
         try {
             if (!refreshToken.isBlank()) {
@@ -160,7 +166,7 @@ public class AuthController {
         } catch (Exception e) {
             log.error("⚠️ Error during logout: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    new ApiResponse<>(false, "internal_error", ResponseType.ERROR, null)
+                    new ApiResponse<>(false, INTERNALERROR, ResponseType.ERROR, null)
             );
         }
     }
@@ -169,7 +175,7 @@ public class AuthController {
     // LOGIN / REGISTER WITH GOOGLE
     // -----------------------------
     @PostMapping("/google")
-    public ResponseEntity<?> google(@Valid @RequestBody GoogleAuthRequest request) {
+    public ResponseEntity<ApiResponse<Map<String, String>>> google(@Valid @RequestBody GoogleAuthRequest request) {
         log.info("🔵 Google login attempt");
 
         GoogleIdToken.Payload payload;
@@ -195,14 +201,14 @@ public class AuthController {
         log.info("🎟️ Tokens generated and user '{}' logged in with Google", user.getEmail());
 
         return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE,
-                Map.of("accessToken", accessToken, "refreshToken", refreshToken)));
+                Map.of(ACCESSTOKEN, accessToken, REFRESHTOKEN, refreshToken)));
     }
 
     // -----------------------------
     // REQUEST PASSWORD RESET
     // -----------------------------
     @PostMapping("/request-password-reset")
-    public ResponseEntity<?> requestPasswordReset(@RequestBody RequestPasswordResetRequest req) {
+    public ResponseEntity<ApiResponse<Void>> requestPasswordReset(@RequestBody RequestPasswordResetRequest req) {
         var maybeUser = userDetailsService.findByEmailOptional(req.email());
         if (maybeUser.isEmpty()) {
             log.info("ℹ️ Password reset requested for non-existing email (ignored): '{}'", req.email());
@@ -214,7 +220,15 @@ public class AuthController {
                 Duration.ofMinutes(5), "request-password-reset");
 
         String emailContent = mailerService.generatePasswordResetEmail(user.getName() != null ? user.getName() : user.getEmail(), token);
-        mailerService.sendHtmlEmail(user.getEmail(), "Reset VirtualClubs Password", emailContent);
+        try {
+            mailerService.sendHtmlEmail(user.getEmail(), "Reset VirtualClubs Password", emailContent);
+        } catch (MailSendException e) {
+            log.error("❌ Failed to send mail: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    new ApiResponse<>(false, INTERNALERROR, ResponseType.ERROR, null)
+            );
+        }
+
 
         log.info("✉️ Password reset email sent to '{}'", user.getEmail());
         return ResponseEntity.ok(new ApiResponse<>(true, "", ResponseType.NONE, null));
@@ -232,7 +246,7 @@ public class AuthController {
     // RESET PASSWORD
     // -----------------------------
     @PostMapping("/reset-password")
-    public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest req) {
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestBody ResetPasswordRequest req) {
         var maybeUser = userTokenService.validateAndConsume(req.token(), TokenType.PASSWORD_RESET);
         if (maybeUser.isEmpty()) {
             log.warn("❌ Invalid or expired password reset token");
@@ -263,7 +277,7 @@ public class AuthController {
     // VERIFY EMAIL
     // -----------------------------
     @GetMapping("/verify")
-    public ResponseEntity<?> verifyEmail(@RequestParam("token") String token) {
+    public ResponseEntity<ApiResponse<Void>> verifyEmail(@RequestParam("token") String token) {
         var maybeUser = userTokenService.validateAndConsume(token, TokenType.EMAIL_VERIFICATION);
         if (maybeUser.isEmpty()) {
             log.warn("❌ Invalid or expired email verification token");

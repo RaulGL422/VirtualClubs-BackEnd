@@ -3,6 +3,7 @@ package galindo.raul.virtualclubs.models.entities;
 import galindo.raul.virtualclubs.models.enums.TokenType;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.Instant;
 
 @Entity
