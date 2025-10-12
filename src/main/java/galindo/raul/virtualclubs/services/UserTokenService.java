@@ -1,9 +1,9 @@
 package galindo.raul.virtualclubs.services;
 
-import galindo.raul.virtualclubs.repositories.UserTokenRepository;
-import galindo.raul.virtualclubs.models.enums.TokenType;
 import galindo.raul.virtualclubs.models.entities.User;
 import galindo.raul.virtualclubs.models.entities.UserToken;
+import galindo.raul.virtualclubs.models.enums.TokenType;
+import galindo.raul.virtualclubs.repositories.UserTokenRepository;
 import galindo.raul.virtualclubs.utils.TokenUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
