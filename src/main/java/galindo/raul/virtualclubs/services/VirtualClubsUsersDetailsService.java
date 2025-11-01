@@ -2,6 +2,7 @@ package galindo.raul.virtualclubs.services;
 
 import galindo.raul.virtualclubs.models.entities.AuthProvider;
 import galindo.raul.virtualclubs.models.entities.User;
+import galindo.raul.virtualclubs.models.exceptions.EmailNotFoundException;
 import galindo.raul.virtualclubs.repositories.VirtualClubsUsersDetailsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,7 @@ public class VirtualClubsUsersDetailsService implements UserDetailsService {
     @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + email));
+                .orElseThrow(() -> new EmailNotFoundException(email));
 
         Set<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> {
@@ -54,6 +55,10 @@ public class VirtualClubsUsersDetailsService implements UserDetailsService {
                 password,
                 authorities
         );
+    }
+    
+    public boolean userExists(String email) {
+        return userRepository.findByEmail(email).isPresent();
     }
 
     @Transactional
@@ -116,7 +121,7 @@ public class VirtualClubsUsersDetailsService implements UserDetailsService {
                 .name(name)
                 .roles(new HashSet<>(List.of("ROLE_USER")))
                 .createdAt(Instant.now())
-                .emailVerified(true) // Google ya valida el correo
+                .emailVerified(true)
                 .emailVerifiedAt(Instant.now())
                 .build();
 

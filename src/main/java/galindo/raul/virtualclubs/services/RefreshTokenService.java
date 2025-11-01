@@ -2,6 +2,8 @@ package galindo.raul.virtualclubs.services;
 
 import galindo.raul.virtualclubs.models.entities.RefreshToken;
 import galindo.raul.virtualclubs.models.entities.User;
+import galindo.raul.virtualclubs.models.exceptions.EmailNotFoundException;
+import galindo.raul.virtualclubs.models.exceptions.RefreshTokenException;
 import galindo.raul.virtualclubs.repositories.RefreshTokenRepository;
 import galindo.raul.virtualclubs.repositories.VirtualClubsUsersDetailsRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +18,7 @@ public class RefreshTokenService {
 
     public void createOrUpdateRefreshToken(String email, String token) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new EmailNotFoundException(email));
 
         RefreshToken refreshToken = RefreshToken.builder()
                 .user(user)
@@ -39,7 +41,7 @@ public class RefreshTokenService {
 
     public String getEmailFromRefreshToken(String token) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+                .orElseThrow(RefreshTokenException::new);
         return refreshToken.getUser().getEmail();
     }
 }

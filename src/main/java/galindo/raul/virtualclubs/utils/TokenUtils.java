@@ -1,5 +1,7 @@
 package galindo.raul.virtualclubs.utils;
 
+import galindo.raul.virtualclubs.models.exceptions.InternalErrorException;
+
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
@@ -26,7 +28,7 @@ public final class TokenUtils {
             }
             return sb.toString();
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new InternalErrorException(e.getMessage());
         }
     }
 }
