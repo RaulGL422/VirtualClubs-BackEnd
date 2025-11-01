@@ -16,6 +16,4 @@ public interface VirtualClubsUsersDetailsRepository extends JpaRepository<User, 
     Optional<User> findByProvider(@Param("providerName") String providerName,
                                                               @Param("providerUserId") String providerUserId,
                                                               @Param("email") String email);
-
-    boolean existsByEmail(String email);
 }

@@ -6,12 +6,13 @@ import jakarta.validation.constraints.Size;
 import lombok.NonNull;
 
 public record RegisterRequest(
-        @NotBlank(message = "password_required")
-        @Size(min = 6, message = "password_min_length")
+        @NonNull
+        @NotBlank(message = "6")
+        @Size(min = 6, message = "8")
         String password,
 
         @NonNull
-        @NotBlank(message = "email_required")
-        @Email(message = "email_valid")
+        @NotBlank(message = "5")
+        @Email(message = "9")
         String email
 ) {}

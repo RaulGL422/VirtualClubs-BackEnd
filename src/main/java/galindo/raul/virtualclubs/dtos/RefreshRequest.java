@@ -1,3 +1,10 @@
 package galindo.raul.virtualclubs.dtos;
 
-public record RefreshRequest(String refreshToken) {}
+import jakarta.validation.constraints.NotBlank;
+import lombok.NonNull;
+
+public record RefreshRequest(
+    @NonNull
+    @NotBlank(message = "11")
+    String refreshToken
+) {}

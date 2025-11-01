@@ -52,7 +52,7 @@ public class MailerService {
                 throw new MailSendException(response.getBody());
             }
         } catch (IOException e) {
-            throw new MailSendException("Failed to send email: " + e.getMessage());
+            throw new MailSendException(e.getMessage());
         }
     }
 
@@ -65,5 +65,15 @@ public class MailerService {
         context.setVariable("resetUrl", resetUrl);
 
         return templateEngine.process("password-reset-email", context);
+    }
+
+    public String generateVerifyEmail(String name, String token) {
+        String verifyUrl = String.format("%s/api/auth/verify?token=%s", baseUrl, token);
+
+        Context context = new Context();
+        context.setVariable("name", name);
+        context.setVariable("verifyUrl", verifyUrl);
+
+        return templateEngine.process("verify-email", context);
     }
 }
