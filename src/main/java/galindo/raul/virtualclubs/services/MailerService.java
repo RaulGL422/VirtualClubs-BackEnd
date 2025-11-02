@@ -58,7 +58,7 @@ public class MailerService {
 
     // --- Generate HTML content from Thymeleaf template ---
     public String generatePasswordResetEmail(String name, String token) {
-        String resetUrl = String.format("%s/api/auth/reset-password-redirect?token=%s", baseUrl, token);
+        String resetUrl = String.format("%s/api/auth/resetPasswordRedirect?token=%s", baseUrl, token);
 
         Context context = new Context();
         context.setVariable("name", name);
