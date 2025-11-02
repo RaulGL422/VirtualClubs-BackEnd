@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 /**
  * Enum representing different types of errors that can occur in the application.
  */
-public enum ErrorTypes {
+public enum ErrorType {
   INTERNAL_ERROR(1),
   INVALID_CREDENTIALS(2),
   USER_NOT_FOUND(3),
@@ -28,7 +28,7 @@ public enum ErrorTypes {
   
   private final int code;
   
-  ErrorTypes(int code) {
+  ErrorType(int code) {
     this.code = code;
   }
   
@@ -37,8 +37,8 @@ public enum ErrorTypes {
     return code;
   }
   
-  public static ErrorTypes fromCode(int code) {
-    for (ErrorTypes errorType : values()) {
+  public static ErrorType fromCode(int code) {
+    for (ErrorType errorType : values()) {
       if (errorType.getCode() == code) {
         return errorType;
       }
