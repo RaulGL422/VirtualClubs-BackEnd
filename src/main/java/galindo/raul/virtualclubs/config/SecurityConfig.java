@@ -27,9 +27,9 @@ public class SecurityConfig {
                             "/api/auth/authenticate",
                             "/api/auth/register",
                             "/api/auth/google",
-                            "/api/auth/request-password-reset",
-                            "/api/auth/reset-password-redirect",
-                            "/api/auth/reset-password",
+                            "/api/auth/requestPasswordReset",
+                            "/api/auth/resetPassword",
+                            "/api/auth/resetPasswordRedirect",
                             "/api/auth/verify",
                             "/actuator/health",
                             "/actuator/info"
