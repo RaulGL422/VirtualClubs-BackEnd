@@ -170,8 +170,10 @@ public class AuthController {
     String refreshToken = refreshRequest.refreshToken();
     log.info("🔄 Refresh token request");
     
-    if (!jwtService.isValidRefreshToken(refreshToken))
+    if (!jwtService.isValidRefreshToken(refreshToken)) {
+      refreshTokenService.deleteByToken(refreshToken);
       throw new RefreshTokenException();
+    }
     
     // Generate a new access token
     String email = refreshTokenService.getEmailFromRefreshToken(refreshToken);

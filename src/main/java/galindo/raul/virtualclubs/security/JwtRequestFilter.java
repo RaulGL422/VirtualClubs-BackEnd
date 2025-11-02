@@ -2,7 +2,7 @@ package galindo.raul.virtualclubs.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import galindo.raul.virtualclubs.dtos.ApiResponse;
-import galindo.raul.virtualclubs.models.enums.ErrorTypes;
+import galindo.raul.virtualclubs.models.enums.ErrorType;
 import galindo.raul.virtualclubs.models.enums.ResponseType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -43,7 +43,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 }
             } else {
                 log.warn("[JWT] Token inválido o expirado para {}", request.getRequestURI());
-                sendUnauthorized(response, ErrorTypes.INVALID_ACCESS_TOKEN);
+                sendUnauthorized(response, ErrorType.INVALID_ACCESS_TOKEN);
                 return;
             }
         }
@@ -51,7 +51,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         chain.doFilter(request, response);
     }
 
-    private void sendUnauthorized(HttpServletResponse response, ErrorTypes error) throws IOException {
+    private void sendUnauthorized(HttpServletResponse response, ErrorType error) throws IOException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
         objectMapper.writeValue(response.getWriter(),
