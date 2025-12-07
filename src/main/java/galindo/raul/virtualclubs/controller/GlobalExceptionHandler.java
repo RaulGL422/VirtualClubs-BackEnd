@@ -148,8 +148,8 @@ public class GlobalExceptionHandler {
   
   @ExceptionHandler(EmailNotVerifiedException.class)
   public ResponseEntity<ApiResponse<Void>> handleEmailNotVerified(EmailNotVerifiedException e) {
-    log.warn("User '{}' not verified", e.getEmail());
-    return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
+    log.warn("⚠️ User '{}' not verified", e.getEmail());
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
         .body(new ApiResponse<>(false, ErrorType.EMAIL_NOT_VERIFIED, ResponseType.ERROR, null));
   }
   
