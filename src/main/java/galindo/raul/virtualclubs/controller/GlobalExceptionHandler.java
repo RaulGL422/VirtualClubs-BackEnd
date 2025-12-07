@@ -87,7 +87,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ApiResponse<Void>> handleUsernameNotFound(UsernameNotFoundException e) {
     log.warn("⚠️ User not found: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(new ApiResponse<>(false, ErrorType.USER_NOT_FOUND, ResponseType.ERROR, null));
+        .body(new ApiResponse<>(false, ErrorType.USERNAME_NOT_FOUND, ResponseType.ERROR, null));
   }
   
   /**
@@ -137,6 +137,20 @@ public class GlobalExceptionHandler {
     log.warn("⚠️ Email '{}' not found", e.getEmail());
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(new ApiResponse<>(false, ErrorType.EMAIL_NOT_FOUND, ResponseType.ERROR, null));
+  }
+  
+  @ExceptionHandler(UserNotFoundException.class)
+  public ResponseEntity<ApiResponse<Void>> handleUserNotFound(UserNotFoundException e) {
+    log.warn("⚠️ User '{}' not found", e.getEmail());
+    return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        .body(new ApiResponse<>(false, ErrorType.EMAIL_NOT_FOUND, ResponseType.ERROR, null));
+  }
+  
+  @ExceptionHandler(EmailNotVerifiedException.class)
+  public ResponseEntity<ApiResponse<Void>> handleEmailNotVerified(EmailNotVerifiedException e) {
+    log.warn("User '{}' not verified", e.getEmail());
+    return ResponseEntity.status(HttpStatus.NON_AUTHORITATIVE_INFORMATION)
+        .body(new ApiResponse<>(false, ErrorType.EMAIL_NOT_VERIFIED, ResponseType.ERROR, null));
   }
   
   /**

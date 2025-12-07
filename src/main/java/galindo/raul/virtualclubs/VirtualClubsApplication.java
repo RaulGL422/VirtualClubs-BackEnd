@@ -19,7 +19,7 @@ public class VirtualClubsApplication {
         return executor;
     }
 
-	public static void main(String[] args) {
+	static void main(String[] args) {
 		SpringApplication.run(VirtualClubsApplication.class, args);
 	}
 }
