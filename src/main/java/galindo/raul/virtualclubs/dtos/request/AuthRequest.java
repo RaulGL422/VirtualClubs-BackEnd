@@ -1,8 +1,13 @@
-package galindo.raul.virtualclubs.dtos;
+package galindo.raul.virtualclubs.dtos.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.NonNull;
 
+/**
+ * Data Transfer Object for authentication requests.
+ * @param email The user's email address, must not be blank.
+ * @param password The user's password, must not be blank.
+ */
 public record AuthRequest(
         @NonNull
         @NotBlank(message = "5")

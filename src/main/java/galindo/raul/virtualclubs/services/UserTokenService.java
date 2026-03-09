@@ -1,7 +1,7 @@
 package galindo.raul.virtualclubs.services;
 
-import galindo.raul.virtualclubs.models.entities.User;
-import galindo.raul.virtualclubs.models.entities.UserToken;
+import galindo.raul.virtualclubs.models.entities.UserEntity;
+import galindo.raul.virtualclubs.models.entities.UserTokenEntity;
 import galindo.raul.virtualclubs.models.enums.TokenType;
 import galindo.raul.virtualclubs.repositories.UserTokenRepository;
 import galindo.raul.virtualclubs.utils.TokenUtils;
@@ -20,13 +20,13 @@ public class UserTokenService {
   private final UserTokenRepository tokenRepository;
   
   @Transactional
-  public String createTokenFor(User user, TokenType type, Duration validFor, String meta) {
+  public String createTokenFor(UserEntity user, TokenType type, Duration validFor, String meta) {
     tokenRepository.deleteAllByUserAndType(user, type);
     
     String token = TokenUtils.generateTokenString(32);
     String tokenHash = TokenUtils.sha256Hex(token);
     
-    UserToken ut = UserToken.builder()
+    UserTokenEntity ut = UserTokenEntity.builder()
         .user(user)
         .tokenHash(tokenHash)
         .type(type)
@@ -41,7 +41,7 @@ public class UserTokenService {
   }
   
   @Transactional
-  public Optional<User> validateAndConsume(String token, TokenType type) {
+  public Optional<UserEntity> validateAndConsume(String token, TokenType type) {
     String hash = TokenUtils.sha256Hex(token);
     return tokenRepository.findByTokenHashAndType(hash, type)
         .filter(t -> !t.isConsumed())
@@ -54,7 +54,7 @@ public class UserTokenService {
   }
   
   @Transactional
-  public void invalidateTokens(User user, TokenType type) {
+  public void invalidateTokens(UserEntity user, TokenType type) {
     tokenRepository.deleteAllByUserAndType(user, type);
   }
 }

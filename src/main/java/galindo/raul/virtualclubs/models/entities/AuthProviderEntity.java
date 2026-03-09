@@ -12,15 +12,14 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
-public class AuthProvider {
-
+public class AuthProviderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "user_id")
-    private User user;
+    private UserEntity user;
 
     @Column(name = "provider_name", nullable = false)
     private String providerName; // 'LOCAL', 'GOOGLE', etc.
