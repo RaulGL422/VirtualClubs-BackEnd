@@ -15,7 +15,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Builder
-public class UserToken {
+public class UserTokenEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ public class UserToken {
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private UserEntity user;
 
     @Column(name = "token_hash", nullable = false, unique = true, length = 64)
     private String tokenHash; // SHA-256 hex

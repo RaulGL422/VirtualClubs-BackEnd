@@ -1,4 +1,4 @@
-package galindo.raul.virtualclubs.dtos;
+package galindo.raul.virtualclubs.dtos.request;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.NonNull;
