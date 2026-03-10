@@ -46,9 +46,9 @@ public class UserEntity {
     @Builder.Default
     private Set<RoleEntity> roles = new HashSet<>();
  
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @Builder.Default
-    private Set<UserTokenEntity> authTokens = new HashSet<>();
+//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+//    @Builder.Default
+//    private Set<UserTokenEntity> authTokens = new HashSet<>();
     
     public void addAuthProvider(AuthProviderEntity authProvider) {
         authProviderEntities.add(authProvider);
