@@ -11,7 +11,7 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
 # Render usará la variable PORT automáticamente
-ENV PORT=8080
-EXPOSE 8080
+ENV PORT=4584
+EXPOSE 4584
 
 ENTRYPOINT ["java", "-jar", "app.jar"]
