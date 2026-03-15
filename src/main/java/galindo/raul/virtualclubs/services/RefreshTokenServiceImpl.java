@@ -43,6 +43,12 @@ public class RefreshTokenServiceImpl {
     refreshTokenRepository.saveAndFlush(refreshTokenEntity);
   }
   
+  @Transactional
+  public void removeTokenFromDevice(UserEntity user, Dispositive dispositive) {
+    refreshTokenRepository.findByUserAndDeviceIdAndRevokedFalse(user, dispositive.deviceId()).stream()
+        .forEach(t -> t.setRevoked(true));
+  }
+  
   /**
    * Removes a specific refresh token for a user if it exists and is not revoked.
    *

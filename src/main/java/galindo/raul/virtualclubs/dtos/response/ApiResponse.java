@@ -18,7 +18,14 @@ public record ApiResponse<T>(boolean success, ErrorType message, T data) {
    * @return a new ApiResponse instance indicating success
    */
   public static <T> ApiResponse<T> success(T data) { return new ApiResponse<>(true, null, data); }
-
+  
+  /**
+   * Creates a successful empty API response.
+   *
+   * @return a new ApiResponse instance indicating success
+   */
+  public static <T> ApiResponse<Void> emptySuccess() { return new ApiResponse<Void>(true, null, null); }
+  
   /**
    * Creates an error API response.
    *

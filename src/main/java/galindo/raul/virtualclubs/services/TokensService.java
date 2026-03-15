@@ -31,7 +31,7 @@ public class TokensService {
     String accessToken = jwtUtils.generateAccessToken(user.getEmail());
     String refreshToken = jwtUtils.generateRefreshToken(user.getEmail());
     
-    String hashedRefreshToken = _hashToken(refreshToken);
+    String hashedRefreshToken = hashToken(refreshToken);
     refreshTokenService.saveOrUpdate(user, hashedRefreshToken, dispositive);
     
     return new Tokens(accessToken, refreshToken);
@@ -47,7 +47,7 @@ public class TokensService {
    * @throws RefreshTokenException if the token is invalid or not found.
    */
   public Tokens refreshTokens(UserEntity user, String refreshToken, Dispositive dispositive) {
-    String hashedToken = _hashToken(refreshToken);
+    String hashedToken = hashToken(refreshToken);
     
     if (jwtUtils.isTokenValid(refreshToken, "refresh") && refreshTokenService.removeToken(user, hashedToken)) {
       return getNewTokens(user, dispositive);
@@ -62,7 +62,7 @@ public class TokensService {
    * @param token The raw token string.
    * @return The Base64 encoded hash of the token.
    */
-  public String _hashToken(String token) {
+  private String hashToken(String token) {
     try {
       MessageDigest digest = MessageDigest.getInstance("SHA-256");
       byte[] hash = digest.digest(token.getBytes());
