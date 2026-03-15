@@ -34,4 +34,6 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity
      * @return true if a valid token exists, false otherwise
      */
     boolean existsByTokenAndUserAndRevokedFalse(String token, UserEntity user);
+    
+    List<RefreshTokenEntity> findByUserAndDeviceIdAndRevokedFalse(UserEntity user, String deviceId);
 }

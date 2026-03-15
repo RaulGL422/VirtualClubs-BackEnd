@@ -6,20 +6,22 @@ import galindo.raul.virtualclubs.dtos.request.RegisterRequest;
 import galindo.raul.virtualclubs.dtos.response.ApiResponse;
 import galindo.raul.virtualclubs.dtos.response.RefreshResponse;
 import galindo.raul.virtualclubs.dtos.response.RegisterResponse;
+import galindo.raul.virtualclubs.models.Dispositive;
 import galindo.raul.virtualclubs.models.Tokens;
 import galindo.raul.virtualclubs.models.entities.UserEntity;
 import galindo.raul.virtualclubs.services.TokensService;
 import galindo.raul.virtualclubs.services.UserEntityServiceImpl;
+import galindo.raul.virtualclubs.services.RefreshTokenServiceImpl;
 import galindo.raul.virtualclubs.utils.CommonUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
@@ -29,6 +31,7 @@ public class AuthController {
   private final UserEntityServiceImpl userService;
   private final JwtUtils jwtUtils;
   private final TokensService tokensService;
+  private final RefreshTokenServiceImpl refreshTokenService;
   
   @PostMapping("/register")
   /**
@@ -73,32 +76,21 @@ public class AuthController {
     
     return ResponseEntity.ok(ApiResponse.success(new RefreshResponse(newTokens.accessToken(), newTokens.refreshToken())));
   }
-//
-//  /**
-//   * Logout the authenticated user and invalidate their refresh token.
-//   * <p>
-//   * Endpoint: POST /api/auth/logout
-//   * <p>
-//   * Security: Requires JWT access token (isAuthenticated()).
-//   * <p>
-//   * Response: ApiResponse<Void> <p>
-//   * - success=true if logout succeeded <p>
-//   * - success=false if internal error <p>
-//   */
-//  @PostMapping("/logout")
-//  @PreAuthorize("isAuthenticated()")
-//  public ResponseEntity<ApiResponse<Void>> logout(Authentication authentication) {
-//    String email = authentication.getName();
-//    var maybeUser = userDetailsService.findByEmailOptional(email);
-//
-//    if (maybeUser.isEmpty())
-//      log.error("❌ User not found to logout: {}", email);
-//    else
-//      refreshTokenService.deleteByUser(maybeUser.get());
-//
-//    return ResponseEntity.ok(new ApiResponse<>(true, null, ResponseType.NONE, null));
-//  }
-//
+  
+  @DeleteMapping("/logout")
+  public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    UserDetails user = (UserDetails) authentication.getPrincipal();
+    String email = user.getUsername();
+    Dispositive dispositive = CommonUtils.getDispositiveInfo(request);
+    
+    refreshTokenService.removeTokenFromDevice(userService.getUserFromEmail(email), dispositive);
+    
+    log.info("ℹ️ User '{}' in device '{}' logged out", email, dispositive.deviceId());
+    
+    return ResponseEntity.ok(ApiResponse.emptySuccess());
+  }
+
 //  /**
 //   * Authenticate or register a user via Google ID token.
 //   * <p>
