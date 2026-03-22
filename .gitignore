@@ -30,5 +30,8 @@ replay_pid*
 *.iml
 *.iws
 
+# Maven build output
+target/
+
 # Claude Code — configuración personal (no del equipo)
 .claude/settings.local.json
