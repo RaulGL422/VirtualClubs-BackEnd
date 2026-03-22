@@ -23,5 +23,15 @@
 hs_err_pid*
 replay_pid*
 
-# application-dev
-src/main/resources/application-dev.properties
+*.env
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# Maven build output
+target/
+
+# Claude Code — configuración personal (no del equipo)
+.claude/settings.local.json
