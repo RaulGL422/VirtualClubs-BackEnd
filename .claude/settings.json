@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./mvnw compile*)",
+      "Bash(./mvnw test*)",
+      "Bash(./mvnw -q*)",
+      "Bash(./mvnw versions*)",
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git branch*)",
+      "Bash(git stash list*)",
+      "Bash(git fetch*)",
+      "Bash(git show*)",
+      "Bash(gh pr view*)",
+      "Bash(gh pr list*)",
+      "Bash(gh pr diff*)",
+      "Bash(gh auth status*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); if echo \"$input\" | grep -q '\"git commit'; then output=$(cd \"/c/Users/raulg/Documents/Proyectos/VirtualClubs/Back\" && ./mvnw compile -q 2>&1); code=$?; if [ $code -ne 0 ]; then safe=$(echo \"$output\" | head -20 | tr '\"' '`' | tr '\\n' ' '); printf '{\"continue\":false,\"stopReason\":\"Compilacion fallida. Corrige los errores antes de commitear: %s\"}' \"$safe\"; exit 0; fi; fi",
+            "timeout": 120,
+            "statusMessage": "Verificando compilacion antes del commit..."
+          }
+        ]
+      }
+    ]
+  }
+}
