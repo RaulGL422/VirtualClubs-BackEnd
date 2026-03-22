@@ -1,10 +1,11 @@
 # /new-feature — Crear Nueva Rama de Feature
 
-Crea una rama de trabajo correctamente nombrada a partir de `main`.
+Crea una rama de trabajo correctamente nombrada a partir de `development` (por defecto) o de la rama especificada.
 
 ## Uso
-- `/new-feature agregar endpoint de perfil de usuario`
-- `/new-feature fix error en refresh token`
+- `/new-feature agregar endpoint de perfil de usuario` — crea desde `development`
+- `/new-feature agregar endpoint de perfil de usuario --from main` — crea desde `main`
+- `/new-feature agregar endpoint de perfil de usuario --from feature/auth` — crea desde otra rama
 
 ## Paso 1: Verificar estado de trabajo
 
@@ -29,12 +30,14 @@ Basándote en la descripción del argumento, determina:
 
 Propón el nombre al usuario antes de crear la rama.
 
-## Paso 3: Crear la rama desde main actualizado
+## Paso 3: Crear la rama desde la rama base
+
+La rama base es `development` por defecto. Si el usuario pasó `--from <rama>`, usa esa.
 
 ```bash
-git fetch origin main
-git checkout main
-git pull origin main
+git fetch origin [rama-base]
+git checkout [rama-base]
+git pull origin [rama-base]
 git checkout -b [tipo/nombre-propuesto]
 ```
 

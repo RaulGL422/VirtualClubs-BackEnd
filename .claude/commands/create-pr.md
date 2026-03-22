@@ -1,10 +1,10 @@
 # /create-pr — Crear Pull Request
 
-Crea un PR desde la rama actual hacia `main` (o la base especificada).
+Crea un PR desde la rama actual hacia `development` (por defecto) o la base especificada.
 
 ## Uso
-- `/create-pr` — crea PR hacia `main`
-- `/create-pr development` — crea PR hacia `development`
+- `/create-pr` — crea PR hacia `development`
+- `/create-pr main` — crea PR hacia `main`
 
 ## Paso 1: Verificar precondiciones
 
@@ -13,9 +13,11 @@ Ejecuta `git branch --show-current`.
 Si la rama es `main` o `development`, detente:
 > "No puedes crear un PR desde `main` o `development`."
 
+La rama base es `development` por defecto. Si se pasó un argumento (ej. `main`), úsalo como base.
+
 Verifica que hay commits por encima de la rama base:
 ```bash
-git log main...HEAD --oneline
+git log [rama-base]...HEAD --oneline
 ```
 
 Si no hay commits, detente:
@@ -23,10 +25,10 @@ Si no hay commits, detente:
 
 ## Paso 2: Revisar los cambios
 
-Ejecuta en paralelo:
-- `git log main...HEAD --oneline` — ver todos los commits del PR
-- `git diff main...HEAD --stat` — resumen de archivos cambiados
-- `git diff main...HEAD` — diff completo para entender el contexto
+Ejecuta en paralelo (usando [rama-base] determinada en el paso anterior):
+- `git log [rama-base]...HEAD --oneline` — ver todos los commits del PR
+- `git diff [rama-base]...HEAD --stat` — resumen de archivos cambiados
+- `git diff [rama-base]...HEAD` — diff completo para entender el contexto
 
 ## Paso 3: Verificar autenticación de gh
 

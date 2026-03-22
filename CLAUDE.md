@@ -106,6 +106,13 @@ JWT_SECRET_DEBUG=
 ### Reglas de Contraseña (@StrongPassword)
 Regex: mínimo 2 mayúsculas, 2 minúsculas, 1 dígito.
 
+### Convenciones de Testing
+- **Perfil:** `@ActiveProfiles({"dev", "test"})` — el perfil `test` sobrescribe la BD con H2 en memoria (`application-test.properties`)
+- **Mocks obligatorios:** `GoogleAuthService` y `MailerService` deben anotarse con `@MockitoBean` (no `@MockBean`, deprecado en Spring Boot 3.4+) para evitar conexiones externas al arrancar el contexto
+- **Integración:** `@SpringBootTest(webEnvironment = MOCK)` + `@AutoConfigureMockMvc` para tests de endpoints sin levantar servidor real
+- **Unitarios:** `@ExtendWith(MockitoExtension.class)` — sin contexto Spring, instanciación directa o `@InjectMocks`
+- **Limpieza:** los tests de integración borran la BD en `@AfterEach` en orden FK (refresh tokens → user tokens → users)
+
 ---
 
 ## Funcionalidades Comentadas (No Activas)
@@ -139,9 +146,9 @@ Hay código preparado pero no activo todavía. **No eliminar**, son funcionalida
 | Comando | Descripción |
 |---------|-------------|
 | `/commit` | Commit semántico en español + push a rama actual |
-| `/create-pr [base]` | Crea PR con descripción generada automáticamente + revisión inmediata |
+| `/create-pr [base]` | Crea PR hacia `development` por defecto, o hacia `[base]` si se especifica |
 | `/review-pr [N]` | Revisar PR: errores, documentación, seguridad, malas prácticas |
-| `/new-feature [desc]` | Crear rama correctamente nombrada desde main actualizado |
+| `/new-feature [desc]` | Crear rama desde `development` por defecto; usar `--from <rama>` para otra base |
 | `/sync-main` | Sincronizar rama actual con main via rebase |
 | `/check-security [archivo]` | Auditoría OWASP del código modificado o módulo de seguridad |
 | `/add-endpoint MÉTODO /ruta desc` | Guía paso a paso para agregar endpoint siguiendo patrones del proyecto |
@@ -156,7 +163,6 @@ Hay código preparado pero no activo todavía. **No eliminar**, son funcionalida
 
 | Prioridad | Problema | Dónde |
 |-----------|----------|-------|
-| ALTA | No hay tests — ninguno en absoluto | `src/test/` vacío |
 | ALTA | No hay rate limiting en `/login` y `/register` | `SecurityConfig.java` |
 | MEDIA | Google OAuth2 preparado pero comentado | `GoogleAuthService.java` |
 | MEDIA | Email verification y password reset comentados | `MailerService`, `UserTokenService`, `UserTokenEntity` |
