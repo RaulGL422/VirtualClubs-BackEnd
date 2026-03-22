@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/xhtml" lang="spanish">
+<head>
+    <meta charset="UTF-8">
+    <title>Verificar Email</title>
+</head>
+<body>
+<h1>Verifica tu correo Electronico</h1>
+<p>Hola, <span th:text="${name}"></span>!</p>
+<p>Para verificar tu correo electronico, pulsa en el siguiente enlace:</p>
+<a th:href="${verifyUrl}" th:text="${verifyUrl}"></a>
+</body>
+</html>
