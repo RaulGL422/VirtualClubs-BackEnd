@@ -145,10 +145,10 @@ Hay código preparado pero no activo todavía. **No eliminar**, son funcionalida
 
 | Comando | Descripción |
 |---------|-------------|
-| `/commit` | Commit semántico en español + push a rama actual |
+| `/commit` | Commit semántico en español + push; detecta automáticamente referencia Notion del nombre de rama |
 | `/create-pr [base]` | Crea PR hacia `development` por defecto, o hacia `[base]` si se especifica |
 | `/review-pr [N]` | Revisar PR: errores, documentación, seguridad, malas prácticas |
-| `/new-feature [desc]` | Crear rama desde `development` por defecto; usar `--from <rama>` para otra base |
+| `/new-feature [desc\|VC-N]` | Crear rama desde `development`; si se pasa `VC-N`, obtiene detalles de Notion y actualiza estado |
 | `/sync-main` | Sincronizar rama actual con main via rebase |
 | `/check-security [archivo]` | Auditoría OWASP del código modificado o módulo de seguridad |
 | `/add-endpoint MÉTODO /ruta desc` | Guía paso a paso para agregar endpoint siguiendo patrones del proyecto |
@@ -156,6 +156,42 @@ Hay código preparado pero no activo todavía. **No eliminar**, son funcionalida
 | `/explain [archivo o concepto]` | Explica un archivo o concepto del proyecto en términos simples |
 | `/update-deps` | Revisa dependencias desactualizadas en pom.xml |
 | `/project-status` | Estado general: git, endpoints, PRs abiertos, deuda técnica |
+
+---
+
+## Integración con Notion
+
+Gestor de tareas del proyecto: base de datos **"Registro de tareas VirtualClubs"**.
+
+- **Database ID:** `276a7f5d-0a0f-80ab-9cd3-d4f3c733a260`
+- **Collection (Data Source) ID:** `276a7f5d-0a0f-802c-8d6f-000b821853c1`
+- **URL para búsquedas:** `collection://276a7f5d-0a0f-802c-8d6f-000b821853c1`
+
+### Campos relevantes
+| Campo | Tipo | Valores |
+|-------|------|---------|
+| `Nombre de la tarea` | title | — |
+| `userDefined:ID` | auto_increment | número de tarjeta (VC-N) |
+| `Tipo de tarea` | multi_select | 🐞 Error, 🛠️ Funcionalidad, 🔎 Testing, ✏️ Diseño, 💻 BackEnd, 📱 Android, ⛓️ API, 📊 Base de datos, 🔒 Autenticación |
+| `Estado` | status | Sin Empezar, 💻 En curso, 🔎 Testeando, ✏️ Refactorizando, ⌛🔎 Pendiente de testeo, ⌛✏️ Pendiente de Refactorizado, ❌ Testeo fallido, ⏸️ Pausado, 👁️ Pendiente de Publicar, ✅ Publicado |
+| `Prioridad` | select | Alta, Medio, Baja |
+| `Descripción` | text | — |
+| `Nivel de esfuerzo` | select | Pequeño, Medio, Grande |
+
+### Mapeo Tipo de tarea → Prefijo de rama
+| Tipo | Prefijo |
+|------|---------|
+| 🐞 Error | `fix/` |
+| 🔎 Testing | `test/` |
+| 🛠️ Funcionalidad / 💻 BackEnd / ⛓️ API / 🔒 Autenticación / 📊 Base de datos | `feature/` |
+| ✏️ Diseño | `chore/` |
+
+### Formato de rama con Notion
+`[prefijo]/vc-[N]-[nombre-en-kebab-ascii]` — ej: `fix/vc-3-refresh-token-expiracion`
+
+### Flujo de estados
+1. Al iniciar trabajo (`/new-feature VC-N`) → actualizar a `💻 En curso`
+2. El resto de transiciones (Testeando, Publicado…) el usuario las gestiona manualmente en Notion
 
 ---
 
