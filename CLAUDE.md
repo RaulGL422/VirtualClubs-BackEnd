@@ -156,6 +156,7 @@ Hay código preparado pero no activo todavía. **No eliminar**, son funcionalida
 | `/explain [archivo o concepto]` | Explica un archivo o concepto del proyecto en términos simples |
 | `/update-deps` | Revisa dependencias desactualizadas en pom.xml |
 | `/project-status` | Estado general: git, endpoints, PRs abiertos, deuda técnica |
+| `/add-task [desc]` | Crea una tarjeta nueva en Notion con tipo, prioridad y esfuerzo detectados automáticamente |
 
 ---
 
@@ -192,17 +193,6 @@ Gestor de tareas del proyecto: base de datos **"Registro de tareas VirtualClubs"
 ### Flujo de estados
 1. Al iniciar trabajo (`/new-feature VC-N`) → actualizar a `💻 En curso`
 2. El resto de transiciones (Testeando, Publicado…) el usuario las gestiona manualmente en Notion
-
----
-
-## Deuda Técnica Conocida
-
-| Prioridad | Problema | Dónde |
-|-----------|----------|-------|
-| ALTA | No hay rate limiting en `/login` y `/register` | `SecurityConfig.java` |
-| MEDIA | Google OAuth2 preparado pero comentado | `GoogleAuthService.java` |
-| MEDIA | Email verification y password reset comentados | `MailerService`, `UserTokenService`, `UserTokenEntity` |
-| BAJA | `AsyncConfig` configurado pero sin uso real aún | `AsyncConfig.java` |
 
 ---
 
