@@ -18,6 +18,8 @@ gh pr list --head [rama-actual] --json number,title,url,baseRefName
 
 Si no existe PR para la rama actual, avisa al usuario y detente.
 
+**Detectar tarjeta Notion:** Extrae el número N si el nombre de la rama contiene `vc-[N]`. Se usará al final para actualizar el estado.
+
 ## Paso 2: Obtener información del PR
 
 Ejecuta:
@@ -144,7 +146,21 @@ Si hay errores críticos o problemas de seguridad, explica el riesgo y propón e
 
 ---
 
-## Paso 5: Actualizar documentación si corresponde
+## Paso 5: Actualizar estado en Notion (si aplica)
+
+Si se detectó una tarjeta Notion (VC-N en el nombre de rama), actualiza el estado según el veredicto:
+
+| Veredicto | Estado Notion |
+|-----------|---------------|
+| APROBADO | `✅PR Aprobado` |
+| APROBADO CON SUGERENCIAS | `✅PR Aprobado` |
+| CAMBIOS REQUERIDOS | `🔄️Cambios Solicitados` |
+
+Busca la página con `notion-search` en `data_source_url: "collection://276a7f5d-0a0f-802c-8d6f-000b821853c1"` usando el número N, luego usa `notion-update-page` con `command: "update_properties"` y el estado correspondiente.
+
+---
+
+## Paso 6: Actualizar documentación si corresponde
 
 Después de generar el reporte, lee `CLAUDE.md` y determina si el PR introduce cambios que lo dejan desactualizado. Evalúa estas secciones específicas:
 

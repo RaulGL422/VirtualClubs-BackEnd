@@ -15,6 +15,8 @@ Si la rama es `main` o `development`, detente:
 
 La rama base es `development` por defecto. Si se pasó un argumento (ej. `main`), úsalo como base.
 
+**Detectar tarjeta Notion:** Si el nombre de la rama contiene el patrón `vc-[N]`, extrae el número N para usarlo más adelante.
+
 Verifica que hay commits por encima de la rama base:
 ```bash
 git log [rama-base]...HEAD --oneline
@@ -64,7 +66,13 @@ git push --set-upstream origin [rama-actual]
 gh pr create --title "[título]" --body "[descripción]" --base [rama-base]
 ```
 
-## Paso 6: Lanzar revisión automática
+## Paso 6: Actualizar estado en Notion (si aplica)
+
+Si se detectó una tarjeta Notion (VC-N en el nombre de rama), actualiza su estado a `📬 PR Abierto`:
+- Busca la página con `notion-search` en `data_source_url: "collection://276a7f5d-0a0f-802c-8d6f-000b821853c1"` usando el número N
+- Usa `notion-update-page` con `command: "update_properties"` y `properties: {"Estado": "📬 PR Abierto"}`
+
+## Paso 7: Lanzar revisión automática
 
 Después de crear el PR, ejecuta automáticamente `/review-pr [numero]` para obtener la revisión inmediata del PR recién creado.
 

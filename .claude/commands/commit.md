@@ -1,13 +1,15 @@
 # /commit — Commit Semántico + Push
 
-Ejecuta el siguiente flujo de commit completo:
+Ejecuta el flujo de commit completo con soporte opcional de referencia a tarjetas Notion.
 
 ## Paso 1: Verificar rama actual
 
 Ejecuta `git branch --show-current` y verifica que la rama actual **NO sea** `main` ni `development`.
 
-Si la rama es `main` o `development`, **detente inmediatamente** y avisa al usuario:
+Si la rama es `main` o `development`, **detente inmediatamente** y avisa:
 > "⛔ Estás en la rama `[nombre]`. No está permitido hacer commits directamente en `main` o `development`. Crea una rama nueva con `/new-feature` o cambia de rama manualmente."
+
+**Detectar tarjeta Notion:** Si el nombre de la rama contiene el patrón `vc-[N]` (ej: `feature/vc-5-verificar-email`), extrae el número N. Se usará automáticamente como referencia en el mensaje de commit.
 
 ## Paso 2: Ver estado del repositorio
 
@@ -38,7 +40,7 @@ Lee el diff completo con `git diff --staged` y determina:
    - `feat` — nueva funcionalidad
    - `fix` — corrección de bug
    - `refactor` — refactoring sin cambio de comportamiento
-   - `chore` — tareas de mantenimiento, configuración, dependencias
+   - `chore` — mantenimiento, configuración, dependencias
    - `docs` — solo documentación
    - `test` — solo tests
    - `style` — formato, espacios (sin cambio de lógica)
@@ -51,7 +53,20 @@ Lee el diff completo con `git diff --staged` y determina:
 
 ## Paso 5: Proponer mensaje de commit
 
-Muestra al usuario el resumen de archivos staged (`git diff --staged --stat`) y el mensaje propuesto:
+Si se detectó una tarjeta Notion (VC-N en el nombre de rama), incluye la referencia en el cuerpo del commit:
+
+```
+[tipo]([scope]): descripción en español
+
+Ref: VC-[N]
+```
+
+Si NO hay tarjeta Notion detectada, el mensaje es solo la primera línea:
+```
+[tipo]([scope]): descripción en español
+```
+
+Muestra al usuario el resumen y el mensaje propuesto:
 
 ```
 Archivos que entran en este commit:
@@ -60,14 +75,16 @@ Archivos que entran en este commit:
 Mensaje propuesto:
   [tipo](scope): descripción corta en español
 
-  Descripción más detallada si es necesario (opcional).
+  Ref: VC-N   ← si aplica
 ```
 
-Ejemplos de mensajes:
-- `feat(auth): agrega endpoint de verificación de email`
-- `fix(tokens): corrige expiración incorrecta del refresh token`
+Ejemplos con Notion:
+- `feat(auth): agrega endpoint de verificación de email` + `Ref: VC-5`
+- `fix(tokens): corrige expiración incorrecta del refresh token` + `Ref: VC-3`
+
+Ejemplos sin Notion:
+- `feat(auth): agrega endpoint de logout`
 - `refactor(security): extrae lógica de hash a TokenUtils`
-- `chore(deps): actualiza jjwt a versión 0.12.0`
 
 **Espera confirmación explícita del usuario antes de continuar.** Opciones:
 - `sí` / `ok` / `confirmar` → procede al Paso 6
