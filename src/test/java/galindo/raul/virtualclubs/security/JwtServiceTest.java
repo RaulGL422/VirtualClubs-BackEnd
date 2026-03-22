@@ -1,32 +1,35 @@
 package galindo.raul.virtualclubs.security;
 
-import galindo.raul.virtualclubs.services.VirtualClubsUsersDetailsService;
+import galindo.raul.virtualclubs.config.security.utils.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 /**
- * Tests unitarios para JwtService.
- * No levanta contexto de Spring — solo instancia el servicio directamente.
+ * Tests unitarios para JwtUtils.
+ * No levanta contexto de Spring — instancia la clase directamente
+ * e inyecta los @Value con ReflectionTestUtils.
+ *
+ * El secreto debe ser un string Base64 válido que decodifique a ≥ 32 bytes (HS256).
+ * Decodifica a "test-secret-key-for-tests-only!!" (32 bytes).
  */
 class JwtServiceTest {
 
-    private static final String SECRET = "test-jwt-secret-for-unit-and-integration-tests-only";
-    private static final long ACCESS_EXP_MS  = 3_600_000L;  // 1 hora
-    private static final long REFRESH_EXP_MS = 604_800_000L; // 7 días
+    // Base64 de "test-secret-key-for-tests-only!!" (32 bytes — mínimo para HS256)
+    private static final String SECRET_BASE64 = "dGVzdC1zZWNyZXQta2V5LWZvci10ZXN0cy1vbmx5ISE=";
+    private static final String ACCESS_EXP    = "3600000";    // 1 hora
+    private static final String REFRESH_EXP   = "604800000";  // 7 días
 
-    private JwtService jwtService;
+    private JwtUtils jwtUtils;
 
     @BeforeEach
     void setUp() {
-        jwtService = new JwtService(
-                SECRET,
-                mock(VirtualClubsUsersDetailsService.class),
-                ACCESS_EXP_MS,
-                REFRESH_EXP_MS
-        );
+        jwtUtils = new JwtUtils();
+        ReflectionTestUtils.setField(jwtUtils, "secret", SECRET_BASE64);
+        ReflectionTestUtils.setField(jwtUtils, "accessTokenExpirationMillis", ACCESS_EXP);
+        ReflectionTestUtils.setField(jwtUtils, "refreshTokenExpirationMillis", REFRESH_EXP);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -35,13 +38,13 @@ class JwtServiceTest {
 
     @Test
     void generateAccessToken_retornaTokenNoVacio() {
-        String token = jwtService.generateAccessToken("user@test.com");
+        String token = jwtUtils.generateAccessToken("user@test.com");
         assertThat(token).isNotBlank();
     }
 
     @Test
     void generateRefreshToken_retornaTokenNoVacio() {
-        String token = jwtService.generateRefreshToken("user@test.com");
+        String token = jwtUtils.generateRefreshToken("user@test.com");
         assertThat(token).isNotBlank();
     }
 
@@ -51,69 +54,62 @@ class JwtServiceTest {
 
     @Test
     void accessToken_esValidoComoAccess() {
-        String token = jwtService.generateAccessToken("user@test.com");
-        assertThat(jwtService.isValidAccessToken(token)).isTrue();
+        String token = jwtUtils.generateAccessToken("user@test.com");
+        assertThat(jwtUtils.isTokenValid(token, "access")).isTrue();
     }
 
     @Test
     void refreshToken_esValidoComoRefresh() {
-        String token = jwtService.generateRefreshToken("user@test.com");
-        assertThat(jwtService.isValidRefreshToken(token)).isTrue();
+        String token = jwtUtils.generateRefreshToken("user@test.com");
+        assertThat(jwtUtils.isTokenValid(token, "refresh")).isTrue();
     }
 
     @Test
     void accessToken_noEsValidoComoRefresh() {
-        String token = jwtService.generateAccessToken("user@test.com");
-        assertThat(jwtService.isValidRefreshToken(token)).isFalse();
+        String token = jwtUtils.generateAccessToken("user@test.com");
+        assertThat(jwtUtils.isTokenValid(token, "refresh")).isFalse();
     }
 
     @Test
     void refreshToken_noEsValidoComoAccess() {
-        String token = jwtService.generateRefreshToken("user@test.com");
-        assertThat(jwtService.isValidAccessToken(token)).isFalse();
+        String token = jwtUtils.generateRefreshToken("user@test.com");
+        assertThat(jwtUtils.isTokenValid(token, "access")).isFalse();
     }
 
     // ─────────────────────────────────────────────────────────────
-    // Extracción del email
+    // Extracción del username
     // ─────────────────────────────────────────────────────────────
 
     @Test
-    void extractEmail_retornaEmailCorrecto() {
-        String token = jwtService.generateAccessToken("user@test.com");
-        assertThat(jwtService.extractEmail(token)).isEqualTo("user@test.com");
-    }
-
-    @Test
-    void extractEmail_tokenTamperado_retornaNull() {
-        String token = jwtService.generateAccessToken("user@test.com");
-        assertThat(jwtService.extractEmail(token + "x")).isNull();
+    void getUsernameFromToken_retornaEmailCorrecto() {
+        String token = jwtUtils.generateAccessToken("user@test.com");
+        assertThat(jwtUtils.getUsernameFromToken(token)).isEqualTo("user@test.com");
     }
 
     // ─────────────────────────────────────────────────────────────
-    // Tokens expirados y manipulados
+    // Tokens expirados y manipulados (isTokenValid devuelve false sin lanzar excepción)
     // ─────────────────────────────────────────────────────────────
 
     @Test
     void tokenExpirado_noEsValido() {
         // Con expiración 0 ms el token caduca en el instante de creación
-        JwtService shortLived = new JwtService(
-                SECRET,
-                mock(VirtualClubsUsersDetailsService.class),
-                0L,
-                0L
-        );
+        JwtUtils shortLived = new JwtUtils();
+        ReflectionTestUtils.setField(shortLived, "secret", SECRET_BASE64);
+        ReflectionTestUtils.setField(shortLived, "accessTokenExpirationMillis", "0");
+        ReflectionTestUtils.setField(shortLived, "refreshTokenExpirationMillis", "0");
+
         String token = shortLived.generateAccessToken("user@test.com");
-        assertThat(shortLived.isValidAccessToken(token)).isFalse();
+        assertThat(shortLived.isTokenValid(token, "access")).isFalse();
     }
 
     @Test
     void tokenTamperado_noEsValido() {
-        String token = jwtService.generateAccessToken("user@test.com");
-        assertThat(jwtService.isValidAccessToken(token + "tampered")).isFalse();
+        String token = jwtUtils.generateAccessToken("user@test.com");
+        assertThat(jwtUtils.isTokenValid(token + "tampered", "access")).isFalse();
     }
 
     @Test
     void tokenAleatorio_noEsValido() {
-        assertThat(jwtService.isValidAccessToken("esto.no.es.un.jwt")).isFalse();
+        assertThat(jwtUtils.isTokenValid("esto.no.es.un.jwt", "access")).isFalse();
     }
 }

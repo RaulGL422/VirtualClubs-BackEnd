@@ -1,8 +1,12 @@
 package galindo.raul.virtualclubs.services;
 
-import galindo.raul.virtualclubs.models.entities.AuthProvider;
-import galindo.raul.virtualclubs.models.entities.User;
-import galindo.raul.virtualclubs.repositories.VirtualClubsUsersDetailsRepository;
+import galindo.raul.virtualclubs.models.entities.AuthProviderEntity;
+import galindo.raul.virtualclubs.models.entities.RoleEntity;
+import galindo.raul.virtualclubs.models.entities.UserEntity;
+import galindo.raul.virtualclubs.models.enums.Role;
+import galindo.raul.virtualclubs.models.exceptions.EmailNotFoundException;
+import galindo.raul.virtualclubs.models.exceptions.UserAlreadyExistException;
+import galindo.raul.virtualclubs.repositories.UserEntityRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,47 +15,49 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.HashSet;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 /**
- * Tests unitarios para VirtualClubsUsersDetailsService.
- * Usa Mockito para simular el repositorio — no necesita base de datos.
+ * Tests unitarios para UserEntityServiceImpl.
+ * Usa Mockito para simular el repositorio y el PasswordEncoder — no necesita base de datos.
  */
 @ExtendWith(MockitoExtension.class)
 class VirtualClubsUsersDetailsServiceTest {
 
     @Mock
-    private VirtualClubsUsersDetailsRepository userRepository;
+    private UserEntityRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
-    private VirtualClubsUsersDetailsService service;
+    private UserEntityServiceImpl service;
 
-    private User userConProviderLocal;
+    private UserEntity userConProviderLocal;
 
     @BeforeEach
     void setUp() {
-        userConProviderLocal = User.builder()
-                .id(1L)
-                .email("user@test.com")
-                .roles(new HashSet<>(Set.of("ROLE_USER")))
-                .emailVerified(true)
-                .build();
-
-        AuthProvider localProvider = AuthProvider.builder()
+        AuthProviderEntity localProvider = AuthProviderEntity.builder()
                 .providerName("LOCAL")
                 .passwordHash("$2a$10$hashedpassword")
                 .build();
 
+        userConProviderLocal = UserEntity.builder()
+                .id(1L)
+                .email("user@test.com")
+                .emailVerified(true)
+                .build();
+
         userConProviderLocal.addAuthProvider(localProvider);
+        userConProviderLocal.addRole(RoleEntity.builder().role(Role.USER).build());
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -69,57 +75,41 @@ class VirtualClubsUsersDetailsServiceTest {
     }
 
     @Test
-    void loadUserByUsername_usuarioNoExiste_lanzaUsernameNotFoundException() {
+    void loadUserByUsername_usuarioNoExiste_lanzaEmailNotFoundException() {
         when(userRepository.findByEmail("ghost@test.com")).thenReturn(Optional.empty());
 
+        // UserEntityServiceImpl lanza EmailNotFoundException (extends RuntimeException)
+        // al no encontrar el usuario, antes de llegar a construir el UserDetails
         assertThatThrownBy(() -> service.loadUserByUsername("ghost@test.com"))
-                .isInstanceOf(UsernameNotFoundException.class);
+                .isInstanceOf(EmailNotFoundException.class);
     }
 
     @Test
-    void loadUserByUsername_rolSinPrefijo_agrega_ROLE_() {
-        // El rol "ADMIN" (sin ROLE_) debe transformarse en "ROLE_ADMIN"
-        User adminUser = User.builder()
-                .id(2L)
-                .email("admin@test.com")
-                .roles(new HashSet<>(Set.of("ADMIN")))
-                .emailVerified(true)
-                .build();
-        when(userRepository.findByEmail("admin@test.com")).thenReturn(Optional.of(adminUser));
-
-        UserDetails details = service.loadUserByUsername("admin@test.com");
-
-        assertThat(details.getAuthorities())
-                .extracting("authority")
-                .containsExactly("ROLE_ADMIN");
-    }
-
-    @Test
-    void loadUserByUsername_rolConPrefijo_noDuplica_ROLE_() {
-        // El rol "ROLE_USER" ya tiene prefijo — no debe quedar "ROLE_ROLE_USER"
+    void loadUserByUsername_rolConPrefijo_noGeneraDobleROLE() {
+        // El rol "USER" en la entidad no debe quedar "ROLE_ROLE_USER"
         when(userRepository.findByEmail("user@test.com")).thenReturn(Optional.of(userConProviderLocal));
 
         UserDetails details = service.loadUserByUsername("user@test.com");
 
         assertThat(details.getAuthorities())
                 .extracting("authority")
-                .containsExactly("ROLE_USER")
+                .containsExactlyInAnyOrder("ROLE_USER")
                 .doesNotContain("ROLE_ROLE_USER");
     }
 
     @Test
     void loadUserByUsername_sinProviderLocal_passwordEsVacia() {
         // Usuario Google sin contraseña local → password debe ser ""
-        User googleUser = User.builder()
-                .id(3L)
+        UserEntity googleUser = UserEntity.builder()
+                .id(2L)
                 .email("google@test.com")
-                .roles(new HashSet<>(Set.of("ROLE_USER")))
                 .emailVerified(true)
                 .build();
-        googleUser.addAuthProvider(AuthProvider.builder()
+        googleUser.addAuthProvider(AuthProviderEntity.builder()
                 .providerName("GOOGLE")
                 .providerUserId("google-id-123")
                 .build());
+
         when(userRepository.findByEmail("google@test.com")).thenReturn(Optional.of(googleUser));
 
         UserDetails details = service.loadUserByUsername("google@test.com");
@@ -128,15 +118,41 @@ class VirtualClubsUsersDetailsServiceTest {
     }
 
     // ─────────────────────────────────────────────────────────────
+    // registerUser
+    // ─────────────────────────────────────────────────────────────
+
+    @Test
+    void registerUser_emailNuevo_guardaYRetornaUsuario() {
+        when(userRepository.findByEmail("nuevo@test.com")).thenReturn(Optional.empty());
+        when(passwordEncoder.encode("Pass12")).thenReturn("$2a$hashed");
+        when(userRepository.saveAndFlush(any())).thenAnswer(inv -> inv.getArgument(0));
+
+        UserEntity result = service.registerUser("nuevo@test.com", "Pass12");
+
+        assertThat(result.getEmail()).isEqualTo("nuevo@test.com");
+        verify(userRepository).saveAndFlush(any());
+    }
+
+    @Test
+    void registerUser_emailDuplicado_lanzaUserAlreadyExistException() {
+        when(userRepository.findByEmail("dup@test.com")).thenReturn(Optional.of(userConProviderLocal));
+
+        assertThatThrownBy(() -> service.registerUser("dup@test.com", "Pass12"))
+                .isInstanceOf(UserAlreadyExistException.class);
+
+        verify(userRepository, never()).saveAndFlush(any());
+    }
+
+    // ─────────────────────────────────────────────────────────────
     // registerOrLoadUserWithGoogle
     // ─────────────────────────────────────────────────────────────
 
     @Test
-    void google_usuarioGoogleExistente_retornaMismoUsuario() {
+    void google_usuarioGoogleExistente_retornaMismoUsuarioSinGuardar() {
         when(userRepository.findByProvider("GOOGLE", "gid-123", "user@test.com"))
                 .thenReturn(Optional.of(userConProviderLocal));
 
-        User result = service.registerOrLoadUserWithGoogle("user@test.com", "Test User", "gid-123");
+        UserEntity result = service.registerOrLoadUserWithGoogle("user@test.com", "Test User", "gid-123");
 
         assertThat(result).isSameAs(userConProviderLocal);
         verify(userRepository, never()).save(any());
@@ -149,21 +165,21 @@ class VirtualClubsUsersDetailsServiceTest {
         when(userRepository.findByEmail("user@test.com")).thenReturn(Optional.of(userConProviderLocal));
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        User result = service.registerOrLoadUserWithGoogle("user@test.com", "Test User", "gid-456");
+        UserEntity result = service.registerOrLoadUserWithGoogle("user@test.com", "Test User", "gid-456");
 
-        assertThat(result.getAuthProviders())
+        assertThat(result.getAuthProviderEntities())
                 .extracting("providerName")
                 .contains("GOOGLE", "LOCAL");
     }
 
     @Test
     void google_usuarioLocalNoVerificado_eliminaYCreaUsuarioGoogle() {
-        User noVerificado = User.builder()
-                .id(4L)
+        UserEntity noVerificado = UserEntity.builder()
+                .id(3L)
                 .email("unverified@test.com")
-                .roles(new HashSet<>())
                 .emailVerified(false)
                 .build();
+
         when(userRepository.findByProvider("GOOGLE", "gid-789", "unverified@test.com"))
                 .thenReturn(Optional.empty());
         when(userRepository.findByEmail("unverified@test.com")).thenReturn(Optional.of(noVerificado));
@@ -177,17 +193,17 @@ class VirtualClubsUsersDetailsServiceTest {
     }
 
     @Test
-    void google_usuarioNuevo_creaUsuarioVerificado() {
+    void google_usuarioNuevo_creaUsuarioVerificadoConProviderGoogle() {
         when(userRepository.findByProvider("GOOGLE", "gid-new", "new@test.com"))
                 .thenReturn(Optional.empty());
         when(userRepository.findByEmail("new@test.com")).thenReturn(Optional.empty());
         when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
-        User result = service.registerOrLoadUserWithGoogle("new@test.com", "New User", "gid-new");
+        UserEntity result = service.registerOrLoadUserWithGoogle("new@test.com", "New User", "gid-new");
 
         assertThat(result.isEmailVerified()).isTrue();
         assertThat(result.getEmail()).isEqualTo("new@test.com");
-        assertThat(result.getAuthProviders())
+        assertThat(result.getAuthProviderEntities())
                 .extracting("providerName")
                 .containsExactly("GOOGLE");
     }
