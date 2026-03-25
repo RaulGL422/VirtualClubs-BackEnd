@@ -23,6 +23,7 @@
 	</properties>
 
 	<dependencies>
+
 		<!-- Spring Boot Web, Security, Validation, Actuator, JPA -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -133,6 +134,14 @@
 			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-database-postgresql</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -144,7 +153,31 @@
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 
-			<!-- Java 21 Preview Mode -->
+			<!-- Flyway Maven Plugin (para flyway:clean en dev) -->
+		<plugin>
+			<groupId>org.flywaydb</groupId>
+			<artifactId>flyway-maven-plugin</artifactId>
+			<configuration>
+				<url>jdbc:postgresql://${env.URL_DATABASE_POSTGRES_DEBUG}:5432/${env.NAME_DATABASE_POSTGRES_DEBUG}</url>
+				<user>${env.USERNAME_DATABASE_POSTGRES_DEBUG}</user>
+				<password>${env.PASSWORD_DATABASE_POSTGRES_DEBUG}</password>
+				<cleanDisabled>false</cleanDisabled>
+			</configuration>
+			<dependencies>
+				<dependency>
+					<groupId>org.postgresql</groupId>
+					<artifactId>postgresql</artifactId>
+					<version>42.7.10</version>
+				</dependency>
+				<dependency>
+					<groupId>org.flywaydb</groupId>
+					<artifactId>flyway-database-postgresql</artifactId>
+					<version>${flyway.version}</version>
+				</dependency>
+			</dependencies>
+		</plugin>
+
+		<!-- Java 21 Preview Mode -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
