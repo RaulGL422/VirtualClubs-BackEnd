@@ -63,17 +63,6 @@ src/main/java/galindo/raul/virtualclubs/
 | POST | `/v1/auth/refresh` | No | Renovar tokens con refreshToken |
 | DELETE | `/v1/auth/logout` | Sí | Cerrar sesión en dispositivo actual |
 
-## Endpoints Comentados (Pendientes de Implementar)
-
-- `POST /v1/auth/google` — Google OAuth2 (GoogleAuthService comentado)
-- `POST /v1/auth/requestPasswordReset` — Solicitar reset de contraseña
-- `GET /v1/auth/resetPasswordRedirect` — Redirect desde email
-- `POST /v1/auth/resetPassword` — Establecer nueva contraseña
-- `GET /v1/auth/verify` — Verificar email
-- `POST /v1/auth/requestVerify` — Solicitar reverificación de email
-
----
-
 ## Patrones y Convenciones
 
 ### Respuesta API Estándar
@@ -112,15 +101,6 @@ Regex: mínimo 2 mayúsculas, 2 minúsculas, 1 dígito.
 - **Integración:** `@SpringBootTest(webEnvironment = MOCK)` + `@AutoConfigureMockMvc` para tests de endpoints sin levantar servidor real
 - **Unitarios:** `@ExtendWith(MockitoExtension.class)` — sin contexto Spring, instanciación directa o `@InjectMocks`
 - **Limpieza:** los tests de integración borran la BD en `@AfterEach` en orden FK (refresh tokens → user tokens → users)
-
----
-
-## Funcionalidades Comentadas (No Activas)
-
-Hay código preparado pero no activo todavía. **No eliminar**, son funcionalidades previstas:
-- `MailerService.java` — Envío de emails con SendGrid + Thymeleaf templates
-- `GoogleAuthService.java` — Verificación de Google ID tokens
-- `UserTokenService.java` + `UserTokenRepository.java` + `UserTokenEntity.java` — Tokens de verificación de email y reset de contraseña
 
 ---
 
