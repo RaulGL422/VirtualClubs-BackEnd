@@ -95,6 +95,14 @@ JWT_SECRET_DEBUG=
 ### Reglas de Contraseña (@StrongPassword)
 Regex: mínimo 2 mayúsculas, 2 minúsculas, 1 dígito.
 
+### Migraciones de Base de Datos (Flyway)
+- **Ubicación:** `src/main/resources/db/migration/`
+- **Formato de nombre:** `V{n}__{descripcion_en_snake_case}.sql` — ej: `V5__add_index_refresh_tokens.sql`
+- **Regla crítica:** nunca modificar un script ya ejecutado en producción — siempre crear uno nuevo
+- `ddl-auto=validate` — Hibernate solo valida el esquema, Flyway lo gestiona
+- En tests (H2): `spring.flyway.enabled=false` — H2 usa `create-drop` directamente
+- Para recrear la BD en dev: `./mvnw flyway:clean` (⚠️ solo con variables `_DEBUG` en `.env`)
+
 ### Convenciones de Testing
 - **Perfil:** `@ActiveProfiles({"dev", "test"})` — el perfil `test` sobrescribe la BD con H2 en memoria (`application-test.properties`)
 - **Mocks obligatorios:** `GoogleAuthService` y `MailerService` deben anotarse con `@MockitoBean` (no `@MockBean`, deprecado en Spring Boot 3.4+) para evitar conexiones externas al arrancar el contexto
