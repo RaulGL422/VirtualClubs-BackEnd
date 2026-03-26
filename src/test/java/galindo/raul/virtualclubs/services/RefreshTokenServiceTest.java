@@ -47,47 +47,32 @@ class RefreshTokenServiceTest {
 
     @Test
     void saveOrUpdate_sinTokenPrevio_guardaNuevoToken() {
-        when(refreshTokenRepository.findByUserAndRevokedFalse(user)).thenReturn(Collections.emptyList());
-
         service.saveOrUpdate(user, "hashed-token-nuevo", dispositive);
 
+        verify(refreshTokenRepository).deleteByUserAndDeviceId(user, "device-id-123");
         verify(refreshTokenRepository).saveAndFlush(argThat(rt ->
                 rt.getToken().equals("hashed-token-nuevo") &&
                 rt.getDeviceId().equals("device-id-123")));
     }
 
     @Test
-    void saveOrUpdate_conTokenExistenteDelMismoDispositivo_revocaElViejoYGuardaElNuevo() {
-        RefreshTokenEntity tokenExistente = RefreshTokenEntity.builder()
-                .token("token-viejo")
-                .deviceId("device-id-123")
-                .user(user)
-                .build();
-
-        when(refreshTokenRepository.findByUserAndRevokedFalse(user)).thenReturn(List.of(tokenExistente));
-
+    void saveOrUpdate_conTokenExistenteDelMismoDispositivo_eliminaElViejoYGuardaElNuevo() {
         service.saveOrUpdate(user, "token-nuevo", dispositive);
 
-        // El token existente del mismo dispositivo se marca como revocado
-        assertThat(tokenExistente.isRevoked()).isTrue();
+        // El token del mismo dispositivo se elimina antes de insertar el nuevo
+        verify(refreshTokenRepository).deleteByUserAndDeviceId(user, "device-id-123");
         verify(refreshTokenRepository).saveAndFlush(argThat(rt -> rt.getToken().equals("token-nuevo")));
     }
 
     @Test
-    void saveOrUpdate_conTokenDeOtroDispositivo_noRevocaElOtroToken() {
-        RefreshTokenEntity tokenOtroDispositivo = RefreshTokenEntity.builder()
-                .token("token-otro-dispositivo")
-                .deviceId("otro-device-id")
-                .user(user)
-                .build();
-
-        when(refreshTokenRepository.findByUserAndRevokedFalse(user)).thenReturn(List.of(tokenOtroDispositivo));
+    void saveOrUpdate_conTokenDeOtroDispositivo_noEliminaElOtroToken() {
+        Dispositive otroDispositivo = new Dispositive("otro-device-id", "Otro Device", "IOS", "192.168.1.1");
 
         service.saveOrUpdate(user, "token-nuevo", dispositive);
 
-        // El token de otro dispositivo no se toca
-        assertThat(tokenOtroDispositivo.isRevoked()).isFalse();
-        verify(refreshTokenRepository).saveAndFlush(any());
+        // Solo elimina tokens del dispositivo actual, no del otro
+        verify(refreshTokenRepository).deleteByUserAndDeviceId(user, "device-id-123");
+        verify(refreshTokenRepository, never()).deleteByUserAndDeviceId(user, "otro-device-id");
     }
 
     // ─────────────────────────────────────────────────────────────

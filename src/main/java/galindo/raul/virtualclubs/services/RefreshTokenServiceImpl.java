@@ -36,10 +36,8 @@ public class RefreshTokenServiceImpl {
         .ipAddress(dispositive.ipAddress())
         .build();
     
-    refreshTokenRepository.findByUserAndRevokedFalse(user).stream()
-        .filter(t -> t.getDeviceId().equals(dispositive.deviceId()) && !t.isRevoked())
-        .forEach(t -> t.setRevoked(true));
-    
+    refreshTokenRepository.deleteByUserAndDeviceId(user, dispositive.deviceId());
+    refreshTokenRepository.flush();
     refreshTokenRepository.saveAndFlush(refreshTokenEntity);
   }
   
