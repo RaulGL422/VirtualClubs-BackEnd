@@ -2,13 +2,12 @@ package galindo.raul.virtualclubs.config.security.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.function.Function;
 
@@ -17,16 +16,16 @@ import java.util.function.Function;
  */
 @Component
 public class JwtUtils {
-  
+
   @Value("${jwt.secret}")
   private String secret;
-  
+
   @Value("${jwt.expiration}")
   private String accessTokenExpirationMillis;
-  
+
   @Value("${jwt.refreshExpiration}")
   private String refreshTokenExpirationMillis;
-  
+
   /**
    * Generates a short-lived access token for the given username.
    *
@@ -36,7 +35,7 @@ public class JwtUtils {
   public String generateAccessToken(String username) {
     return generateToken(username, "access", Long.parseLong(accessTokenExpirationMillis));
   }
-  
+
   /**
    * Generates a long-lived refresh token for the given username.
    *
@@ -46,7 +45,7 @@ public class JwtUtils {
   public String generateRefreshToken(String username) {
     return generateToken(username, "refresh", Long.parseLong(refreshTokenExpirationMillis));
   }
-  
+
   /**
    * Internal helper to build a JWT.
    * @param username the subject
@@ -55,14 +54,14 @@ public class JwtUtils {
    */
   private String generateToken(String username, String type, Long millisToExpire) {
     return Jwts.builder()
-        .setSubject(username)
-        .setIssuedAt(new Date(System.currentTimeMillis()))
-        .setExpiration(new Date(System.currentTimeMillis() + millisToExpire))
+        .subject(username)
+        .issuedAt(new Date(System.currentTimeMillis()))
+        .expiration(new Date(System.currentTimeMillis() + millisToExpire))
         .claim("type", type)
-        .signWith(getSignatureKey(), SignatureAlgorithm.HS256)
+        .signWith(getSignatureKey())
         .compact();
   }
-  
+
   /**
    * Validates if the token is structurally sound and matches the expected type.
    *
@@ -77,7 +76,7 @@ public class JwtUtils {
       return false;
     }
   }
-  
+
   /**
    * Extracts the username (subject) from the token.
    *
@@ -87,7 +86,7 @@ public class JwtUtils {
   public String getUsernameFromToken(String token) {
     return getClaim(token, Claims::getSubject);
   }
-  
+
   /**
    * Extracts the "type" claim from the token.
    *
@@ -97,7 +96,7 @@ public class JwtUtils {
   public String getTypeFromToken(String token) {
     return getClaim(token, (claims) -> claims.get("type", String.class));
   }
-  
+
   /**
    * Generic method to extract a specific claim from the token.
    *
@@ -110,25 +109,25 @@ public class JwtUtils {
     Claims claims = extractAllClaims(token);
     return claimsResolver.apply(claims);
   }
-  
+
   /**
    * Parses the token and returns all claims.
    * @param token the JWT string
    * @return the Claims object
    */
   private Claims extractAllClaims(String token) {
-    return Jwts.parserBuilder()
-        .setSigningKey(getSignatureKey())
+    return Jwts.parser()
+        .verifyWith(getSignatureKey())
         .build()
-        .parseClaimsJws(token)
-        .getBody();
+        .parseSignedClaims(token)
+        .getPayload();
   }
-  
+
   /**
    * Decodes the secret and generates the HMAC signing key.
-   * @return the cryptographic Key
+   * @return the cryptographic SecretKey
    */
-  private Key getSignatureKey() {
+  private SecretKey getSignatureKey() {
     byte[] apiKeySecretBytes = Decoders.BASE64.decode(secret);
     return Keys.hmacShaKeyFor(apiKeySecretBytes);
   }
