@@ -36,4 +36,12 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity
     boolean existsByTokenAndUserAndRevokedFalse(String token, UserEntity user);
     
     List<RefreshTokenEntity> findByUserAndDeviceIdAndRevokedFalse(UserEntity user, String deviceId);
+
+    /**
+     * Deletes all refresh tokens for a specific user and device.
+     *
+     * @param user     the user associated with the tokens
+     * @param deviceId the device identifier
+     */
+    void deleteByUserAndDeviceId(UserEntity user, String deviceId);
 }
