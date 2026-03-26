@@ -1,5 +1,16 @@
-//package galindo.raul.virtualclubs.services;
-//
+package galindo.raul.virtualclubs.services;
+
+import org.springframework.stereotype.Service;
+
+/**
+ * Stub pendiente de implementación — envío de emails via Spring Mail.
+ * Ver código comentado abajo para la implementación anterior (SendGrid).
+ */
+@Service
+public class MailerService {
+    // Implementación pendiente
+}
+
 //import com.sendgrid.Method;
 //import com.sendgrid.Request;
 //import com.sendgrid.Response;

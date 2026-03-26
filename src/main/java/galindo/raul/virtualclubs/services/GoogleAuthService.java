@@ -1,5 +1,16 @@
-//package galindo.raul.virtualclubs.services;
-//
+package galindo.raul.virtualclubs.services;
+
+import org.springframework.stereotype.Service;
+
+/**
+ * Stub pendiente de implementación — Google OAuth2 token verification.
+ * Ver código comentado abajo para la implementación completa.
+ */
+@Service
+public class GoogleAuthService {
+    // Implementación pendiente
+}
+
 //import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 //import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 //import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;

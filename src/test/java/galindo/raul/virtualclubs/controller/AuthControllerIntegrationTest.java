@@ -46,7 +46,7 @@ class AuthControllerIntegrationTest {
 
     private static final String BASE    = "/v1/auth";
     private static final String EMAIL   = "test@test.com";
-    private static final String PASSWORD = "PAss1"; // 2 upper, 2 lower, 1 digit — cumple @StrongPassword
+    private static final String PASSWORD = "PAss12"; // 2 upper, 2 lower, 2 digits — cumple @StrongPassword y @Size(min=6)
 
     @Autowired private MockMvc mockMvc;
     @Autowired private ObjectMapper objectMapper;
