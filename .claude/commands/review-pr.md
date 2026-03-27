@@ -152,8 +152,8 @@ Si se detectó una tarjeta Notion (VC-N en el nombre de rama), actualiza el esta
 
 | Veredicto | Estado Notion |
 |-----------|---------------|
-| APROBADO | `✅PR Aprobado` |
-| APROBADO CON SUGERENCIAS | `✅PR Aprobado` |
+| APROBADO | `📦 Pendiente debug` |
+| APROBADO CON SUGERENCIAS | `📦 Pendiente debug` |
 | CAMBIOS REQUERIDOS | `🔄️Cambios Solicitados` |
 
 Busca la página con `notion-search` en `data_source_url: "collection://276a7f5d-0a0f-802c-8d6f-000b821853c1"` usando el número N, luego usa `notion-update-page` con `command: "update_properties"` y el estado correspondiente.
