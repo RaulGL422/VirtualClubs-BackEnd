@@ -34,6 +34,11 @@ public class RateLimitingFilter implements Filter {
   private final ObjectMapper objectMapper;
   private final Map<String, Integer> limits;
 
+  /**
+   * @param objectMapper serializador JSON para construir la respuesta 429
+   * @param limits       mapa de endpoint → capacidad máxima por minuto por IP;
+   *                     los endpoints ausentes no tienen restricción
+   */
   public RateLimitingFilter(ObjectMapper objectMapper, Map<String, Integer> limits) {
     this.objectMapper = objectMapper;
     this.limits = limits;
