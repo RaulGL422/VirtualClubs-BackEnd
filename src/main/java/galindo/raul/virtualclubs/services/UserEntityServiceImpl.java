@@ -7,8 +7,8 @@ import galindo.raul.virtualclubs.models.enums.Role;
 import galindo.raul.virtualclubs.models.exceptions.EmailNotFoundException;
 import galindo.raul.virtualclubs.models.exceptions.UserAlreadyExistException;
 import galindo.raul.virtualclubs.repositories.UserEntityRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -29,13 +29,11 @@ import java.util.Set;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserEntityServiceImpl implements UserDetailsService {
-  
-  @Autowired
-  private UserEntityRepository userRepository;
-  
-  @Autowired
-  private PasswordEncoder passwordEncoder;
+
+  private final UserEntityRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
   
   @Override
   @Transactional
