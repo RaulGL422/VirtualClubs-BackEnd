@@ -95,6 +95,21 @@ JWT_SECRET_DEBUG=
 ### Reglas de Contraseña (@StrongPassword)
 Regex: mínimo 2 mayúsculas, 2 minúsculas, 1 dígito.
 
+### Rate Limiting
+
+- **Configuración:** `application.properties`, prefijo `rate-limiting.limits`
+- **Formato:** `rate-limiting.limits[/ruta/endpoint]=N` donde N = máx. peticiones por minuto por IP
+- **Para añadir un endpoint nuevo:** solo añadir una línea en `application.properties`; el filtro lo recoge automáticamente sin tocar código
+- **Implementación:** `RateLimitingFilter` + `RateLimitingProperties` en `config/security/`
+- **Respuesta al superar el límite:** HTTP 429 + `ApiResponse.error(ErrorType.RATE_LIMIT_EXCEEDED)` (código 28)
+- **IPs detrás de proxy:** se extrae la IP real de `X-Forwarded-For` (primer valor)
+- **Activación:** registrado en `SecurityConfig` antes de `JwtAuthFilter`
+
+```properties
+# Ejemplo — añadir un endpoint nuevo
+rate-limiting.limits[/v1/clubs/join]=10
+```
+
 ### Migraciones de Base de Datos (Flyway)
 - **Ubicación:** `src/main/resources/db/migration/`
 - **Formato de nombre:** `V{n}__{descripcion_en_snake_case}.sql` — ej: `V5__add_index_refresh_tokens.sql`
