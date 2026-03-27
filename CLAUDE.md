@@ -145,6 +145,7 @@ Regex: mínimo 2 mayúsculas, 2 minúsculas, 1 dígito.
 | `/update-deps` | Revisa dependencias desactualizadas en pom.xml |
 | `/project-status` | Estado general: git, endpoints, PRs abiertos, deuda técnica |
 | `/add-task [desc]` | Crea una tarjeta nueva en Notion con tipo, prioridad y esfuerzo detectados automáticamente |
+| `/release-debug [--patch\|--minor]` | Agrupa features `📦 Pendiente debug`, genera CHANGELOG, bumps versión y crea PR de release |
 
 ---
 
@@ -162,7 +163,7 @@ Gestor de tareas del proyecto: base de datos **"Registro de tareas VirtualClubs"
 | `Nombre de la tarea` | title | — |
 | `userDefined:ID` | auto_increment | número de tarjeta (VC-N) |
 | `Tipo de tarea` | multi_select | 🐞 Error, 🛠️ Funcionalidad, 🔎 Testing, ✏️ Diseño, 💻 BackEnd, 📱 Android, ⛓️ API, 📊 Base de datos, 🔒 Autenticación |
-| `Estado` | status | Sin Empezar, 💻 En curso, 🔎 Testeando, ✏️ Refactorizando, ⌛🔎 Pendiente de testeo, ⌛✏️ Pendiente de Refactorizado, ❌ Testeo fallido, ⏸️ Pausado, 👁️ Pendiente de Publicar, ✅ Publicado |
+| `Estado` | status | Sin Empezar, 💻 En curso, 🔎 Testeando, ✏️ Refactorizando, ⌛🔎 Pendiente de testeo, ⌛✏️ Pendiente de Refactorizado, ❌ Testeo fallido, ⏸️ Pausado, 📬 PR Abierto, 📦 Pendiente debug, 👁️ Pendiente de Publicar, ✅ Publicado |
 | `Prioridad` | select | Alta, Medio, Baja |
 | `Descripción` | text | — |
 | `Nivel de esfuerzo` | select | Pequeño, Medio, Grande |
@@ -179,8 +180,18 @@ Gestor de tareas del proyecto: base de datos **"Registro de tareas VirtualClubs"
 `[prefijo]/vc-[N]-[nombre-en-kebab-ascii]` — ej: `fix/vc-3-refresh-token-expiracion`
 
 ### Flujo de estados
-1. Al iniciar trabajo (`/new-feature VC-N`) → actualizar a `💻 En curso`
-2. El resto de transiciones (Testeando, Publicado…) el usuario las gestiona manualmente en Notion
+
+| Paso | Estado | Responsable |
+|------|--------|-------------|
+| Tarea creada | `Sin Empezar` | `/add-task` |
+| Inicia desarrollo | `💻 En curso` | `/new-feature VC-N` |
+| PR abierto | `📬 PR Abierto` | `/create-pr` |
+| PR aprobado por revisión | `📦 Pendiente debug` | `/review-pr` (automático si APROBADO) |
+| Release publicado a debug | `⌛🔎 Pendiente de Testeo` | `/release-debug` |
+| Pruebas manuales OK | `👁️ Pendiente de Publicar` | manual |
+| Publicado a producción | `✅ Publicado` | manual |
+
+**Regla importante:** Ningún slash command actualiza el estado a `👁️ Pendiente de Publicar` ni `✅ Publicado` — esas transiciones son siempre manuales.
 
 ---
 
