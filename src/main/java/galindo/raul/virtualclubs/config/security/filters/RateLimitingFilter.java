@@ -13,11 +13,13 @@ import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Filtro de rate limiting por IP y endpoint.
@@ -27,10 +29,15 @@ import java.util.concurrent.ConcurrentMap;
  *
  * Cada IP tiene su propio bucket por endpoint: una IP que agota su cuota en /login
  * no afecta a otra IP ni al bucket del mismo usuario en /register.
+ *
+ * Los buckets se almacenan en una caché Caffeine con TTL de 1 minuto por acceso,
+ * evitando el crecimiento indefinido de memoria ante IPs que no vuelven a llamar.
  */
 public class RateLimitingFilter implements Filter {
 
-  private final ConcurrentMap<String, Bucket> buckets = new ConcurrentHashMap<>();
+  private final Cache<String, Bucket> buckets = Caffeine.newBuilder()
+      .expireAfterAccess(1, TimeUnit.MINUTES)
+      .build();
   private final ObjectMapper objectMapper;
   private final Map<String, Integer> limits;
 
@@ -55,7 +62,7 @@ public class RateLimitingFilter implements Filter {
 
   /** Devuelve el bucket para ip:endpoint, creándolo la primera vez con la capacidad configurada. */
   private Bucket resolveBucket(String ip, String path, int capacity) {
-    return buckets.computeIfAbsent(ip + ":" + path, key ->
+    return buckets.get(ip + ":" + path, key ->
         Bucket.builder()
             .addLimit(Bandwidth.builder()
                 .capacity(capacity)
