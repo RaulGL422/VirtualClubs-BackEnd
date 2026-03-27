@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * - WebEnvironment.MOCK usa MockMvc sin levantar un servidor real (ignora SSL)
  *
  * Formato de respuesta por endpoint:
- * - POST /v1/auth/login    → {"accessToken":"...", "refreshToken":"..."} (sin ApiResponse — lo escribe JwtAuthLoginFilter)
+ * - POST /v1/auth/login    → {"success":true, "data":{"accessToken":"...","refreshToken":"..."}} (ApiResponse — lo escribe JwtAuthLoginFilter)
  * - POST /v1/auth/register → {"success":true, "message":null, "data":{"accessToken":"...","refreshToken":"...","email":"..."}}
  * - POST /v1/auth/refresh  → {"success":true, "message":null, "data":{"accessToken":"...","refreshToken":"..."}}
  * - DELETE /v1/auth/logout → {"success":true, "message":null, "data":null}  (requiere Bearer token)
@@ -112,8 +112,8 @@ class AuthControllerIntegrationTest {
 
     // ─────────────────────────────────────────────────────────────
     // POST /v1/auth/login  (manejado por JwtAuthLoginFilter)
-    // La respuesta NO está envuelta en ApiResponse:
-    //   {"accessToken":"...", "refreshToken":"..."}
+    // La respuesta está envuelta en ApiResponse:
+    //   {"success":true, "data":{"accessToken":"...", "refreshToken":"..."}}
     // ─────────────────────────────────────────────────────────────
 
     @Test
@@ -124,18 +124,18 @@ class AuthControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body(EMAIL, PASSWORD)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").isNotEmpty())
-                .andExpect(jsonPath("$.refreshToken").isNotEmpty());
+                .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.data.refreshToken").isNotEmpty());
     }
 
     @Test
-    void login_contrasenaIncorrecta_retorna403() throws Exception {
+    void login_contrasenaIncorrecta_retorna401() throws Exception {
         register(EMAIL, PASSWORD);
 
         mockMvc.perform(post(BASE + "/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body(EMAIL, "WRong9"))) // contraseña incorrecta
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -224,7 +224,7 @@ class AuthControllerIntegrationTest {
                 .andReturn();
 
         JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
-        return json.get("refreshToken").asText();
+        return json.get("data").get("refreshToken").asText();
     }
 
     private String loginYObtenerAccessToken(String email, String password) throws Exception {
@@ -234,6 +234,6 @@ class AuthControllerIntegrationTest {
                 .andReturn();
 
         JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
-        return json.get("accessToken").asText();
+        return json.get("data").get("accessToken").asText();
     }
 }
