@@ -55,7 +55,7 @@ public class RateLimitingFilter implements Filter {
 
   /** Devuelve el bucket para ip:endpoint, creándolo la primera vez con la capacidad configurada. */
   private Bucket resolveBucket(String ip, String path, int capacity) {
-    return buckets.computeIfAbsent(ip + ":" + path, _ ->
+    return buckets.computeIfAbsent(ip + ":" + path, key ->
         Bucket.builder()
             .addLimit(Bandwidth.builder()
                 .capacity(capacity)
