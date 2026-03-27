@@ -156,14 +156,15 @@ class AuthControllerIntegrationTest {
     }
 
     @Test
-    void refresh_tokenMalformado_retornaError() throws Exception {
+    void refresh_tokenMalformado_retorna401() throws Exception {
         // "no-es-un-jwt" → JwtUtils.getUsernameFromToken lanza MalformedJwtException
-        // GlobalExceptionHandler lo captura con el handler genérico → 500
-        // Nota: sería mejor retornar 401 capturando JwtException en el controller
+        // GlobalExceptionHandler lo captura con @ExceptionHandler(JwtException.class) → 401
         mockMvc.perform(post(BASE + "/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"refreshToken\": \"no-es-un-jwt\"}"))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.message").value(12));
     }
 
     // ─────────────────────────────────────────────────────────────

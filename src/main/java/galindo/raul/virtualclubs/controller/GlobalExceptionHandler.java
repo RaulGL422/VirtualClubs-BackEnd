@@ -3,6 +3,7 @@ package galindo.raul.virtualclubs.controller;
 import galindo.raul.virtualclubs.dtos.response.ApiResponse;
 import galindo.raul.virtualclubs.models.enums.ErrorType;
 import galindo.raul.virtualclubs.models.exceptions.*;
+import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
@@ -177,6 +178,20 @@ public class GlobalExceptionHandler {
 //    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 //        .body(new ApiResponse<>(false, ErrorType.FAILED_SEND_EMAIL, ResponseType.ERROR, null));
 //  }
+
+  /**
+   * Handles {@link JwtException} when a JWT token is malformed, expired, or otherwise invalid.
+   * Returns 401 UNAUTHORIZED so the client knows it must re-authenticate, not that it has no permission.
+   *
+   * @param e The {@link JwtException} that occurred.
+   * @return A {@link ResponseEntity} with HTTP status 401 and an {@link ApiResponse} for invalid refresh token.
+   */
+  @ExceptionHandler(JwtException.class)
+  public ResponseEntity<ApiResponse<Void>> handleJwtException(JwtException e) {
+    log.warn("⚠️ Malformed or invalid JWT: {}", e.getMessage());
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .body(ApiResponse.error(ErrorType.INVALID_REFRESH_TOKEN));
+  }
 
   /**
    * Handles {@link InternalErrorException} for custom internal errors within the application.
