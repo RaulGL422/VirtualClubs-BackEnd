@@ -2,6 +2,7 @@ package galindo.raul.virtualclubs.config.security.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import galindo.raul.virtualclubs.dtos.request.AuthRequest;
+import galindo.raul.virtualclubs.dtos.response.ApiResponse;
 import galindo.raul.virtualclubs.models.Tokens;
 import galindo.raul.virtualclubs.models.entities.UserEntity;
 import galindo.raul.virtualclubs.models.enums.ErrorType;
@@ -72,13 +73,12 @@ public class JwtAuthLoginFilter extends UsernamePasswordAuthenticationFilter {
   
   @Override
   protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
-    Map<String, Object> httpResponse =  new HashMap<>();
-    httpResponse.put("success", false);
-    httpResponse.put("message", ErrorType.INVALID_CREDENTIALS.getCode());
-    
-    response.getWriter().write(new ObjectMapper().writeValueAsString(httpResponse));
-    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    response.setCharacterEncoding("UTF-8");
+    response.getWriter().write(
+        new ObjectMapper().writeValueAsString(ApiResponse.error(ErrorType.INVALID_CREDENTIALS))
+    );
     response.getWriter().flush();
   }
   
@@ -107,13 +107,16 @@ public class JwtAuthLoginFilter extends UsernamePasswordAuthenticationFilter {
 
     response.addHeader("Authorization", newAccessToken);
 
-    Map<String, Object> httpResponse =  new HashMap<>();
-    httpResponse.put("accessToken", newAccessToken);
-    httpResponse.put("refreshToken", newRefreshToken);
-
-    response.getWriter().write(new ObjectMapper().writeValueAsString(httpResponse));
+    Map<String, Object> responseData =  new HashMap<>();
+    responseData.put("accessToken", newAccessToken);
+    responseData.put("refreshToken", newRefreshToken);
+    
     response.setStatus(HttpServletResponse.SC_OK);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    response.setCharacterEncoding("UTF-8");
+    response.getWriter().write(
+        new ObjectMapper().writeValueAsString(ApiResponse.success(responseData))
+    );
     response.getWriter().flush();
 
     super.successfulAuthentication(request, response, chain, authResult);
