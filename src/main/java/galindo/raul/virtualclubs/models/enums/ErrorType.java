@@ -32,7 +32,8 @@ public enum ErrorType {
   GOOGLE_LOGIN_EXCEPTION(24),
   USER_NOT_FOUND(25),
   EMAIL_NOT_VERIFIED(26),
-  PASSWORD_NOT_STRONG(27);
+  PASSWORD_NOT_STRONG(27),
+  RATE_LIMIT_EXCEEDED(28);
   
   private final int code;
   
