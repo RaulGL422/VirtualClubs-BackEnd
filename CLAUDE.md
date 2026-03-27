@@ -161,6 +161,7 @@ rate-limiting.limits[/v1/clubs/join]=10
 | `/project-status` | Estado general: git, endpoints, PRs abiertos, deuda técnica |
 | `/add-task [desc]` | Crea una tarjeta nueva en Notion con tipo, prioridad y esfuerzo detectados automáticamente |
 | `/release-debug [--patch\|--minor]` | Agrupa features `📦 Pendiente debug`, genera CHANGELOG, bumps versión y crea PR de release |
+| `/do-task VC-N` | Flujo completo autónomo: crea rama, implementa checkboxes de Notion, commit, PR y revisión |
 
 ---
 
