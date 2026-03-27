@@ -33,17 +33,12 @@ public class UserEntityServiceImpl implements UserDetailsService {
   
   @Autowired
   private UserEntityRepository userRepository;
-
-  /**
-   * Loads a user by their email address for Spring Security authentication.
-   * @param email The email of the user to load.
-   * @return UserDetails object containing credentials and authorities.
-   */
   
   @Autowired
   private PasswordEncoder passwordEncoder;
   
   @Override
+  @Transactional
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
     UserEntity user = _getUserFromEmail(email);
     
@@ -139,15 +134,6 @@ public class UserEntityServiceImpl implements UserDetailsService {
     log.info("🆕 Creating new user with Google account '{}'", email);
     UserEntity newUser = createGoogleUser(email, name, googleId);
     return userRepository.save(newUser);
-  }
-  
-  /**
-   * Persists a UserEntity to the database.
-   * @param user The user entity to save.
-   */
-  @Transactional
-  public void saveUser(UserEntity user) {
-    userRepository.save(user);
   }
   
   // -------------------------------
