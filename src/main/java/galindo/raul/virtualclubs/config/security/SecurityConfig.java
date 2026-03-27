@@ -1,11 +1,16 @@
 package galindo.raul.virtualclubs.config.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import galindo.raul.virtualclubs.config.security.filters.JwtAuthFilter;
 import galindo.raul.virtualclubs.config.security.filters.JwtAuthLoginFilter;
+import galindo.raul.virtualclubs.config.security.filters.RateLimitingFilter;
+import galindo.raul.virtualclubs.config.security.filters.models.RateLimitingProperties;
+
 import galindo.raul.virtualclubs.config.security.utils.JwtUtils;
 import galindo.raul.virtualclubs.services.TokensService;
 import galindo.raul.virtualclubs.services.UserEntityServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,10 +31,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableMethodSecurity
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableConfigurationProperties(RateLimitingProperties.class)
 public class SecurityConfig {
   private final TokensService tokensService;
   private final JwtUtils jwtUtils;
   private final UserEntityServiceImpl userEntityService;
+  private final ObjectMapper objectMapper;
+  private final RateLimitingProperties rateLimitingProperties;
   
   /**
    * Configures the security filter chain.
@@ -45,9 +53,10 @@ public class SecurityConfig {
   public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
     JwtAuthLoginFilter jwtAuthLoginFilter = new JwtAuthLoginFilter(authenticationManager, userEntityService, tokensService);
     jwtAuthLoginFilter.setFilterProcessesUrl("/v1/auth/login");
-    
+
     JwtAuthFilter jwtAuthFilter = new JwtAuthFilter(jwtUtils, userEntityService);
-    
+    RateLimitingFilter rateLimitingFilter = new RateLimitingFilter(objectMapper, rateLimitingProperties.limits());
+
     http
         .csrf(AbstractHttpConfigurer::disable)
         .authorizeHttpRequests(auth -> auth
@@ -60,7 +69,8 @@ public class SecurityConfig {
         )
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .addFilterAt(jwtAuthLoginFilter, UsernamePasswordAuthenticationFilter.class)
-        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+        .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterBefore(rateLimitingFilter, JwtAuthFilter.class);
     return http.build();
   }
   
