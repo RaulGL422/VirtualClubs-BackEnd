@@ -5,6 +5,7 @@ import galindo.raul.virtualclubs.models.entities.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Repository interface for managing {@link RefreshTokenEntity} persistence.
@@ -34,6 +35,16 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity
      * @return true if a valid token exists, false otherwise
      */
     boolean existsByTokenAndUserAndRevokedFalse(String token, UserEntity user);
+
+    /**
+     * Finds a specific active refresh token by its hash and user.
+     * Used to delete only the token that was used during a refresh, not all user tokens.
+     *
+     * @param token the hashed token string to look up
+     * @param user  the user associated with the token
+     * @return an Optional containing the token entity if found and not revoked
+     */
+    Optional<RefreshTokenEntity> findByTokenAndUserAndRevokedFalse(String token, UserEntity user);
     
     List<RefreshTokenEntity> findByUserAndDeviceIdAndRevokedFalse(UserEntity user, String deviceId);
 
