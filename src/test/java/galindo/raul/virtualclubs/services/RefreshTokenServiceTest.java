@@ -13,6 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -112,24 +113,30 @@ class RefreshTokenServiceTest {
     // ─────────────────────────────────────────────────────────────
 
     @Test
-    void removeToken_tokenValidoYActivo_eliminaTodosLosTokensYRetornaTrue() {
-        when(refreshTokenRepository.existsByTokenAndUserAndRevokedFalse("token-hash", user))
-                .thenReturn(true);
+    void removeToken_tokenValidoYActivo_eliminaSoloEseTokenYRetornaTrue() {
+        RefreshTokenEntity tokenEntity = RefreshTokenEntity.builder()
+                .token("token-hash")
+                .user(user)
+                .deviceId("device-id-123")
+                .build();
+        when(refreshTokenRepository.findByTokenAndUserAndRevokedFalse("token-hash", user))
+                .thenReturn(Optional.of(tokenEntity));
 
         boolean resultado = service.removeToken(user, "token-hash");
 
         assertThat(resultado).isTrue();
-        verify(refreshTokenRepository).deleteByUser(user);
+        verify(refreshTokenRepository).delete(tokenEntity);
+        verify(refreshTokenRepository, never()).deleteByUser(any());
     }
 
     @Test
     void removeToken_tokenNoExisteORevocado_retornaFalse() {
-        when(refreshTokenRepository.existsByTokenAndUserAndRevokedFalse("token-hash", user))
-                .thenReturn(false);
+        when(refreshTokenRepository.findByTokenAndUserAndRevokedFalse("token-hash", user))
+                .thenReturn(Optional.empty());
 
         boolean resultado = service.removeToken(user, "token-hash");
 
         assertThat(resultado).isFalse();
-        verify(refreshTokenRepository, never()).deleteByUser(any());
+        verify(refreshTokenRepository, never()).delete(any(RefreshTokenEntity.class));
     }
 }
