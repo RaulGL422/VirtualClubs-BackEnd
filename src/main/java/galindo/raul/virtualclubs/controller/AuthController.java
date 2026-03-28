@@ -46,12 +46,12 @@ public class AuthController {
                                                                 HttpServletRequest request) {
     String email = registerRequest.email();
     String password = registerRequest.password();
-    log.info("📝 Registration attempt: email='{}'", email);
+    log.info("Registration attempt: email='{}'", email);
     
     UserEntity user = userService.registerUser(email, password);
     Tokens newTokens = tokensService.getNewTokens(user, CommonUtils.getDispositiveInfo(request));
     
-    log.info("✅ User '{}' registered", email);
+    log.info("User '{}' registered successfully", email);
     
     RegisterResponse response = new RegisterResponse(newTokens.accessToken(), newTokens.refreshToken(), email);
     return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
@@ -69,11 +69,11 @@ public class AuthController {
                                                                    HttpServletRequest request) {
     String refreshToken = refreshRequest.refreshToken();
     String email = jwtUtils.getUsernameFromToken(refreshToken);
-    log.info("🔄 Refresh token request for '{}'", email);
+    log.info("Refresh token request for '{}'", email);
     
     Tokens newTokens = tokensService.refreshTokens(userService.getUserFromEmail(email), refreshToken, CommonUtils.getDispositiveInfo(request));
     
-    log.info("✅ Tokens refreshed for '{}'", email);
+    log.info("Tokens refreshed for '{}'", email);
     
     return ResponseEntity.ok(ApiResponse.success(new RefreshResponse(newTokens.accessToken(), newTokens.refreshToken())));
   }
@@ -87,7 +87,7 @@ public class AuthController {
     
     refreshTokenService.removeTokenFromDevice(userService.getUserFromEmail(email), dispositive);
     
-    log.info("ℹ️ User '{}' in device '{}' logged out", email, dispositive.deviceId());
+    log.info("User '{}' in device '{}' logged out", email, dispositive.deviceId());
     
     return ResponseEntity.ok(ApiResponse.emptySuccess());
   }
