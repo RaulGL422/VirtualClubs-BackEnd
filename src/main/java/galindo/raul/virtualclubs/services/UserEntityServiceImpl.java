@@ -105,12 +105,12 @@ public class UserEntityServiceImpl implements UserDetailsService {
    */
   @Transactional
   public UserEntity registerOrLoadUserWithGoogle(String email, String name, String googleId) {
-    log.info("🔵 Processing Google login/register for email='{}'", email);
+    log.info("Processing Google login/register for email='{}'", email);
     
     // 1. Buscar usuario con Google provider
     Optional<UserEntity> googleUserOpt = userRepository.findByProvider("GOOGLE", googleId, email);
     if (googleUserOpt.isPresent()) {
-      log.info("✅ Found existing Google user '{}'", email);
+      log.info("Found existing Google user '{}'", email);
       return googleUserOpt.get();
     }
     
@@ -119,18 +119,18 @@ public class UserEntityServiceImpl implements UserDetailsService {
     if (localUserOpt.isPresent()) {
       UserEntity localUser = localUserOpt.get();
       if (localUser.isEmailVerified()) {
-        log.info("🔗 Linking Google provider to existing verified LOCAL account '{}'", email);
+        log.info("Linking Google provider to existing verified LOCAL account '{}'", email);
         addGoogleProvider(localUser, googleId);
         return userRepository.save(localUser);
       } else {
-        log.warn("⚠️ Local account '{}' is unverified, deleting and creating Google account", email);
+        log.warn("Local account '{}' is unverified, deleting and creating Google account", email);
         userRepository.delete(localUser);
         userRepository.flush();
       }
     }
     
     // 3. Crear nuevo usuario con Google
-    log.info("🆕 Creating new user with Google account '{}'", email);
+    log.info("Creating new Google account for email='{}'", email);
     UserEntity newUser = createGoogleUser(email, name, googleId);
     return userRepository.save(newUser);
   }
