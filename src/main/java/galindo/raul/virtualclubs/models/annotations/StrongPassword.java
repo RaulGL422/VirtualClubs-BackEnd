@@ -20,7 +20,7 @@ public @interface StrongPassword {
    * Error message to be returned when validation fails.
    * @return the error message or key.
    */
-  String message() default "27";
+  String message() default "PASSWORD_NOT_STRONG";
   
   /**
    * Groups for which this constraint is applicable.
