@@ -1,8 +1,10 @@
 package galindo.raul.virtualclubs.services;
 
 import galindo.raul.virtualclubs.models.Dispositive;
+import galindo.raul.virtualclubs.models.entities.DeviceEntity;
 import galindo.raul.virtualclubs.models.entities.RefreshTokenEntity;
 import galindo.raul.virtualclubs.models.entities.UserEntity;
+import galindo.raul.virtualclubs.repositories.DeviceRepository;
 import galindo.raul.virtualclubs.repositories.RefreshTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,16 +32,28 @@ class RefreshTokenServiceTest {
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
 
+    @Mock
+    private DeviceRepository deviceRepository;
+
     @InjectMocks
     private RefreshTokenServiceImpl service;
 
     private UserEntity user;
     private Dispositive dispositive;
+    private DeviceEntity device;
 
     @BeforeEach
     void setUp() {
         user = UserEntity.builder().id(1L).email("user@test.com").build();
         dispositive = new Dispositive("device-id-123", "Test Device", "ANDROID", "127.0.0.1");
+        device = DeviceEntity.builder()
+                .id(1L)
+                .deviceId("device-id-123")
+                .deviceName("Test Device")
+                .deviceType("ANDROID")
+                .ipAddress("127.0.0.1")
+                .user(user)
+                .build();
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -47,33 +61,43 @@ class RefreshTokenServiceTest {
     // ─────────────────────────────────────────────────────────────
 
     @Test
-    void saveOrUpdate_sinTokenPrevio_guardaNuevoToken() {
+    void saveOrUpdate_dispositivoNuevo_creaDeviceYGuardaToken() {
+        when(deviceRepository.findByDeviceIdAndUser("device-id-123", user))
+                .thenReturn(Optional.empty());
+        when(deviceRepository.save(any(DeviceEntity.class))).thenReturn(device);
+
         service.saveOrUpdate(user, "hashed-token-nuevo", dispositive);
 
-        verify(refreshTokenRepository).deleteByUserAndDeviceId(user, "device-id-123");
+        verify(deviceRepository).save(argThat(d -> d.getDeviceId().equals("device-id-123")));
+        verify(refreshTokenRepository).deleteByUserAndDevice_DeviceId(user, "device-id-123");
         verify(refreshTokenRepository).saveAndFlush(argThat(rt ->
                 rt.getToken().equals("hashed-token-nuevo") &&
-                rt.getDeviceId().equals("device-id-123")));
+                rt.getDevice().getDeviceId().equals("device-id-123")));
     }
 
     @Test
-    void saveOrUpdate_conTokenExistenteDelMismoDispositivo_eliminaElViejoYGuardaElNuevo() {
+    void saveOrUpdate_dispositivoExistente_reutilizaDeviceYActualizaToken() {
+        when(deviceRepository.findByDeviceIdAndUser("device-id-123", user))
+                .thenReturn(Optional.of(device));
+
         service.saveOrUpdate(user, "token-nuevo", dispositive);
 
-        // El token del mismo dispositivo se elimina antes de insertar el nuevo
-        verify(refreshTokenRepository).deleteByUserAndDeviceId(user, "device-id-123");
+        // No crea un nuevo device
+        verify(deviceRepository, never()).save(any(DeviceEntity.class));
+        verify(refreshTokenRepository).deleteByUserAndDevice_DeviceId(user, "device-id-123");
         verify(refreshTokenRepository).saveAndFlush(argThat(rt -> rt.getToken().equals("token-nuevo")));
     }
 
     @Test
     void saveOrUpdate_conTokenDeOtroDispositivo_noEliminaElOtroToken() {
-        Dispositive otroDispositivo = new Dispositive("otro-device-id", "Otro Device", "IOS", "192.168.1.1");
+        when(deviceRepository.findByDeviceIdAndUser("device-id-123", user))
+                .thenReturn(Optional.of(device));
 
         service.saveOrUpdate(user, "token-nuevo", dispositive);
 
-        // Solo elimina tokens del dispositivo actual, no del otro
-        verify(refreshTokenRepository).deleteByUserAndDeviceId(user, "device-id-123");
-        verify(refreshTokenRepository, never()).deleteByUserAndDeviceId(user, "otro-device-id");
+        // Solo elimina tokens del dispositivo actual, no de otros
+        verify(refreshTokenRepository).deleteByUserAndDevice_DeviceId(user, "device-id-123");
+        verify(refreshTokenRepository, never()).deleteByUserAndDevice_DeviceId(user, "otro-device-id");
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -84,11 +108,11 @@ class RefreshTokenServiceTest {
     void removeTokenFromDevice_tokenExistente_loRevoca() {
         RefreshTokenEntity rt = RefreshTokenEntity.builder()
                 .token("token-activo")
-                .deviceId("device-id-123")
+                .device(device)
                 .user(user)
                 .build();
 
-        when(refreshTokenRepository.findByUserAndDeviceIdAndRevokedFalse(user, "device-id-123"))
+        when(refreshTokenRepository.findByUserAndDevice_DeviceIdAndRevokedFalse(user, "device-id-123"))
                 .thenReturn(List.of(rt));
 
         service.removeTokenFromDevice(user, dispositive);
@@ -98,7 +122,7 @@ class RefreshTokenServiceTest {
 
     @Test
     void removeTokenFromDevice_sinToken_noHaceNada() {
-        when(refreshTokenRepository.findByUserAndDeviceIdAndRevokedFalse(user, "device-id-123"))
+        when(refreshTokenRepository.findByUserAndDevice_DeviceIdAndRevokedFalse(user, "device-id-123"))
                 .thenReturn(Collections.emptyList());
 
         service.removeTokenFromDevice(user, dispositive);
@@ -117,7 +141,7 @@ class RefreshTokenServiceTest {
         RefreshTokenEntity tokenEntity = RefreshTokenEntity.builder()
                 .token("token-hash")
                 .user(user)
-                .deviceId("device-id-123")
+                .device(device)
                 .build();
         when(refreshTokenRepository.findByTokenAndUserAndRevokedFalse("token-hash", user))
                 .thenReturn(Optional.of(tokenEntity));
