@@ -36,8 +36,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * - POST /v1/auth/refresh  → {"success":true, "message":null, "data":{"accessToken":"...","refreshToken":"..."}}
  * - DELETE /v1/auth/logout → {"success":true, "message":null, "data":null}  (requiere Bearer token)
  *
- * Contraseña válida: mínimo 2 mayúsculas, 2 minúsculas, 1 dígito (@StrongPassword).
- * Ejemplo usado en tests: "PAss1" (P,A mayúsculas | s,s minúsculas | 1 dígito).
+ * Contraseña válida: mínimo 2 mayúsculas, 2 minúsculas, 1 dígito (@StrongPassword) y mínimo 6 caracteres (@Size).
+ * Ejemplo usado en tests: "PAss12" (P,A mayúsculas | s,s minúsculas | 1,2 dígitos — cumple @StrongPassword y @Size(min=6)).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -104,6 +104,15 @@ class AuthControllerIntegrationTest {
         mockMvc.perform(post(BASE + "/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body(EMAIL, "abc")))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void register_passwordDemasiadoCorto_retorna400() throws Exception {
+        // "PAss1" → 5 chars → falla @Size(min=6)
+        mockMvc.perform(post(BASE + "/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body(EMAIL, "PAss1")))
                 .andExpect(status().isBadRequest());
     }
 
