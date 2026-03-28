@@ -1,13 +1,17 @@
 package galindo.raul.virtualclubs;
 
+import galindo.raul.virtualclubs.config.CorsProperties;
+import galindo.raul.virtualclubs.config.JwtProperties;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 /**
  * Main entry point for the VirtualClubs Spring Boot application.
  */
 @SpringBootApplication
+@EnableConfigurationProperties({JwtProperties.class, CorsProperties.class})
 public class VirtualClubsApplication {
 
 	/**
