@@ -7,7 +7,6 @@ import galindo.raul.virtualclubs.repositories.RefreshTokenRepository;
 import galindo.raul.virtualclubs.repositories.UserEntityRepository;
 import galindo.raul.virtualclubs.services.GoogleAuthService;
 import galindo.raul.virtualclubs.services.MailerService;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -42,6 +42,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @ActiveProfiles({"dev", "test"})
+@Transactional
 class AuthControllerIntegrationTest {
 
     private static final String BASE    = "/v1/auth";
@@ -57,13 +58,6 @@ class AuthControllerIntegrationTest {
 
     @Autowired private UserEntityRepository userRepository;
     @Autowired private RefreshTokenRepository refreshTokenRepository;
-
-    @AfterEach
-    void cleanDatabase() {
-        // FK: refresh_tokens → users, borrar hijos primero
-        refreshTokenRepository.deleteAll();
-        userRepository.deleteAll();
-    }
 
     // ─────────────────────────────────────────────────────────────
     // POST /v1/auth/register
