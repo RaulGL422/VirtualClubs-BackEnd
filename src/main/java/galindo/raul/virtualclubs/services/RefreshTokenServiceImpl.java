@@ -56,12 +56,11 @@ public class RefreshTokenServiceImpl {
    */
   @Transactional
   public boolean removeToken(UserEntity user, String hashedToken) {
-    
-    if (refreshTokenRepository.existsByTokenAndUserAndRevokedFalse(hashedToken, user)) {
-      refreshTokenRepository.deleteByUser(user);
-      return true;
-    }
-    
-    return false;
+    return refreshTokenRepository.findByTokenAndUserAndRevokedFalse(hashedToken, user)
+        .map(token -> {
+          refreshTokenRepository.delete(token);
+          return true;
+        })
+        .orElse(false);
   }
 }

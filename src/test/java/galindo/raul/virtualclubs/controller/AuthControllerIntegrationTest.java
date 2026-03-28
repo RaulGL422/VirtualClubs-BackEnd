@@ -159,6 +159,38 @@ class AuthControllerIntegrationTest {
     }
 
     @Test
+    void refresh_soloEliminaTokenUsado_otroDispositivoSigueActivo() throws Exception {
+        // Dispositivo A: login real → refresh token almacenado en BD
+        register(EMAIL, PASSWORD);
+        String refreshTokenA = loginYObtenerRefreshToken(EMAIL, PASSWORD);
+
+        // Dispositivo B: insertar segundo token directamente en BD (simula otra sesión)
+        galindo.raul.virtualclubs.models.entities.UserEntity user =
+                userRepository.findByEmail(EMAIL).orElseThrow();
+        refreshTokenRepository.saveAndFlush(
+                RefreshTokenEntity.builder()
+                        .user(user)
+                        .token("fake-hash-device-b-unique-token")
+                        .deviceId("device-b")
+                        .deviceName("Device B")
+                        .deviceType("TEST")
+                        .ipAddress("192.168.0.2")
+                        .build());
+
+        assertThat(refreshTokenRepository.count()).isEqualTo(2);
+
+        // Refrescar con token del dispositivo A
+        mockMvc.perform(post(BASE + "/refresh")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"refreshToken\": \"" + refreshTokenA + "\"}"))
+                .andExpect(status().isOk());
+
+        // El token del dispositivo B debe seguir activo — no fue eliminado por el refresh
+        assertThat(refreshTokenRepository.findAll())
+                .anyMatch(t -> "device-b".equals(t.getDeviceId()) && !t.isRevoked());
+    }
+
+    @Test
     void refresh_tokenMalformado_retorna401() throws Exception {
         // "no-es-un-jwt" → JwtUtils.getUsernameFromToken lanza MalformedJwtException
         // GlobalExceptionHandler lo captura con @ExceptionHandler(JwtException.class) → 401
