@@ -38,7 +38,8 @@ public class UserEntityServiceImpl implements UserDetailsService {
   @Override
   @Transactional
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-    UserEntity user = _getUserFromEmail(email);
+    UserEntity user = userRepository.findByEmailWithRolesAndProviders(email)
+        .orElseThrow(() -> new EmailNotFoundException(email));
     
     // Add authorities
     Set<GrantedAuthority> grantedAuthorities = new HashSet<>();

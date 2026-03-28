@@ -66,7 +66,7 @@ class VirtualClubsUsersDetailsServiceTest {
 
     @Test
     void loadUserByUsername_usuarioExiste_retornaUserDetails() {
-        when(userRepository.findByEmail("user@test.com")).thenReturn(Optional.of(userConProviderLocal));
+        when(userRepository.findByEmailWithRolesAndProviders("user@test.com")).thenReturn(Optional.of(userConProviderLocal));
 
         UserDetails details = service.loadUserByUsername("user@test.com");
 
@@ -76,7 +76,7 @@ class VirtualClubsUsersDetailsServiceTest {
 
     @Test
     void loadUserByUsername_usuarioNoExiste_lanzaEmailNotFoundException() {
-        when(userRepository.findByEmail("ghost@test.com")).thenReturn(Optional.empty());
+        when(userRepository.findByEmailWithRolesAndProviders("ghost@test.com")).thenReturn(Optional.empty());
 
         // UserEntityServiceImpl lanza EmailNotFoundException (extends RuntimeException)
         // al no encontrar el usuario, antes de llegar a construir el UserDetails
@@ -87,7 +87,7 @@ class VirtualClubsUsersDetailsServiceTest {
     @Test
     void loadUserByUsername_rolConPrefijo_noGeneraDobleROLE() {
         // El rol "USER" en la entidad no debe quedar "ROLE_ROLE_USER"
-        when(userRepository.findByEmail("user@test.com")).thenReturn(Optional.of(userConProviderLocal));
+        when(userRepository.findByEmailWithRolesAndProviders("user@test.com")).thenReturn(Optional.of(userConProviderLocal));
 
         UserDetails details = service.loadUserByUsername("user@test.com");
 
@@ -110,7 +110,7 @@ class VirtualClubsUsersDetailsServiceTest {
                 .providerUserId("google-id-123")
                 .build());
 
-        when(userRepository.findByEmail("google@test.com")).thenReturn(Optional.of(googleUser));
+        when(userRepository.findByEmailWithRolesAndProviders("google@test.com")).thenReturn(Optional.of(googleUser));
 
         UserDetails details = service.loadUserByUsername("google@test.com");
 

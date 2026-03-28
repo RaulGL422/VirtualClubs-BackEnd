@@ -1,6 +1,7 @@
 package galindo.raul.virtualclubs.repositories;
 
 import galindo.raul.virtualclubs.models.entities.UserEntity;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,6 +19,16 @@ public interface UserEntityRepository extends JpaRepository<UserEntity, Long> {
      * @return An Optional containing the user if found.
      */
     Optional<UserEntity> findByEmail(String email);
+
+    /**
+     * Finds a user by email eagerly loading roles, their permissions and auth providers
+     * in a single query to avoid N+1 queries in {@code loadUserByUsername}.
+     * @param email The email to search for.
+     * @return An Optional containing the user with all security-related associations loaded.
+     */
+    @EntityGraph(attributePaths = {"roles", "roles.permissionList", "authProviderEntities"})
+    @Query("SELECT u FROM UserEntity u WHERE u.email = :email")
+    Optional<UserEntity> findByEmailWithRolesAndProviders(@Param("email") String email);
 
     /**
      * Finds a user based on OAuth2 provider information or email.
