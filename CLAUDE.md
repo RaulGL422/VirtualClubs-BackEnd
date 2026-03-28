@@ -118,6 +118,12 @@ rate-limiting.limits[/v1/clubs/join]=10
 - En tests (H2): `spring.flyway.enabled=false` — H2 usa `create-drop` directamente
 - Para recrear la BD en dev: `./mvnw flyway:clean` (⚠️ solo con variables `_DEBUG` en `.env`)
 
+### Paginación en Repositorios
+- `UserEntityRepository` hereda `findAll(Pageable)` de `JpaRepository` — disponible sin código adicional
+- `RefreshTokenRepository` expone `findByUser(UserEntity, Pageable)` para listar tokens de un usuario de forma paginada
+- Usar `PageRequest.of(page, size, Sort.by("id").descending())` al llamar métodos paginados
+- Los métodos sin `Pageable` se mantienen para los usos internos existentes (no son breaking changes)
+
 ### Convenciones de Testing
 - **Perfil:** `@ActiveProfiles({"dev", "test"})` — el perfil `test` sobrescribe la BD con H2 en memoria (`application-test.properties`)
 - **Mocks obligatorios:** `GoogleAuthService` y `MailerService` deben anotarse con `@MockitoBean` (no `@MockBean`, deprecado en Spring Boot 3.4+) para evitar conexiones externas al arrancar el contexto
