@@ -123,7 +123,7 @@ rate-limiting.limits[/v1/clubs/join]=10
 - **Mocks obligatorios:** `GoogleAuthService` y `MailerService` deben anotarse con `@MockitoBean` (no `@MockBean`, deprecado en Spring Boot 3.4+) para evitar conexiones externas al arrancar el contexto
 - **Integración:** `@SpringBootTest(webEnvironment = MOCK)` + `@AutoConfigureMockMvc` para tests de endpoints sin levantar servidor real
 - **Unitarios:** `@ExtendWith(MockitoExtension.class)` — sin contexto Spring, instanciación directa o `@InjectMocks`
-- **Limpieza:** los tests de integración borran la BD en `@AfterEach` en orden FK (refresh tokens → user tokens → users)
+- **Limpieza:** los tests de integración usan `@Transactional` a nivel de clase — Spring hace rollback automático al final de cada test (no requiere `@AfterEach` manual)
 
 ---
 
