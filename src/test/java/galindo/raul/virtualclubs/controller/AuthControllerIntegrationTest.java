@@ -70,12 +70,15 @@ class AuthControllerIntegrationTest {
     // ─────────────────────────────────────────────────────────────
 
     @Test
-    void register_usuarioNuevo_retorna200() throws Exception {
+    void register_usuarioNuevo_retorna201() throws Exception {
         mockMvc.perform(post(BASE + "/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body(EMAIL, PASSWORD)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value(true));
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.accessToken").isNotEmpty())
+                .andExpect(jsonPath("$.data.refreshToken").isNotEmpty())
+                .andExpect(jsonPath("$.data.email").value(EMAIL));
     }
 
     @Test
