@@ -1,10 +1,11 @@
 package galindo.raul.virtualclubs.config.security.utils;
 
+import galindo.raul.virtualclubs.config.JwtProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -15,16 +16,10 @@ import java.util.function.Function;
  * Utility class for handling JSON Web Tokens (JWT) including generation, parsing, and validation.
  */
 @Component
+@RequiredArgsConstructor
 public class JwtUtils {
 
-  @Value("${jwt.secret}")
-  private String secret;
-
-  @Value("${jwt.expiration}")
-  private String accessTokenExpirationMillis;
-
-  @Value("${jwt.refreshExpiration}")
-  private String refreshTokenExpirationMillis;
+  private final JwtProperties jwtProperties;
 
   /**
    * Generates a short-lived access token for the given username.
@@ -33,7 +28,7 @@ public class JwtUtils {
    * @return a signed JWT access token
    */
   public String generateAccessToken(String username) {
-    return generateToken(username, "access", Long.parseLong(accessTokenExpirationMillis));
+    return generateToken(username, "access", jwtProperties.expiration());
   }
 
   /**
@@ -43,7 +38,7 @@ public class JwtUtils {
    * @return a signed JWT refresh token
    */
   public String generateRefreshToken(String username) {
-    return generateToken(username, "refresh", Long.parseLong(refreshTokenExpirationMillis));
+    return generateToken(username, "refresh", jwtProperties.refreshExpiration());
   }
 
   /**
@@ -128,7 +123,7 @@ public class JwtUtils {
    * @return the cryptographic SecretKey
    */
   private SecretKey getSignatureKey() {
-    byte[] apiKeySecretBytes = Decoders.BASE64.decode(secret);
+    byte[] apiKeySecretBytes = Decoders.BASE64.decode(jwtProperties.secret());
     return Keys.hmacShaKeyFor(apiKeySecretBytes);
   }
 }
