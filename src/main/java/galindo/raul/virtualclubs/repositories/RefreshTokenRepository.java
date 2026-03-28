@@ -45,14 +45,21 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity
      * @return an Optional containing the token entity if found and not revoked
      */
     Optional<RefreshTokenEntity> findByTokenAndUserAndRevokedFalse(String token, UserEntity user);
-    
-    List<RefreshTokenEntity> findByUserAndDeviceIdAndRevokedFalse(UserEntity user, String deviceId);
+
+    /**
+     * Finds all active (non-revoked) tokens for a specific user and device.
+     *
+     * @param user     the user associated with the tokens
+     * @param deviceId the device identifier (navigates through device relationship)
+     * @return a list of non-revoked tokens for the given device
+     */
+    List<RefreshTokenEntity> findByUserAndDevice_DeviceIdAndRevokedFalse(UserEntity user, String deviceId);
 
     /**
      * Deletes all refresh tokens for a specific user and device.
      *
      * @param user     the user associated with the tokens
-     * @param deviceId the device identifier
+     * @param deviceId the device identifier (navigates through device relationship)
      */
-    void deleteByUserAndDeviceId(UserEntity user, String deviceId);
+    void deleteByUserAndDevice_DeviceId(UserEntity user, String deviceId);
 }
