@@ -2,6 +2,8 @@ package galindo.raul.virtualclubs.repositories;
 
 import galindo.raul.virtualclubs.models.entities.RefreshTokenEntity;
 import galindo.raul.virtualclubs.models.entities.UserEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -54,6 +56,17 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity
      * @return a list of non-revoked tokens for the given device
      */
     List<RefreshTokenEntity> findByUserAndDevice_DeviceIdAndRevokedFalse(UserEntity user, String deviceId);
+
+    /**
+     * Returns a paginated list of all refresh tokens for a specific user.
+     * Intended for future admin endpoints — use {@code PageRequest.of(page, size, Sort.by("id").descending())}
+     * to control pagination and ordering.
+     *
+     * @param user     the user whose tokens to list
+     * @param pageable pagination and sorting parameters
+     * @return a page of refresh token entities
+     */
+    Page<RefreshTokenEntity> findByUser(UserEntity user, Pageable pageable);
 
     /**
      * Deletes all refresh tokens for a specific user and device.
