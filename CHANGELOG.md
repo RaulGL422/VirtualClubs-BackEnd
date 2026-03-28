@@ -16,6 +16,22 @@ y el proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [0.0.3] — 2026-03-28
+
+### Corregido
+- Login fallido devuelve 401 UNAUTHORIZED en lugar de 403 FORBIDDEN — VC-25
+- JWT malformado en `/refresh` devuelve 401 en lugar de 500 INTERNAL_SERVER_ERROR — VC-26
+- Fuga de memoria en `RateLimitingFilter.buckets` con `ConcurrentHashMap` sin TTL, reemplazado por Caffeine cache — VC-47
+
+### Interno
+- `FetchType.LAZY` en relaciones `authProviderEntities` y `roles` de `UserEntity` — VC-29
+- `@EntityGraph` en `loadUserByUsername` para cargar usuario + roles + permisos en una sola query — VC-46
+- Inyección de dependencias unificada con `@RequiredArgsConstructor` en servicios — VC-30
+- Mensajes de validación en DTOs migrados de códigos numéricos a nombres de enum `ErrorType` — VC-37
+- Eliminado flag `--enable-preview` de Java 21 de la configuración de compilación — VC-34
+
+---
+
 ## [0.0.2] — 2026-03-27
 
 ### Añadido
