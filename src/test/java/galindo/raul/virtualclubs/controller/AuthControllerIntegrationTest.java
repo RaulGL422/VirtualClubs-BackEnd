@@ -2,7 +2,9 @@ package galindo.raul.virtualclubs.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import galindo.raul.virtualclubs.models.entities.DeviceEntity;
 import galindo.raul.virtualclubs.models.entities.RefreshTokenEntity;
+import galindo.raul.virtualclubs.repositories.DeviceRepository;
 import galindo.raul.virtualclubs.repositories.RefreshTokenRepository;
 import galindo.raul.virtualclubs.repositories.UserEntityRepository;
 import galindo.raul.virtualclubs.services.GoogleAuthService;
@@ -58,6 +60,7 @@ class AuthControllerIntegrationTest {
 
     @Autowired private UserEntityRepository userRepository;
     @Autowired private RefreshTokenRepository refreshTokenRepository;
+    @Autowired private DeviceRepository deviceRepository;
 
     // ─────────────────────────────────────────────────────────────
     // POST /v1/auth/register
@@ -170,14 +173,18 @@ class AuthControllerIntegrationTest {
         // Dispositivo B: insertar segundo token directamente en BD (simula otra sesión)
         galindo.raul.virtualclubs.models.entities.UserEntity user =
                 userRepository.findByEmail(EMAIL).orElseThrow();
+        DeviceEntity deviceB = deviceRepository.save(DeviceEntity.builder()
+                .deviceId("device-b")
+                .deviceName("Device B")
+                .deviceType("TEST")
+                .ipAddress("192.168.0.2")
+                .user(user)
+                .build());
         refreshTokenRepository.saveAndFlush(
                 RefreshTokenEntity.builder()
                         .user(user)
                         .token("fake-hash-device-b-unique-token")
-                        .deviceId("device-b")
-                        .deviceName("Device B")
-                        .deviceType("TEST")
-                        .ipAddress("192.168.0.2")
+                        .device(deviceB)
                         .build());
 
         assertThat(refreshTokenRepository.count()).isEqualTo(2);
@@ -190,7 +197,7 @@ class AuthControllerIntegrationTest {
 
         // El token del dispositivo B debe seguir activo — no fue eliminado por el refresh
         assertThat(refreshTokenRepository.findAll())
-                .anyMatch(t -> "device-b".equals(t.getDeviceId()) && !t.isRevoked());
+                .anyMatch(t -> "device-b".equals(t.getDevice().getDeviceId()) && !t.isRevoked());
     }
 
     @Test
