@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
         .map(DefaultMessageSourceResolvable::getDefaultMessage)
         .toList();
     return ResponseEntity.badRequest()
-        .body(ApiResponse.error(ErrorType.fromStringCode(errors.getFirst())));
+        .body(ApiResponse.error(resolveErrorType(errors.getFirst())));
   }
   
   /**
@@ -215,5 +215,15 @@ public class GlobalExceptionHandler {
     log.error("💥 Unexpected error: {}", e.getMessage(), e);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(ApiResponse.error(ErrorType.INTERNAL_ERROR));
+  }
+
+  /** Resuelve el ErrorType a partir del mensaje de validación, que puede ser el nombre del enum
+   *  (ej. "EMAIL_REQUIRED") o, por compatibilidad, el código numérico como string (ej. "5"). */
+  private ErrorType resolveErrorType(String message) {
+    try {
+      return ErrorType.valueOf(message);
+    } catch (IllegalArgumentException e) {
+      return ErrorType.fromStringCode(message);
+    }
   }
 }

@@ -5,6 +5,6 @@ import lombok.NonNull;
 
 public record RefreshRequest(
     @NonNull
-    @NotBlank(message = "11")
+    @NotBlank(message = "TOKEN_BLANK")
     String refreshToken
 ) {}
