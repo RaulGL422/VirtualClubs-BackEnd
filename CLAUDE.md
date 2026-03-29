@@ -63,6 +63,41 @@ src/main/java/galindo/raul/virtualclubs/
 | POST | `/v1/auth/refresh` | No | Renovar tokens con refreshToken |
 | DELETE | `/v1/auth/logout` | Sí | Cerrar sesión en dispositivo actual |
 
+## Versionado de API
+
+### Estrategia
+- **Mecanismo:** versionado por path (`/v1/`, `/v2/`). Es lo más simple, ya está en uso y es transparente para cualquier cliente HTTP.
+- **Versión actual:** `v1` — todos los endpoints activos viven bajo `/v1/`.
+
+### Política de soporte
+- Siempre se mantiene **al menos una versión anterior activa** tras publicar una nueva versión.
+- El ciclo de vida de una versión: `Activa → Deprecada (mínimo 3 meses) → Eliminada`.
+- No se elimina ningún endpoint sin haber publicado el reemplazo en la versión nueva primero.
+
+### Notificación de deprecación
+Los endpoints deprecados deben incluir en la respuesta los headers estándar:
+```
+Deprecation: true
+Sunset: <fecha ISO-8601 en que se eliminará, ej. 2026-12-01>
+```
+El cliente Android usa estos headers para alertar al equipo antes del `Sunset`.
+
+### Cuándo crear `/v2/`
+Crear una nueva versión **solo** si el cambio rompe la compatibilidad del contrato actual (breaking change), por ejemplo:
+- Cambio en la estructura del body de request/response que el cliente mobile no puede absorber
+- Renombrar o eliminar un campo obligatorio
+- Cambiar el significado semántico de un campo existente
+
+Los cambios aditivos (nuevos campos opcionales, nuevos endpoints) **no** requieren nueva versión.
+
+### Proceso de migración controlada
+1. Publicar el nuevo endpoint en `/v2/` manteniendo `/v1/` activo
+2. Añadir header `Deprecation: true` + `Sunset` al endpoint `/v1/` equivalente
+3. Coordinar con el equipo Android la actualización del cliente
+4. Tras la fecha `Sunset`, eliminar el endpoint `/v1/` en un PR dedicado
+
+---
+
 ## Patrones y Convenciones
 
 ### Respuesta API Estándar
