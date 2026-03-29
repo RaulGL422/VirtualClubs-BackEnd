@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<ApiResponse<Void>> handleMessageNotReadable(HttpMessageNotReadableException ex) {
-    log.warn("⚠️ Invalid or missing fields in request body: {}", ex.getMessage());
+    log.warn("Invalid or missing fields in request body: {}", ex.getMessage());
     return ResponseEntity.badRequest()
         .body(ApiResponse.error(ErrorType.FIELD_NULL));
   }
@@ -65,7 +65,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(UsernameNotFoundException.class)
   public ResponseEntity<ApiResponse<Void>> handleUsernameNotFound(UsernameNotFoundException e) {
-    log.warn("⚠️ User not found: {}", e.getMessage());
+    log.warn("User not found: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(ApiResponse.error(ErrorType.USERNAME_NOT_FOUND));
   }
@@ -78,7 +78,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(EmailNotFoundException.class)
   public ResponseEntity<ApiResponse<Void>> handleEmailNotFound(EmailNotFoundException e) {
-    log.warn("⚠️ Email '{}' not found", e.getEmail());
+    log.warn("Email '{}' not found", e.getEmail());
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(ApiResponse.error(ErrorType.EMAIL_NOT_FOUND));
   }
@@ -91,7 +91,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(UserAlreadyExistException.class)
   public ResponseEntity<ApiResponse<Void>> handleUserAlreadyExist(UserAlreadyExistException e) {
-    log.warn("⚠️ User already exists with email: '{}'", e.getEmail());
+    log.warn("User already exists with email: '{}'", e.getEmail());
     return ResponseEntity.status(HttpStatus.CONFLICT)
         .body(ApiResponse.error(ErrorType.EMAIL_ALREADY_EXISTS));
   }
@@ -104,7 +104,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(UserNotFoundException.class)
   public ResponseEntity<ApiResponse<Void>> handleUserNotFound(UserNotFoundException e) {
-    log.warn("⚠️ User '{}' not found", e.getEmail());
+    log.warn("User '{}' not found", e.getEmail());
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(ApiResponse.error(ErrorType.USER_NOT_FOUND));
   }
@@ -117,7 +117,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(RefreshTokenException.class)
   public ResponseEntity<ApiResponse<Void>> handleRefreshTokenException(RefreshTokenException e) {
-    log.warn("⚠️ Invalid or expired refresh token");
+    log.warn("Invalid or expired refresh token");
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
         .body(ApiResponse.error(ErrorType.INVALID_REFRESH_TOKEN));
   }
@@ -131,14 +131,14 @@ public class GlobalExceptionHandler {
    */
 //  @ExceptionHandler(NoLocalProviderException.class)
 //  public ResponseEntity<ApiResponse<Void>> handleNoLocalProvider(NoLocalProviderException e) {
-//    log.warn("⚠️ User '{}' requested password reset but has no LOCAL provider", e.getEmail());
+//    log.warn("User '{}' requested password reset but has no LOCAL provider", e.getEmail());
 //    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 //        .body(new ApiResponse<>(false, ErrorType.NO_LOCAL_PROVIDER, ResponseType.ERROR, null));
 //  }
   
 //  @ExceptionHandler(EmailNotVerifiedException.class)
 //  public ResponseEntity<ApiResponse<Void>> handleEmailNotVerified(EmailNotVerifiedException e) {
-//    log.warn("⚠️ User '{}' not verified", e.getEmail());
+//    log.warn("User '{}' not verified", e.getEmail());
 //    return ResponseEntity.status(HttpStatus.FORBIDDEN)
 //        .body(new ApiResponse<>(false, ErrorType.EMAIL_NOT_VERIFIED, ResponseType.ERROR, null));
 //  }
@@ -150,7 +150,7 @@ public class GlobalExceptionHandler {
 //   */
 //  @ExceptionHandler(GoogleIdException.class)
 //  public ResponseEntity<ApiResponse<Void>> handleGoogleId(GoogleIdException e) {
-//    log.warn("❌ Invalid Google ID token: {}", e.getMessage());
+//    log.warn("Invalid Google ID token: {}", e.getMessage());
 //    return ResponseEntity.status(HttpStatus.FORBIDDEN)
 //        .body(new ApiResponse<>(false, ErrorType.INVALID_GOOGLE_TOKEN, ResponseType.ERROR, null));
 //  }
@@ -162,7 +162,7 @@ public class GlobalExceptionHandler {
 //   */
 //  @ExceptionHandler(InvalidTokenException.class)
 //  public ResponseEntity<ApiResponse<Void>> handleInvalidToken(InvalidTokenException e) {
-//    log.warn("❌ Invalid token detected");
+//    log.warn("Invalid token detected");
 //    return ResponseEntity.status(HttpStatus.FORBIDDEN)
 //        .body(new ApiResponse<>(false, ErrorType.INVALID_TOKEN, ResponseType.ERROR, null));
 //  }
@@ -174,7 +174,7 @@ public class GlobalExceptionHandler {
 //   */
 //  @ExceptionHandler(MailSendException.class)
 //  public ResponseEntity<ApiResponse<Void>> handleMailSend(MailSendException e) {
-//    log.error("❌ Failed to send mail: {}", e.getMessage());
+//    log.error("Failed to send mail: {}", e.getMessage());
 //    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 //        .body(new ApiResponse<>(false, ErrorType.FAILED_SEND_EMAIL, ResponseType.ERROR, null));
 //  }
@@ -188,7 +188,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(JwtException.class)
   public ResponseEntity<ApiResponse<Void>> handleJwtException(JwtException e) {
-    log.warn("⚠️ Malformed or invalid JWT: {}", e.getMessage());
+    log.warn("Malformed or invalid JWT: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
         .body(ApiResponse.error(ErrorType.INVALID_REFRESH_TOKEN));
   }
@@ -200,7 +200,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(InternalErrorException.class)
   public ResponseEntity<ApiResponse<Void>> handleInternalError(InternalErrorException e) {
-    log.error("❌ Internal error: {}", e.getMessage());
+    log.error("Internal error: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(ApiResponse.error(ErrorType.INTERNAL_ERROR));
   }
@@ -212,7 +212,7 @@ public class GlobalExceptionHandler {
    */
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ApiResponse<Void>> handleGenericException(Exception e) {
-    log.error("💥 Unexpected error: {}", e.getMessage(), e);
+    log.error("Unexpected error: {}", e.getMessage(), e);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(ApiResponse.error(ErrorType.INTERNAL_ERROR));
   }
