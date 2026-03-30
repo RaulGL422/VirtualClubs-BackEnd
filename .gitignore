@@ -35,3 +35,7 @@ target/
 
 # Claude Code — configuración personal (no del equipo)
 .claude/settings.local.json
+
+# Tests de conectividad manual (no forman parte de la suite automática)
+src/test/java/**/EmailConnectivityTest.java
+
