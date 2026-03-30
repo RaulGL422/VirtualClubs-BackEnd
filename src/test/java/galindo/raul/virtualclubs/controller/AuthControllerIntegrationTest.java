@@ -7,8 +7,8 @@ import galindo.raul.virtualclubs.models.entities.RefreshTokenEntity;
 import galindo.raul.virtualclubs.repositories.DeviceRepository;
 import galindo.raul.virtualclubs.repositories.RefreshTokenRepository;
 import galindo.raul.virtualclubs.repositories.UserEntityRepository;
+import galindo.raul.virtualclubs.services.EmailService;
 import galindo.raul.virtualclubs.services.GoogleAuthService;
-import galindo.raul.virtualclubs.services.MailerService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * - Usa H2 en memoria (ver application-test.properties)
  * - @MockitoBean evita que GoogleAuthService haga llamadas HTTP reales al arrancar
- * - @MockitoBean evita que MailerService intente conectarse a un servidor SMTP
+ * - @MockitoBean evita que EmailService intente conectarse a un servidor SMTP
  * - WebEnvironment.MOCK usa MockMvc sin levantar un servidor real (ignora SSL)
  *
  * Formato de respuesta por endpoint:
@@ -56,7 +56,7 @@ class AuthControllerIntegrationTest {
 
     // Estos beans se reemplazan por mocks — no hacen llamadas externas
     @MockitoBean private GoogleAuthService googleAuthService;
-    @MockitoBean private MailerService mailerService;
+    @MockitoBean private EmailService emailService;
 
     @Autowired private UserEntityRepository userRepository;
     @Autowired private RefreshTokenRepository refreshTokenRepository;

@@ -1,7 +1,7 @@
 package galindo.raul.virtualclubs.security;
 
+import galindo.raul.virtualclubs.services.EmailService;
 import galindo.raul.virtualclubs.services.GoogleAuthService;
-import galindo.raul.virtualclubs.services.MailerService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -46,7 +46,7 @@ class RateLimitingFilterTest {
     @Autowired private MockMvc mockMvc;
 
     @MockitoBean private GoogleAuthService googleAuthService;
-    @MockitoBean private MailerService mailerService;
+    @MockitoBean private EmailService emailService;
 
     // Cuerpo mínimo válido para pasar el filtro (el contenido no importa para el test de rate limiting)
     private static final String BODY = "{\"email\":\"a@b.com\",\"password\":\"PAss12\"}";
