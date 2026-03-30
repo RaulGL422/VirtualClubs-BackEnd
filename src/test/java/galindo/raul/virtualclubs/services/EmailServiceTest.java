@@ -57,7 +57,7 @@ class EmailServiceTest {
         String callerThread = Thread.currentThread().getName();
 
         emailService.sendEmail(new EmailRequest(
-            "usuario@test.com", "Usuario", "Asunto de prueba", "verify-email", Map.of()
+            "virtualclub.spain@gmail.com", "Usuario", "Asunto de prueba", "verify-email", Map.of()
         ));
 
         // Esperar a que el hilo async complete (máx. 5 segundos)
