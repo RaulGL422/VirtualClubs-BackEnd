@@ -2,15 +2,13 @@ package galindo.raul.virtualclubs.utils;
 
 import galindo.raul.virtualclubs.models.exceptions.InternalErrorException;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
 
 public final class TokenUtils {
-
     private static final SecureRandom secureRandom = new SecureRandom();
-
-    private TokenUtils() {}
 
     public static String generateTokenString(int byteLength) {
         byte[] bytes = new byte[byteLength];
@@ -21,7 +19,7 @@ public final class TokenUtils {
     public static String sha256Hex(String input) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hashed = digest.digest(input.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            byte[] hashed = digest.digest(input.getBytes(StandardCharsets.UTF_8));
             StringBuilder sb = new StringBuilder();
             for (byte b : hashed) {
                 sb.append(String.format("%02x", b));

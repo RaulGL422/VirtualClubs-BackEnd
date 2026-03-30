@@ -88,7 +88,7 @@ class RateLimitingFilterTest {
                         .content(BODY))
                 .andExpect(status().is(429))
                 .andExpect(jsonPath("$.success").value(false))
-                .andExpect(jsonPath("$.message").value(28));
+                .andExpect(jsonPath("$.message").value(13));
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -114,7 +114,7 @@ class RateLimitingFilterTest {
                         .content(BODY))
                 .andExpect(status().is(429))
                 .andExpect(jsonPath("$.success").value(false))
-                .andExpect(jsonPath("$.message").value(28));
+                .andExpect(jsonPath("$.message").value(13));
     }
 
     // ─────────────────────────────────────────────────────────────
