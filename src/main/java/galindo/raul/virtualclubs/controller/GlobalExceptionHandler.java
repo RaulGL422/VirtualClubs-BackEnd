@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ApiResponse<Void>> handleMessageNotReadable(HttpMessageNotReadableException ex) {
     log.warn("Invalid or missing fields in request body: {}", ex.getMessage());
     return ResponseEntity.badRequest()
-        .body(ApiResponse.error(ErrorType.FIELD_NULL));
+        .body(ApiResponse.error(ErrorType.FIELD_BLANK));
   }
   
   /**
@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ApiResponse<Void>> handleUsernameNotFound(UsernameNotFoundException e) {
     log.warn("User not found: {}", e.getMessage());
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(ApiResponse.error(ErrorType.USERNAME_NOT_FOUND));
+        .body(ApiResponse.error(ErrorType.USER_NOT_FOUND));
   }
   
   /**
@@ -80,7 +80,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<ApiResponse<Void>> handleEmailNotFound(EmailNotFoundException e) {
     log.warn("Email '{}' not found", e.getEmail());
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(ApiResponse.error(ErrorType.EMAIL_NOT_FOUND));
+        .body(ApiResponse.error(ErrorType.USER_NOT_FOUND));
   }
   
   /**
@@ -94,19 +94,6 @@ public class GlobalExceptionHandler {
     log.warn("User already exists with email: '{}'", e.getEmail());
     return ResponseEntity.status(HttpStatus.CONFLICT)
         .body(ApiResponse.error(ErrorType.EMAIL_ALREADY_EXISTS));
-  }
-  
-  /**
-   * Handles {@link UserNotFoundException} when a user cannot be found in the system.
-   *
-   * @param e The {@link UserNotFoundException} that occurred.
-   * @return A {@link ResponseEntity} with HTTP status 404 (NOT_FOUND) and an {@link ApiResponse} for user not found.
-   */
-  @ExceptionHandler(UserNotFoundException.class)
-  public ResponseEntity<ApiResponse<Void>> handleUserNotFound(UserNotFoundException e) {
-    log.warn("User '{}' not found", e.getEmail());
-    return ResponseEntity.status(HttpStatus.NOT_FOUND)
-        .body(ApiResponse.error(ErrorType.USER_NOT_FOUND));
   }
   
   /**
@@ -129,55 +116,26 @@ public class GlobalExceptionHandler {
    * @param e The {@link NoLocalProviderException} that occurred.
    * @return A {@link ResponseEntity} with HTTP status 400 (BAD_REQUEST) and an {@link ApiResponse} for no local provider.
    */
-//  @ExceptionHandler(NoLocalProviderException.class)
-//  public ResponseEntity<ApiResponse<Void>> handleNoLocalProvider(NoLocalProviderException e) {
-//    log.warn("User '{}' requested password reset but has no LOCAL provider", e.getEmail());
-//    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//        .body(new ApiResponse<>(false, ErrorType.NO_LOCAL_PROVIDER, ResponseType.ERROR, null));
-//  }
-  
-//  @ExceptionHandler(EmailNotVerifiedException.class)
-//  public ResponseEntity<ApiResponse<Void>> handleEmailNotVerified(EmailNotVerifiedException e) {
-//    log.warn("User '{}' not verified", e.getEmail());
-//    return ResponseEntity.status(HttpStatus.FORBIDDEN)
-//        .body(new ApiResponse<>(false, ErrorType.EMAIL_NOT_VERIFIED, ResponseType.ERROR, null));
-//  }
-//
-//  /**
-//   * Handles {@link GoogleIdException} when a Google ID token is invalid.
-//   * @param e The {@link GoogleIdException} that occurred.
-//   * @return A {@link ResponseEntity} with HTTP status 403 (FORBIDDEN) and an {@link ApiResponse} for an invalid Google token.
-//   */
-//  @ExceptionHandler(GoogleIdException.class)
-//  public ResponseEntity<ApiResponse<Void>> handleGoogleId(GoogleIdException e) {
-//    log.warn("Invalid Google ID token: {}", e.getMessage());
-//    return ResponseEntity.status(HttpStatus.FORBIDDEN)
-//        .body(new ApiResponse<>(false, ErrorType.INVALID_GOOGLE_TOKEN, ResponseType.ERROR, null));
-//  }
-//
-//  /**
-//   * Handles {@link InvalidTokenException} when a generic token (e.g., for password reset or email verification) is invalid.
-//   * @param e The {@link InvalidTokenException} that occurred.
-//   * @return A {@link ResponseEntity} with HTTP status 403 (FORBIDDEN) and an {@link ApiResponse} for an invalid token.
-//   */
-//  @ExceptionHandler(InvalidTokenException.class)
-//  public ResponseEntity<ApiResponse<Void>> handleInvalidToken(InvalidTokenException e) {
-//    log.warn("Invalid token detected");
-//    return ResponseEntity.status(HttpStatus.FORBIDDEN)
-//        .body(new ApiResponse<>(false, ErrorType.INVALID_TOKEN, ResponseType.ERROR, null));
-//  }
-//
-//  /**
-//   * Handles {@link MailSendException} when there is a failure in sending an email.
-//   * @param e The {@link MailSendException} that occurred.
-//   * @return A {@link ResponseEntity} with HTTP status 500 (INTERNAL_SERVER_ERROR) and an {@link ApiResponse} for failed email sending.
-//   */
-//  @ExceptionHandler(MailSendException.class)
-//  public ResponseEntity<ApiResponse<Void>> handleMailSend(MailSendException e) {
-//    log.error("Failed to send mail: {}", e.getMessage());
-//    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-//        .body(new ApiResponse<>(false, ErrorType.FAILED_SEND_EMAIL, ResponseType.ERROR, null));
-//  }
+  @ExceptionHandler(NoLocalProviderException.class)
+  public ResponseEntity<ApiResponse<Void>> handleNoLocalProvider(NoLocalProviderException e) {
+    log.warn("User '{}' requested password reset but has no LOCAL provider", e.getEmail());
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(ApiResponse.error(ErrorType.NO_LOCAL_PROVIDER));
+  }
+
+  @ExceptionHandler(EmailNotVerifiedException.class)
+  public ResponseEntity<ApiResponse<Void>> handleEmailNotVerified(EmailNotVerifiedException e) {
+    log.warn("User '{}' not verified", e.getEmail());
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(ApiResponse.error(ErrorType.EMAIL_NOT_VERIFIED));
+  }
+
+  @ExceptionHandler(InvalidTokenException.class)
+  public ResponseEntity<ApiResponse<Void>> handleInvalidToken(InvalidTokenException e) {
+    log.warn("Invalid token detected");
+    return ResponseEntity.status(HttpStatus.FORBIDDEN)
+        .body(ApiResponse.error(ErrorType.INVALID_TOKEN));
+  }
 
   /**
    * Handles {@link JwtException} when a JWT token is malformed, expired, or otherwise invalid.
@@ -217,13 +175,12 @@ public class GlobalExceptionHandler {
         .body(ApiResponse.error(ErrorType.INTERNAL_ERROR));
   }
 
-  /** Resuelve el ErrorType a partir del mensaje de validación, que puede ser el nombre del enum
-   *  (ej. "EMAIL_REQUIRED") o, por compatibilidad, el código numérico como string (ej. "5"). */
+  /** Resuelve el ErrorType a partir del nombre del enum en el mensaje de validación (ej. "FIELD_BLANK"). */
   private ErrorType resolveErrorType(String message) {
     try {
       return ErrorType.valueOf(message);
     } catch (IllegalArgumentException e) {
-      return ErrorType.fromStringCode(message);
+      return ErrorType.FIELD_BLANK;
     }
   }
 }

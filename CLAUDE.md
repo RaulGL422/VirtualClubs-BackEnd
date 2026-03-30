@@ -45,7 +45,9 @@ src/main/java/galindo/raul/virtualclubs/
 ├── services/
 │   ├── UserEntityServiceImpl.java  Registro, carga de usuario, Google OAuth2
 │   ├── TokensService.java          Genera, refresca y hashea tokens JWT
-│   └── RefreshTokenServiceImpl.java CRUD de RefreshTokenEntity por dispositivo
+│   ├── RefreshTokenServiceImpl.java CRUD de RefreshTokenEntity por dispositivo
+│   ├── UserTokenServiceImpl.java   Tokens de un solo uso (verificación email, reset contraseña)
+│   └── EmailService.java           Envío async de emails via Resend SMTP (noreply@rgal.dev)
 └── utils/
     ├── CommonUtils.java            Extrae info de dispositivo del request
     ├── DeepLinkUtils.java          Genera deeplinks virtualclubs://...
@@ -59,9 +61,14 @@ src/main/java/galindo/raul/virtualclubs/
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
 | POST | `/v1/auth/login` | No | Login (manejado por JwtAuthLoginFilter, no controller) |
-| POST | `/v1/auth/register` | No | Registro nuevo usuario |
+| POST | `/v1/auth/register` | No | Registro nuevo usuario; envía email de verificación automáticamente |
 | POST | `/v1/auth/refresh` | No | Renovar tokens con refreshToken |
 | DELETE | `/v1/auth/logout` | Sí | Cerrar sesión en dispositivo actual |
+| GET | `/v1/auth/verify` | No | Verifica email con token de un solo uso; redirige a deep link |
+| POST | `/v1/auth/requestVerify` | Sí | Reenvía email de verificación al usuario autenticado |
+| POST | `/v1/auth/requestPasswordReset` | No | Solicita reset de contraseña (siempre 200 para evitar enumeración) |
+| GET | `/v1/auth/resetPasswordRedirect` | No | Redirige al deep link de reset con el token |
+| POST | `/v1/auth/resetPassword` | No | Establece nueva contraseña con token de reset |
 
 ## Versionado de API
 

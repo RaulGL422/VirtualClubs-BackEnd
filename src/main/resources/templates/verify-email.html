@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: layout(~{::section})}">
+<body>
+<section>
+    <p th:text="#{email.greeting(${name})}">Hola, Usuario.</p>
+    <p th:text="#{email.verify.body}">Gracias por registrarte en VirtualClubs.</p>
+    <p th:utext="#{email.verify.validity(${expiryHours})}">El enlace es válido durante <strong>24</strong> horas.</p>
+
+    <a th:href="${verifyUrl}" class="btn" th:text="#{email.verify.button}">Verificar email</a>
+
+    <hr class="divider"/>
+    <p class="note" th:text="#{email.verify.disclaimer}">Si no creaste esta cuenta, puedes ignorar este email.</p>
+</section>
+</body>
+</html>
