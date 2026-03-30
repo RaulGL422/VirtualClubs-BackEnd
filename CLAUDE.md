@@ -161,7 +161,7 @@ rate-limiting.limits[/v1/clubs/join]=10
 
 ### Convenciones de Testing
 - **Perfil:** `@ActiveProfiles({"dev", "test"})` — el perfil `test` sobrescribe la BD con H2 en memoria (`application-test.properties`)
-- **Mocks obligatorios:** `GoogleAuthService` y `MailerService` deben anotarse con `@MockitoBean` (no `@MockBean`, deprecado en Spring Boot 3.4+) para evitar conexiones externas al arrancar el contexto
+- **Mocks obligatorios:** `GoogleAuthService` y `EmailService` deben anotarse con `@MockitoBean` (no `@MockBean`, deprecado en Spring Boot 3.4+) para evitar conexiones externas al arrancar el contexto
 - **Integración:** `@SpringBootTest(webEnvironment = MOCK)` + `@AutoConfigureMockMvc` para tests de endpoints sin levantar servidor real
 - **Unitarios:** `@ExtendWith(MockitoExtension.class)` — sin contexto Spring, instanciación directa o `@InjectMocks`
 - **Limpieza:** los tests de integración usan `@Transactional` a nivel de clase — Spring hace rollback automático al final de cada test (no requiere `@AfterEach` manual)
