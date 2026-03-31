@@ -8,6 +8,7 @@ import lombok.NonNull;
 public record ResetPasswordRequest(
     @NonNull
     @NotBlank(message = "FIELD_BLANK")
+    @Size(max = 512, message = "FIELD_TOO_LONG")
     String token,
 
     @NonNull

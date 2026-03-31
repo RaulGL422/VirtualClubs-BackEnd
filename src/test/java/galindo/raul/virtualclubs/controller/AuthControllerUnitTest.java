@@ -5,9 +5,10 @@ import galindo.raul.virtualclubs.config.security.utils.JwtUtils;
 import galindo.raul.virtualclubs.models.Tokens;
 import galindo.raul.virtualclubs.models.entities.UserEntity;
 import galindo.raul.virtualclubs.models.exceptions.UserAlreadyExistException;
-import galindo.raul.virtualclubs.services.RefreshTokenServiceImpl;
+import galindo.raul.virtualclubs.services.RefreshTokenService;
 import galindo.raul.virtualclubs.services.TokensService;
 import galindo.raul.virtualclubs.services.UserEntityServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -60,9 +61,9 @@ class AuthControllerUnitTest {
     @MockitoBean private UserEntityServiceImpl userService;
     @MockitoBean private JwtUtils jwtUtils;
     @MockitoBean private TokensService tokensService;
-    @MockitoBean private RefreshTokenServiceImpl refreshTokenService;
+    @MockitoBean private RefreshTokenService refreshTokenService;
     @MockitoBean private galindo.raul.virtualclubs.services.NotificationService notificationService;
-    @MockitoBean private galindo.raul.virtualclubs.services.UserTokenServiceImpl userTokenService;
+    @MockitoBean private galindo.raul.virtualclubs.services.UserTokenService userTokenService;
     @MockitoBean private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     // ─────────────────────────────────────────────────────────────
@@ -205,8 +206,9 @@ class AuthControllerUnitTest {
         @Bean
         SecurityFilterChain testSecurityFilterChain(HttpSecurity http,
                                                     JwtUtils jwtUtils,
-                                                    UserEntityServiceImpl userEntityService) throws Exception {
-            JwtAuthFilter jwtAuthFilter = new JwtAuthFilter(jwtUtils, userEntityService);
+                                                    UserEntityServiceImpl userEntityService,
+                                                    ObjectMapper objectMapper) throws Exception {
+            JwtAuthFilter jwtAuthFilter = new JwtAuthFilter(jwtUtils, userEntityService, objectMapper);
 
             http
                 .csrf(AbstractHttpConfigurer::disable)

@@ -2,7 +2,6 @@ package galindo.raul.virtualclubs.utils;
 
 import galindo.raul.virtualclubs.models.Dispositive;
 import jakarta.servlet.http.HttpServletRequest;
-import org.apache.commons.codec.digest.DigestUtils;
 
 /**
  * Utility class for common operations across the application.
@@ -25,12 +24,12 @@ public final class CommonUtils {
     
     String clientDeviceUuid = request.getHeader("X-Device-ID");
     if (clientDeviceUuid == null || clientDeviceUuid.isBlank()) {
-      clientDeviceUuid = DigestUtils.sha256Hex(userAgent + ip);
+      clientDeviceUuid = TokenUtils.sha256Hex(userAgent + ip);
     }
-    
+
     String deviceName = request.getHeader("X-Device-Name");
     String deviceType = request.getHeader("X-Device-Type");
-    String deviceId = DigestUtils.sha256Hex(userAgent + ip + clientDeviceUuid);
+    String deviceId = TokenUtils.sha256Hex(userAgent + ip + clientDeviceUuid);
     
     return new Dispositive(deviceId, deviceName, deviceType, ip);
   }

@@ -8,7 +8,7 @@ import galindo.raul.virtualclubs.repositories.RefreshTokenRepository;
 import galindo.raul.virtualclubs.repositories.UserEntityRepository;
 import galindo.raul.virtualclubs.services.EmailService;
 import galindo.raul.virtualclubs.services.GoogleAuthService;
-import galindo.raul.virtualclubs.services.UserTokenServiceImpl;
+import galindo.raul.virtualclubs.services.UserTokenService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ class PasswordResetIntegrationTest {
     @Autowired private ObjectMapper objectMapper;
     @Autowired private UserEntityRepository userRepository;
     @Autowired private RefreshTokenRepository refreshTokenRepository;
-    @Autowired private UserTokenServiceImpl userTokenService;
+    @Autowired private UserTokenService userTokenService;
     @Autowired private PasswordEncoder passwordEncoder;
 
     @MockitoBean private GoogleAuthService googleAuthService;

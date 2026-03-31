@@ -8,7 +8,7 @@ import galindo.raul.virtualclubs.config.security.filters.models.RateLimitingProp
 
 import galindo.raul.virtualclubs.config.security.utils.JwtUtils;
 import galindo.raul.virtualclubs.services.TokensService;
-import galindo.raul.virtualclubs.services.UserEntityServiceImpl;
+import galindo.raul.virtualclubs.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +35,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
   private final TokensService tokensService;
   private final JwtUtils jwtUtils;
-  private final UserEntityServiceImpl userEntityService;
+  private final UserService userEntityService;
   private final ObjectMapper objectMapper;
   private final RateLimitingProperties rateLimitingProperties;
   
@@ -51,10 +51,10 @@ public class SecurityConfig {
    */
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationManager authenticationManager) throws Exception {
-    JwtAuthLoginFilter jwtAuthLoginFilter = new JwtAuthLoginFilter(authenticationManager, userEntityService, tokensService);
+    JwtAuthLoginFilter jwtAuthLoginFilter = new JwtAuthLoginFilter(authenticationManager, userEntityService, tokensService, objectMapper);
     jwtAuthLoginFilter.setFilterProcessesUrl("/v1/auth/login");
 
-    JwtAuthFilter jwtAuthFilter = new JwtAuthFilter(jwtUtils, userEntityService);
+    JwtAuthFilter jwtAuthFilter = new JwtAuthFilter(jwtUtils, userEntityService, objectMapper);
     RateLimitingFilter rateLimitingFilter = new RateLimitingFilter(objectMapper, rateLimitingProperties.limits());
 
     http

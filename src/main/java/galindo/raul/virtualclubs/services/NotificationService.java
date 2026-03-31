@@ -32,12 +32,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class NotificationService {
 
-    private final UserTokenServiceImpl userTokenService;
+    private final UserTokenService userTokenService;
     private final EmailService emailService;
     private final TokenProperties tokenProperties;
     private final MessageSource messageSource;
 
-    @Value("${app.deeplink-url}")
+    @Value("${app.api-base-url}")
     private String apiBaseUrl;
 
     /**
