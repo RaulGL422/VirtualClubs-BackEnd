@@ -62,6 +62,18 @@ public class RefreshTokenServiceImpl {
    * @param hashedToken The hashed refresh token string to be removed.
    * @return true if the token was found and deleted, false otherwise.
    */
+  /**
+   * Revoca todos los refresh tokens activos de un usuario. Se usa tras un reset de contraseña
+   * para cerrar todas las sesiones abiertas.
+   *
+   * @param user el usuario cuyas sesiones se revocan
+   */
+  @Transactional
+  public void revokeAllByUser(UserEntity user) {
+    refreshTokenRepository.findByUserAndRevokedFalse(user)
+        .forEach(t -> t.setRevoked(true));
+  }
+
   @Transactional
   public boolean removeToken(UserEntity user, String hashedToken) {
     return refreshTokenRepository.findByTokenAndUserAndRevokedFalse(hashedToken, user)

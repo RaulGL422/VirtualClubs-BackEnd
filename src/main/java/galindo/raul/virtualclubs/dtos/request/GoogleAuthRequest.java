@@ -5,6 +5,6 @@ import lombok.NonNull;
 
 public record GoogleAuthRequest(
     @NonNull
-    @NotBlank(message = "11")
+    @NotBlank(message = "FIELD_BLANK")
     String idToken
 ) {}

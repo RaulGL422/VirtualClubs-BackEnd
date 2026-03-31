@@ -37,8 +37,8 @@ public class EmailService {
       helper.setTo(request.to());
       helper.setSubject(request.subject());
 
-      // Renderizar plantilla Thymeleaf
-      Context context = new Context();
+      // Renderizar plantilla Thymeleaf con el locale del request (resuelve #{...})
+      Context context = new Context(request.locale());
       if (request.model() instanceof Map<?, ?> map) {
         map.forEach((k, v) -> context.setVariable(k.toString(), v));
       }

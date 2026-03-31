@@ -209,7 +209,7 @@ class AuthControllerIntegrationTest {
                         .content("{\"refreshToken\": \"no-es-un-jwt\"}"))
                 .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.success").value(false))
-                .andExpect(jsonPath("$.message").value(12));
+                .andExpect(jsonPath("$.message").value(3));
     }
 
     // ─────────────────────────────────────────────────────────────

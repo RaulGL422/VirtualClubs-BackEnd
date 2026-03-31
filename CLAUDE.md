@@ -27,25 +27,29 @@ src/main/java/galindo/raul/virtualclubs/
 │       │   └── JwtAuthLoginFilter.java     Intercepta POST /v1/auth/login
 │       └── utils/JwtUtils.java     Genera/valida JWT (HMAC-SHA256)
 ├── controller/
-│   ├── AuthController.java         Endpoints: register, refresh, logout
+│   ├── AuthController.java         Endpoints: register, refresh, logout, verify, requestVerify, requestPasswordReset, resetPasswordRedirect, resetPassword
 │   └── GlobalExceptionHandler.java @RestControllerAdvice centralizado
 ├── dtos/
 │   ├── request/                    AuthRequest, RegisterRequest, RefreshRequest, GoogleAuthRequest, ResetPasswordRequest, RequestPasswordResetRequest
 │   └── response/                   ApiResponse<T> (genérico), RegisterResponse, RefreshResponse
 ├── models/
 │   ├── entities/                   UserEntity, AuthProviderEntity, RefreshTokenEntity, RoleEntity, PermissionEntity
-│   ├── enums/                      Role (ADMIN/USER), TokenType, ErrorType (27 códigos)
-│   ├── exceptions/                 11 excepciones de negocio custom
+│   ├── enums/                      Role (ADMIN/USER), TokenType, ErrorType (13 códigos)
+│   ├── exceptions/                 7 excepciones de negocio custom
 │   ├── annotations/                @StrongPassword (2 mayúsc, 2 minúsc, 1 dígito)
 │   ├── Dispositive.java            Record: deviceId, deviceName, deviceType, ipAddress
 │   └── Tokens.java                 Record: accessToken, refreshToken
 ├── repositories/
 │   ├── UserEntityRepository.java
-│   └── RefreshTokenRepository.java
+│   ├── RefreshTokenRepository.java
+│   └── UserTokenRepository.java
 ├── services/
 │   ├── UserEntityServiceImpl.java  Registro, carga de usuario, Google OAuth2
 │   ├── TokensService.java          Genera, refresca y hashea tokens JWT
-│   └── RefreshTokenServiceImpl.java CRUD de RefreshTokenEntity por dispositivo
+│   ├── RefreshTokenServiceImpl.java CRUD de RefreshTokenEntity por dispositivo
+│   ├── UserTokenServiceImpl.java   Tokens de un solo uso (verificación email, reset contraseña)
+│   ├── NotificationService.java    Orquesta creación de token + email; soporte i18n (es/en)
+│   └── EmailService.java           Envío async de emails via Resend SMTP (noreply@rgal.dev)
 └── utils/
     ├── CommonUtils.java            Extrae info de dispositivo del request
     ├── DeepLinkUtils.java          Genera deeplinks virtualclubs://...
@@ -59,9 +63,14 @@ src/main/java/galindo/raul/virtualclubs/
 | Método | Ruta | Auth | Descripción |
 |--------|------|------|-------------|
 | POST | `/v1/auth/login` | No | Login (manejado por JwtAuthLoginFilter, no controller) |
-| POST | `/v1/auth/register` | No | Registro nuevo usuario |
+| POST | `/v1/auth/register` | No | Registro nuevo usuario; envía email de verificación automáticamente |
 | POST | `/v1/auth/refresh` | No | Renovar tokens con refreshToken |
 | DELETE | `/v1/auth/logout` | Sí | Cerrar sesión en dispositivo actual |
+| GET | `/v1/auth/verify` | No | Verifica email con token de un solo uso; redirige a deep link |
+| POST | `/v1/auth/requestVerify` | Sí | Reenvía email de verificación al usuario autenticado |
+| POST | `/v1/auth/requestPasswordReset` | No | Solicita reset de contraseña (siempre 200 para evitar enumeración) |
+| GET | `/v1/auth/resetPasswordRedirect` | No | Redirige al deep link de reset con el token |
+| POST | `/v1/auth/resetPassword` | No | Establece nueva contraseña con token de reset |
 
 ## Versionado de API
 
@@ -109,7 +118,7 @@ ApiResponse.error(ErrorType.CODIGO) // respuesta de error con código
 ```
 
 ### Códigos de Error (ErrorType enum)
-Los errores siempre se devuelven con un código numérico (1-27) para que el cliente mobile los maneje. Ver `models/enums/ErrorType.java` para la lista completa.
+Los errores siempre se devuelven con un código numérico (1-13) para que el cliente mobile los maneje. Ver `models/enums/ErrorType.java` para la lista completa.
 
 ### Seguridad JWT
 - **Access token:** 10 horas (`jwt.expiration=36000000`)
@@ -136,7 +145,7 @@ Regex: mínimo 2 mayúsculas, 2 minúsculas, 1 dígito.
 - **Formato:** `rate-limiting.limits[/ruta/endpoint]=N` donde N = máx. peticiones por minuto por IP
 - **Para añadir un endpoint nuevo:** solo añadir una línea en `application.properties`; el filtro lo recoge automáticamente sin tocar código
 - **Implementación:** `RateLimitingFilter` + `RateLimitingProperties` en `config/security/`
-- **Respuesta al superar el límite:** HTTP 429 + `ApiResponse.error(ErrorType.RATE_LIMIT_EXCEEDED)` (código 28)
+- **Respuesta al superar el límite:** HTTP 429 + `ApiResponse.error(ErrorType.RATE_LIMIT_EXCEEDED)` (código 13)
 - **IPs detrás de proxy:** se extrae la IP real de `X-Forwarded-For` (primer valor)
 - **Activación:** registrado en `SecurityConfig` antes de `JwtAuthFilter`
 

@@ -10,10 +10,10 @@ import lombok.NonNull;
  */
 public record AuthRequest(
         @NonNull
-        @NotBlank(message = "EMAIL_REQUIRED")
+        @NotBlank(message = "FIELD_BLANK")
         String email,
 
         @NonNull
-        @NotBlank(message = "PASSWORD_REQUIRED")
+        @NotBlank(message = "FIELD_BLANK")
         String password
 ) {}

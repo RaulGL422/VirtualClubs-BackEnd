@@ -6,7 +6,7 @@ import lombok.NonNull;
 
 public record RequestPasswordResetRequest(
     @NonNull
-    @NotBlank(message = "5")
-    @Email(message = "9")
+    @NotBlank(message = "FIELD_BLANK")
+    @Email(message = "INVALID_EMAIL")
     String email
 ) {}
