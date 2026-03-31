@@ -23,6 +23,14 @@ public class UserTokenServiceImpl {
   private final UserTokenRepository tokenRepository;
   private final TokenProperties tokenProperties;
 
+  /**
+   * Crea un token de un solo uso para el usuario y tipo indicados.
+   * Si ya existía un token activo del mismo tipo para ese usuario, lo invalida primero.
+   *
+   * @param user usuario al que se le asocia el token
+   * @param type tipo de token ({@link TokenType#EMAIL_VERIFICATION} o {@link TokenType#PASSWORD_RESET})
+   * @return el token en texto plano — se debe enviar al usuario y nunca almacenar tal cual
+   */
   @Transactional
   public String createTokenFor(UserEntity user, TokenType type) {
     tokenRepository.deleteAllByUserAndType(user, type);
@@ -41,6 +49,14 @@ public class UserTokenServiceImpl {
     return token;
   }
 
+  /**
+   * Valida el token en texto plano y, si es correcto, no expirado y no consumido,
+   * lo marca como consumido y devuelve el usuario asociado.
+   *
+   * @param token token en texto plano recibido del usuario
+   * @param type  tipo esperado del token
+   * @return {@link Optional} con el usuario si el token es válido; vacío en caso contrario
+   */
   @Transactional
   public Optional<UserEntity> validateAndConsume(String token, TokenType type) {
     String hash = TokenUtils.sha256Hex(token);
@@ -55,6 +71,13 @@ public class UserTokenServiceImpl {
         });
   }
 
+  /**
+   * Invalida (elimina) todos los tokens del usuario del tipo indicado.
+   * Útil para limpiar tokens pendientes antes de emitir uno nuevo o tras completar la acción.
+   *
+   * @param user usuario cuyos tokens se eliminan
+   * @param type tipo de tokens a eliminar
+   */
   @Transactional
   public void invalidateTokens(UserEntity user, TokenType type) {
     tokenRepository.deleteAllByUserAndType(user, type);
