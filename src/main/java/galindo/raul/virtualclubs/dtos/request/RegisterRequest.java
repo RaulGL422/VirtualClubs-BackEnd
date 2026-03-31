@@ -14,13 +14,13 @@ import lombok.NonNull;
  */
 public record RegisterRequest(
         @NonNull
-        @NotBlank(message = "PASSWORD_REQUIRED")
-        @Size(min = 6, max = 64, message = "PASSWORD_MIN_LENGTH_ERROR")
+        @NotBlank(message = "FIELD_BLANK")
+        @Size(min = 6, max = 64, message = "PASSWORD_TOO_SHORT")
         @StrongPassword
         String password,
 
         @NonNull
-        @NotBlank(message = "EMAIL_REQUIRED")
-        @Email(message = "INVALID_EMAIL_FORMAT")
+        @NotBlank(message = "FIELD_BLANK")
+        @Email(message = "INVALID_EMAIL")
         String email
 ) {}

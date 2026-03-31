@@ -4,11 +4,13 @@ import galindo.raul.virtualclubs.config.security.utils.JwtUtils;
 import galindo.raul.virtualclubs.models.Dispositive;
 import galindo.raul.virtualclubs.models.Tokens;
 import galindo.raul.virtualclubs.models.entities.UserEntity;
+import galindo.raul.virtualclubs.models.exceptions.InternalErrorException;
 import galindo.raul.virtualclubs.models.exceptions.RefreshTokenException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 /**
@@ -67,8 +69,8 @@ public class TokensService {
       MessageDigest digest = MessageDigest.getInstance("SHA-256");
       byte[] hash = digest.digest(token.getBytes());
       return Base64.getEncoder().encodeToString(hash);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+    } catch (NoSuchAlgorithmException e) {
+      throw new InternalErrorException("SHA-256 not available: " + e.getMessage());
     }
   }
 }

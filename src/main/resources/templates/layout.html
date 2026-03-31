@@ -79,8 +79,8 @@
         <th:block th:replace="${content}"/>
     </div>
     <div class="footer">
-        <p>© 2025 Tu App · Todos los derechos reservados</p>
-        <p>Si no solicitaste este email, puedes ignorarlo.</p>
+        <p th:text="#{layout.footer.rights}">© 2025 VirtualClubs · Todos los derechos reservados</p>
+        <p th:text="#{layout.footer.ignore}">Si no solicitaste este email, puedes ignorarlo.</p>
     </div>
 </div>
 </body>

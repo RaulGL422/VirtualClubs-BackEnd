@@ -69,11 +69,10 @@ public class UserEntityServiceImpl implements UserDetailsService {
    */
   @Transactional
   public UserEntity registerUser(String email, String password) {
-    // Verify if user exists
-    try {
-      _getUserFromEmail(email);
+      // Verify if user exists
+    if (userRepository.findByEmail(email).isPresent()) {
       throw new UserAlreadyExistException(email);
-    } catch (EmailNotFoundException ignored) {}
+    }
     
     // Create new user
     AuthProviderEntity authProvider = AuthProviderEntity.builder()
@@ -84,10 +83,7 @@ public class UserEntityServiceImpl implements UserDetailsService {
     UserEntity newUser = UserEntity.builder()
         .email(email)
         .build();
-    
-    newUser.getAuthProviderEntities().add(authProvider);
-    newUser.getRoles().add(RoleEntity.builder().role(Role.USER).build());
-    
+
     newUser.addAuthProvider(authProvider);
     newUser.addRole(RoleEntity.builder().role(Role.USER).build());
     userRepository.saveAndFlush(newUser);
@@ -169,19 +165,23 @@ public class UserEntityServiceImpl implements UserDetailsService {
     return user;
   }
   
-  /// Metodos publicos
   /**
    * Retrieves a user by email or throws an exception if not found.
    * @param email The email to search for.
    * @return The found UserEntity.
    */
   public UserEntity getUserFromEmail(String email) {
-    return _getUserFromEmail(email);
-  }
-  
-  /// Metodos privados
-  private UserEntity _getUserFromEmail(String email) throws EmailNotFoundException {
     return userRepository.findByEmail(email)
         .orElseThrow(() -> new EmailNotFoundException(email));
+  }
+
+  /**
+   * Persiste cambios en un UserEntity existente.
+   * @param user el usuario a guardar
+   * @return el usuario guardado
+   */
+  @Transactional
+  public UserEntity saveUser(UserEntity user) {
+    return userRepository.save(user);
   }
 }

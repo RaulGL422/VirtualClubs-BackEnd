@@ -61,6 +61,9 @@ class AuthControllerUnitTest {
     @MockitoBean private JwtUtils jwtUtils;
     @MockitoBean private TokensService tokensService;
     @MockitoBean private RefreshTokenServiceImpl refreshTokenService;
+    @MockitoBean private galindo.raul.virtualclubs.services.NotificationService notificationService;
+    @MockitoBean private galindo.raul.virtualclubs.services.UserTokenServiceImpl userTokenService;
+    @MockitoBean private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
 
     // ─────────────────────────────────────────────────────────────
     // POST /v1/auth/register
