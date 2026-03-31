@@ -4,14 +4,14 @@ import galindo.raul.virtualclubs.config.TokenProperties;
 import galindo.raul.virtualclubs.dtos.request.EmailRequest;
 import galindo.raul.virtualclubs.models.entities.UserEntity;
 import galindo.raul.virtualclubs.models.enums.TokenType;
+import galindo.raul.virtualclubs.utils.AuthUrlUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import java.util.Map;
 
@@ -43,12 +43,17 @@ public class NotificationService {
     /**
      * Genera un token de verificación de email y envía el correo al usuario.
      *
+     * <p>La creación del token es transaccional. El envío del email es asíncrono
+     * ({@link EmailService} usa {@code @Async}) y ocurre fuera de la transacción,
+     * por lo que un fallo de envío no revierte el token — el usuario puede solicitar reenvío.
+     *
      * @param user   usuario destinatario
      * @param locale idioma del email (viene del header Accept-Language del request)
      */
+    @Transactional
     public void sendVerificationEmail(UserEntity user, Locale locale) {
-        String token    = userTokenService.createTokenFor(user, TokenType.EMAIL_VERIFICATION);
-        String verifyUrl = apiBaseUrl + "/v1/auth/verify?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
+        String token     = userTokenService.createTokenFor(user, TokenType.EMAIL_VERIFICATION);
+        String verifyUrl = AuthUrlUtils.verifyEmailUrl(apiBaseUrl, token);
         String name     = displayName(user);
         int    expiry   = tokenProperties.getVerificationExpiry() / 60; // minutos → horas
 
@@ -66,12 +71,15 @@ public class NotificationService {
     /**
      * Genera un token de reset de contraseña y envía el correo al usuario.
      *
+     * <p>Ver {@link #sendVerificationEmail} para la nota sobre transaccionalidad y envío asíncrono.
+     *
      * @param user   usuario destinatario
      * @param locale idioma del email
      */
+    @Transactional
     public void sendPasswordResetEmail(UserEntity user, Locale locale) {
         String token    = userTokenService.createTokenFor(user, TokenType.PASSWORD_RESET);
-        String resetUrl = apiBaseUrl + "/v1/auth/resetPasswordRedirect?token=" + URLEncoder.encode(token, StandardCharsets.UTF_8);
+        String resetUrl = AuthUrlUtils.resetPasswordUrl(apiBaseUrl, token);
         String name     = displayName(user);
         int    expiry   = tokenProperties.getResetExpiry();
 
