@@ -3,11 +3,11 @@ package galindo.raul.virtualclubs.config.security.filters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import galindo.raul.virtualclubs.dtos.request.AuthRequest;
 import galindo.raul.virtualclubs.dtos.response.ApiResponse;
-import galindo.raul.virtualclubs.models.Tokens;
+import galindo.raul.virtualclubs.dtos.response.RefreshResponse;
 import galindo.raul.virtualclubs.models.entities.UserEntity;
 import galindo.raul.virtualclubs.models.enums.ErrorType;
 import galindo.raul.virtualclubs.services.TokensService;
-import galindo.raul.virtualclubs.services.UserEntityServiceImpl;
+import galindo.raul.virtualclubs.services.UserService;
 import galindo.raul.virtualclubs.utils.CommonUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,8 +24,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Custom filter for handling JWT-based authentication during the login process.
@@ -35,11 +33,14 @@ import java.util.Map;
 @Slf4j
 public class JwtAuthLoginFilter extends UsernamePasswordAuthenticationFilter {
   private final TokensService tokensService;
-  private final UserEntityServiceImpl userService;
-  
-  public JwtAuthLoginFilter(AuthenticationManager authenticationManager, UserEntityServiceImpl userService, TokensService tokensService) {
+  private final UserService userService;
+  private final ObjectMapper objectMapper;
+
+  public JwtAuthLoginFilter(AuthenticationManager authenticationManager, UserService userService,
+                            TokensService tokensService, ObjectMapper objectMapper) {
     this.tokensService = tokensService;
     this.userService = userService;
+    this.objectMapper = objectMapper;
     setAuthenticationManager(authenticationManager);
   }
 
@@ -58,7 +59,7 @@ public class JwtAuthLoginFilter extends UsernamePasswordAuthenticationFilter {
     String email = null;
     String password;
     try {
-      user = new ObjectMapper().readValue(request.getInputStream(), AuthRequest.class);
+      user = objectMapper.readValue(request.getInputStream(), AuthRequest.class);
       email = user.email();
       password = user.password();
       log.info("Authentication attempt for user: {}", email);
@@ -77,7 +78,7 @@ public class JwtAuthLoginFilter extends UsernamePasswordAuthenticationFilter {
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding("UTF-8");
     response.getWriter().write(
-        new ObjectMapper().writeValueAsString(ApiResponse.error(ErrorType.INVALID_CREDENTIALS))
+        objectMapper.writeValueAsString(ApiResponse.error(ErrorType.INVALID_CREDENTIALS))
     );
     response.getWriter().flush();
   }
@@ -101,21 +102,17 @@ public class JwtAuthLoginFilter extends UsernamePasswordAuthenticationFilter {
     log.info("Authentication successful for user: {}", user.getUsername());
     
     // Get Tokens
-    Tokens tokens = tokensService.getNewTokens(userEntity, CommonUtils.getDispositiveInfo(request));
+    var tokens = tokensService.getNewTokens(userEntity, CommonUtils.getDispositiveInfo(request));
     String newAccessToken = tokens.accessToken();
     String newRefreshToken = tokens.refreshToken();
 
     response.addHeader("Authorization", newAccessToken);
 
-    Map<String, Object> responseData =  new HashMap<>();
-    responseData.put("accessToken", newAccessToken);
-    responseData.put("refreshToken", newRefreshToken);
-    
     response.setStatus(HttpServletResponse.SC_OK);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding("UTF-8");
     response.getWriter().write(
-        new ObjectMapper().writeValueAsString(ApiResponse.success(responseData))
+        objectMapper.writeValueAsString(ApiResponse.success(new RefreshResponse(newAccessToken, newRefreshToken)))
     );
     response.getWriter().flush();
 

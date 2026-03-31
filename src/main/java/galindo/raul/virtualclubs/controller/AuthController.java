@@ -16,10 +16,10 @@ import galindo.raul.virtualclubs.models.exceptions.EmailNotFoundException;
 import galindo.raul.virtualclubs.models.exceptions.InvalidTokenException;
 import galindo.raul.virtualclubs.models.exceptions.NoLocalProviderException;
 import galindo.raul.virtualclubs.services.NotificationService;
-import galindo.raul.virtualclubs.services.RefreshTokenServiceImpl;
+import galindo.raul.virtualclubs.services.RefreshTokenService;
 import galindo.raul.virtualclubs.services.TokensService;
-import galindo.raul.virtualclubs.services.UserEntityServiceImpl;
-import galindo.raul.virtualclubs.services.UserTokenServiceImpl;
+import galindo.raul.virtualclubs.services.UserService;
+import galindo.raul.virtualclubs.services.UserTokenService;
 import galindo.raul.virtualclubs.utils.CommonUtils;
 import galindo.raul.virtualclubs.utils.DeepLinkUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -48,11 +48,11 @@ import java.util.Locale;
 @RequiredArgsConstructor
 public class AuthController {
 
-  private final UserEntityServiceImpl userService;
-  private final UserTokenServiceImpl userTokenService;
+  private final UserService userService;
+  private final UserTokenService userTokenService;
   private final JwtUtils jwtUtils;
   private final TokensService tokensService;
-  private final RefreshTokenServiceImpl refreshTokenService;
+  private final RefreshTokenService refreshTokenService;
   private final NotificationService notificationService;
   private final PasswordEncoder passwordEncoder;
 

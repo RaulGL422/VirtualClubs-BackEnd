@@ -18,7 +18,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserTokenServiceImpl {
+public class UserTokenServiceImpl implements UserTokenService {
 
   private final UserTokenRepository tokenRepository;
   private final TokenProperties tokenProperties;
