@@ -1,6 +1,6 @@
 package galindo.raul.virtualclubs.config.security.filters;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import galindo.raul.virtualclubs.dtos.request.AuthRequest;
 import galindo.raul.virtualclubs.dtos.response.ApiResponse;
 import galindo.raul.virtualclubs.dtos.response.RefreshResponse;

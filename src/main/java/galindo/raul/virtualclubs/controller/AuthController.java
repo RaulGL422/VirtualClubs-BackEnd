@@ -29,7 +29,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -106,6 +105,11 @@ public class AuthController {
   @DeleteMapping("/logout")
   public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    
+    if (authentication == null) {
+      return ResponseEntity.ok(ApiResponse.emptySuccess());
+    }
+    
     UserDetails user  = (UserDetails) authentication.getPrincipal();
     String email      = user.getUsername();
     Dispositive disp  = CommonUtils.getDispositiveInfo(request);
@@ -188,7 +192,6 @@ public class AuthController {
    * Reenvía el email de verificación al usuario autenticado.
    */
   @PostMapping("/requestVerify")
-  @PreAuthorize("isAuthenticated()")
   public ResponseEntity<ApiResponse<Void>> requestVerifyEmail(Authentication authentication, Locale locale) {
     String email    = authentication.getName();
     UserEntity user = userService.findByEmailOptional(email)
