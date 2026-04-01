@@ -46,6 +46,7 @@ src/main/java/galindo/raul/virtualclubs/
 ├── services/
 │   ├── UserService.java            Interfaz de UserEntityServiceImpl (extiende UserDetailsService)
 │   ├── UserEntityServiceImpl.java  Registro, carga de usuario, Google OAuth2
+│   ├── GoogleAuthService.java      Verifica Google ID Tokens via GoogleIdTokenVerifier
 │   ├── TokensService.java          Genera y refresca tokens JWT; delega hashing a TokenUtils
 │   ├── RefreshTokenService.java    Interfaz de RefreshTokenServiceImpl
 │   ├── RefreshTokenServiceImpl.java CRUD de RefreshTokenEntity por dispositivo
@@ -75,6 +76,7 @@ src/main/java/galindo/raul/virtualclubs/
 | POST | `/v1/auth/requestPasswordReset` | No | Solicita reset de contraseña (siempre 200 para evitar enumeración) |
 | GET | `/v1/auth/resetPasswordRedirect` | No | Redirige al deep link de reset con el token |
 | POST | `/v1/auth/resetPassword` | No | Establece nueva contraseña con token de reset |
+| POST | `/v1/auth/google` | No | Login/registro con Google OAuth2 (ID Token del SDK de Android) |
 
 ## Versionado de API
 
@@ -133,8 +135,9 @@ Los errores siempre se devuelven con un código numérico (1-13) para que el cli
 - Si se envía un `Authorization: Bearer <token>` inválido/expirado, **todos** los endpoints responden 401 + `ApiResponse.error(ErrorType.INVALID_TOKEN)` (incluidos los `permitAll()`)
 
 ### Variables de Entorno Requeridas
+**Perfil `dev`:**
 ```
-SPRING_PROFILE_ACTIVE=dev|prod
+SPRING_PROFILE_ACTIVE=dev
 PORT=
 URL_DATABASE_POSTGRES_DEBUG=      # host de PostgreSQL
 NAME_DATABASE_POSTGRES_DEBUG=     # nombre de la base de datos
@@ -142,9 +145,23 @@ USERNAME_DATABASE_POSTGRES_DEBUG=
 PASSWORD_DATABASE_POSTGRES_DEBUG=
 JWT_SECRET_DEBUG=                  # clave HMAC-SHA256 (mín. 32 chars)
 RESEND_API_KEY=                    # API key de Resend para emails
+GOOGLE_CLIENT_ID_DEBUG=           # Client ID de Google Cloud Console (OAuth2)
 ```
 
-> Estas mismas variables se usan en producción (perfil `prod`). Ver `application-prod.properties` para la referencia completa.
+**Perfil `prod`:**
+```
+SPRING_PROFILE_ACTIVE=prod
+PORT=
+URL_DATABASE_POSTGRES_PROD=
+NAME_DATABASE_POSTGRES_PROD=
+USERNAME_DATABASE_POSTGRES_PROD=
+PASSWORD_DATABASE_POSTGRES_PROD=
+JWT_SECRET_PROD=
+RESEND_API_KEY=
+GOOGLE_CLIENT_ID_PROD=
+```
+
+> Ver `application-dev.properties` y `application-prod.properties` para la referencia completa.
 
 ### Reglas de Contraseña (@StrongPassword)
 Regex: mínimo 2 mayúsculas, 2 minúsculas, 1 dígito.
