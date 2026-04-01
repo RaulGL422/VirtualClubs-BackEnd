@@ -1,6 +1,5 @@
 package galindo.raul.virtualclubs.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import galindo.raul.virtualclubs.dtos.request.EmailRequest;
 import galindo.raul.virtualclubs.repositories.UserTokenRepository;
@@ -15,12 +14,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+
+import galindo.raul.virtualclubs.util.IntegrationTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -195,7 +195,7 @@ class EmailVerificationIntegrationTest {
     // ─────────────────────────────────────────────────────────────
 
     private String body(String email, String password) {
-        return "{\"email\": \"" + email + "\", \"password\": \"" + password + "\"}";
+        return IntegrationTestUtils.authBody(email, password);
     }
 
     /**
@@ -222,11 +222,6 @@ class EmailVerificationIntegrationTest {
     }
 
     private String loginYObtenerAccessToken(String email, String password) throws Exception {
-        MvcResult result = mockMvc.perform(post(BASE + "/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body(email, password)))
-                .andReturn();
-        JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
-        return json.get("data").get("accessToken").asText();
+        return IntegrationTestUtils.loginAndGetAccessToken(mockMvc, objectMapper, email, password);
     }
 }

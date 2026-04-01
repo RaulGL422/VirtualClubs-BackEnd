@@ -44,16 +44,20 @@ src/main/java/galindo/raul/virtualclubs/
 │   ├── RefreshTokenRepository.java
 │   └── UserTokenRepository.java
 ├── services/
+│   ├── UserService.java            Interfaz de UserEntityServiceImpl (extiende UserDetailsService)
 │   ├── UserEntityServiceImpl.java  Registro, carga de usuario, Google OAuth2
-│   ├── TokensService.java          Genera, refresca y hashea tokens JWT
+│   ├── TokensService.java          Genera y refresca tokens JWT; delega hashing a TokenUtils
+│   ├── RefreshTokenService.java    Interfaz de RefreshTokenServiceImpl
 │   ├── RefreshTokenServiceImpl.java CRUD de RefreshTokenEntity por dispositivo
+│   ├── UserTokenService.java       Interfaz de UserTokenServiceImpl
 │   ├── UserTokenServiceImpl.java   Tokens de un solo uso (verificación email, reset contraseña)
 │   ├── NotificationService.java    Orquesta creación de token + email; soporte i18n (es/en)
 │   └── EmailService.java           Envío async de emails via Resend SMTP (noreply@rgal.dev)
 └── utils/
     ├── CommonUtils.java            Extrae info de dispositivo del request
+    ├── AuthUrlUtils.java           Genera URLs HTTP hacia endpoints de la API (para emails)
     ├── DeepLinkUtils.java          Genera deeplinks virtualclubs://...
-    └── TokenUtils.java             Genera tokens aleatorios y SHA-256
+    └── TokenUtils.java             Genera tokens aleatorios; SHA-256 en hex y Base64
 ```
 
 ---
@@ -123,18 +127,24 @@ Los errores siempre se devuelven con un código numérico (1-13) para que el cli
 ### Seguridad JWT
 - **Access token:** 10 horas (`jwt.expiration=36000000`)
 - **Refresh token:** 7 días (`jwt.refreshExpiration=604800000`)
-- Los refresh tokens se almacenan como **hash SHA-256** en BD (nunca en texto plano)
+- Los refresh tokens se almacenan como **hash SHA-256 Base64** en BD (`TokenUtils.sha256Base64`)
+- Los tokens de verificación/reset se almacenan como **hash SHA-256 hex** en BD (`TokenUtils.sha256Hex`)
 - Cada dispositivo tiene su propio refresh token (multi-device support)
+- Si se envía un `Authorization: Bearer <token>` inválido/expirado, **todos** los endpoints responden 401 + `ApiResponse.error(ErrorType.INVALID_TOKEN)` (incluidos los `permitAll()`)
 
 ### Variables de Entorno Requeridas
 ```
 SPRING_PROFILE_ACTIVE=dev|prod
 PORT=
-URL_DATABASE_POSTGRES_DEBUG=
+URL_DATABASE_POSTGRES_DEBUG=      # host de PostgreSQL
+NAME_DATABASE_POSTGRES_DEBUG=     # nombre de la base de datos
 USERNAME_DATABASE_POSTGRES_DEBUG=
 PASSWORD_DATABASE_POSTGRES_DEBUG=
-JWT_SECRET_DEBUG=
+JWT_SECRET_DEBUG=                  # clave HMAC-SHA256 (mín. 32 chars)
+RESEND_API_KEY=                    # API key de Resend para emails
 ```
+
+> Estas mismas variables se usan en producción (perfil `prod`). Ver `application-prod.properties` para la referencia completa.
 
 ### Reglas de Contraseña (@StrongPassword)
 Regex: mínimo 2 mayúsculas, 2 minúsculas, 1 dígito.
@@ -273,3 +283,5 @@ Gestor de tareas del proyecto: base de datos **"Registro de tareas VirtualClubs"
 - El proyecto usa **Lombok** — no generar getters/setters manualmente
 - Usar **records** para DTOs inmutables cuando sea apropiado
 - La clase `ApiResponse<T>` es el estándar de respuesta — siempre usarla
+- Inyectar **interfaces** en controllers, filtros y servicios — nunca las implementaciones concretas (`UserService`, `RefreshTokenService`, `UserTokenService`)
+- Para hashing SHA-256 usar siempre `TokenUtils` — no instanciar `MessageDigest` directamente en otros sitios
