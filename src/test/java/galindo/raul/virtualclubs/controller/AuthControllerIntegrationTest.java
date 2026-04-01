@@ -20,6 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import galindo.raul.virtualclubs.util.IntegrationTestUtils;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -250,36 +252,22 @@ class AuthControllerIntegrationTest {
     }
 
     // ─────────────────────────────────────────────────────────────
-    // Helpers
+    // Helpers (delegados a IntegrationTestUtils)
     // ─────────────────────────────────────────────────────────────
 
     private String body(String email, String password) {
-        return "{\"email\": \"" + email + "\", \"password\": \"" + password + "\"}";
+        return IntegrationTestUtils.authBody(email, password);
     }
 
     private void register(String email, String password) throws Exception {
-        mockMvc.perform(post(BASE + "/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(body(email, password)));
+        IntegrationTestUtils.register(mockMvc, email, password);
     }
 
     private String loginYObtenerRefreshToken(String email, String password) throws Exception {
-        MvcResult result = mockMvc.perform(post(BASE + "/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body(email, password)))
-                .andReturn();
-
-        JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
-        return json.get("data").get("refreshToken").asText();
+        return IntegrationTestUtils.loginAndGetRefreshToken(mockMvc, objectMapper, email, password);
     }
 
     private String loginYObtenerAccessToken(String email, String password) throws Exception {
-        MvcResult result = mockMvc.perform(post(BASE + "/login")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body(email, password)))
-                .andReturn();
-
-        JsonNode json = objectMapper.readTree(result.getResponse().getContentAsString());
-        return json.get("data").get("accessToken").asText();
+        return IntegrationTestUtils.loginAndGetAccessToken(mockMvc, objectMapper, email, password);
     }
 }
