@@ -33,6 +33,22 @@ Si la tarjeta no existe, detente y avisa al usuario.
 
 ---
 
+## Paso 2B: Generar checklist si la tarea no tiene checkboxes
+
+Si el cuerpo de la página **no contiene ningún `- [ ]`**, genera un checklist de implementación antes de continuar.
+
+Analiza el `Nombre de la tarea`, `Tipo de tarea` y `Descripción` para inferir los pasos concretos. El checklist debe:
+- Ser específico para la tarea (no genérico)
+- Cubrir: análisis/lectura de código existente, cambios de código, migración de BD si aplica, tests, verificación manual y actualización de CLAUDE.md si hay endpoints o patrones nuevos
+- Estar agrupado en secciones con `##` si hay más de 5 pasos
+- Usar el formato Notion-flavored Markdown con `- [ ] texto`
+
+Escribe el checklist en la página con `notion-update-page` → `command: "replace_content"`.
+
+Luego recarga el contenido de la página con `notion-fetch` para tener la lista actualizada de checkboxes antes de continuar.
+
+---
+
 ## Paso 3: Mostrar resumen y pedir confirmación ÚNICA
 
 Muestra al usuario todo lo que se va a hacer y espera **una sola confirmación** antes de ejecutar el flujo completo:
