@@ -1,6 +1,6 @@
 package galindo.raul.virtualclubs.config.security.filters;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import galindo.raul.virtualclubs.dtos.response.ApiResponse;
 import galindo.raul.virtualclubs.models.enums.ErrorType;
 import io.github.bucket4j.Bandwidth;

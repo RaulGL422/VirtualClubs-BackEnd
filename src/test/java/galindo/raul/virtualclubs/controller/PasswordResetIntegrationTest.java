@@ -1,6 +1,6 @@
 package galindo.raul.virtualclubs.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import galindo.raul.virtualclubs.dtos.request.EmailRequest;
 import galindo.raul.virtualclubs.models.entities.UserEntity;
 import galindo.raul.virtualclubs.models.enums.TokenType;
@@ -12,7 +12,7 @@ import galindo.raul.virtualclubs.services.UserTokenService;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
