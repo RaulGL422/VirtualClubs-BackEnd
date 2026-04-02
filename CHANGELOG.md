@@ -16,6 +16,31 @@ y el proyecto sigue [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
+## [0.1.0] — 2026-04-02
+
+### Añadido
+- Flujo de verificación de email: `GET /v1/auth/verify` y `POST /v1/auth/requestVerify` — VC-20
+- Flujo de reset de contraseña: `POST /v1/auth/requestPasswordReset`, `GET /v1/auth/resetPasswordRedirect`, `POST /v1/auth/resetPassword` — VC-21
+- Endpoint `POST /v1/auth/google` para autenticación con Google OAuth2 (ID Token del SDK de Android) — VC-22
+
+### Cambiado
+- Actualización Spring Boot 3.5.3 → 4.0.5; adapta imports de Jackson 3 y configuración CORS en `SecurityFilterChain` — VC-48
+- `DeviceEntity` extraída de `RefreshTokenEntity` como entidad independiente con `@ManyToOne` — VC-39
+- Estrategia de versionado de API documentada en CLAUDE.md — VC-41
+
+### Corregido
+- `removeToken()` ahora elimina únicamente el token del dispositivo específico en lugar de todos los tokens del usuario — VC-24
+- Password de prueba `PAss1` (5 chars) corregido a `PAss12` para cumplir `@Size(min=6)` — VC-27
+
+### Interno
+- `EmailService` conectado al `ThreadPoolTaskExecutor` de `AsyncConfig` mediante `@Async` — VC-23
+- `@ConfigurationProperties` para propiedades JWT y CORS (records `JwtProperties`, `CorsProperties`) — VC-31
+- Tests de capa web con `@WebMvcTest` en `AuthControllerUnitTest` — VC-32
+- Emojis en mensajes de log reemplazados por texto plano — VC-36
+- Paginación añadida en `RefreshTokenRepository` con `findByUser(UserEntity, Pageable)` — VC-40
+
+---
+
 ## [0.0.3] — 2026-03-28
 
 ### Corregido
