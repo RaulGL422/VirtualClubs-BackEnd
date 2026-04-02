@@ -1,11 +1,10 @@
 package galindo.raul.virtualclubs.controller;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import galindo.raul.virtualclubs.config.security.utils.JwtUtils;
-import galindo.raul.virtualclubs.dtos.request.RefreshRequest;
-import galindo.raul.virtualclubs.dtos.request.RegisterRequest;
-import galindo.raul.virtualclubs.dtos.request.RequestPasswordResetRequest;
-import galindo.raul.virtualclubs.dtos.request.ResetPasswordRequest;
+import galindo.raul.virtualclubs.dtos.request.*;
 import galindo.raul.virtualclubs.dtos.response.ApiResponse;
+import galindo.raul.virtualclubs.dtos.response.GoogleResponse;
 import galindo.raul.virtualclubs.dtos.response.RefreshResponse;
 import galindo.raul.virtualclubs.dtos.response.RegisterResponse;
 import galindo.raul.virtualclubs.models.Dispositive;
@@ -15,11 +14,7 @@ import galindo.raul.virtualclubs.models.enums.TokenType;
 import galindo.raul.virtualclubs.models.exceptions.EmailNotFoundException;
 import galindo.raul.virtualclubs.models.exceptions.InvalidTokenException;
 import galindo.raul.virtualclubs.models.exceptions.NoLocalProviderException;
-import galindo.raul.virtualclubs.services.NotificationService;
-import galindo.raul.virtualclubs.services.RefreshTokenService;
-import galindo.raul.virtualclubs.services.TokensService;
-import galindo.raul.virtualclubs.services.UserService;
-import galindo.raul.virtualclubs.services.UserTokenService;
+import galindo.raul.virtualclubs.services.*;
 import galindo.raul.virtualclubs.utils.CommonUtils;
 import galindo.raul.virtualclubs.utils.DeepLinkUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,7 +41,7 @@ import java.util.Locale;
 @RequestMapping("/v1/auth")
 @RequiredArgsConstructor
 public class AuthController {
-
+  
   private final UserService userService;
   private final UserTokenService userTokenService;
   private final JwtUtils jwtUtils;
@@ -54,7 +49,8 @@ public class AuthController {
   private final RefreshTokenService refreshTokenService;
   private final NotificationService notificationService;
   private final PasswordEncoder passwordEncoder;
-
+  private final GoogleAuthService googleAuthService;
+  
   /**
    * Registra un nuevo usuario y genera los tokens de autenticación iniciales.
    * Envía automáticamente un email de verificación al idioma del cliente.
@@ -64,21 +60,21 @@ public class AuthController {
       @Valid @RequestBody RegisterRequest registerRequest,
       HttpServletRequest request,
       Locale locale) {
-
-    String email    = registerRequest.email();
+    
+    String email = registerRequest.email();
     String password = registerRequest.password();
     log.info("Registration attempt: email='{}'", email);
-
-    UserEntity user     = userService.registerUser(email, password);
-    Tokens newTokens    = tokensService.getNewTokens(user, CommonUtils.getDispositiveInfo(request));
+    
+    UserEntity user = userService.registerUser(email, password);
+    Tokens newTokens = tokensService.getNewTokens(user, CommonUtils.getDispositiveInfo(request));
     notificationService.sendVerificationEmail(user, locale);
-
+    
     log.info("User '{}' registered successfully", email);
-
+    
     return ResponseEntity.status(HttpStatus.CREATED)
         .body(ApiResponse.success(new RegisterResponse(newTokens.accessToken(), newTokens.refreshToken(), email)));
   }
-
+  
   /**
    * Renueva los tokens usando un refresh token válido.
    */
@@ -86,19 +82,19 @@ public class AuthController {
   public ResponseEntity<ApiResponse<RefreshResponse>> refreshToken(
       @Valid @RequestBody RefreshRequest refreshRequest,
       HttpServletRequest request) {
-
+    
     String refreshToken = refreshRequest.refreshToken();
-    String email        = jwtUtils.getUsernameFromToken(refreshToken);
+    String email = jwtUtils.getUsernameFromToken(refreshToken);
     log.info("Refresh token request for '{}'", email);
-
+    
     Tokens newTokens = tokensService.refreshTokens(
         userService.getUserFromEmail(email), refreshToken, CommonUtils.getDispositiveInfo(request));
-
+    
     log.info("Tokens refreshed for '{}'", email);
-
+    
     return ResponseEntity.ok(ApiResponse.success(new RefreshResponse(newTokens.accessToken(), newTokens.refreshToken())));
   }
-
+  
   /**
    * Cierra la sesión del dispositivo actual revocando su refresh token.
    */
@@ -115,12 +111,12 @@ public class AuthController {
     Dispositive disp  = CommonUtils.getDispositiveInfo(request);
 
     refreshTokenService.removeTokenFromDevice(userService.getUserFromEmail(email), disp);
-
+    
     log.info("User '{}' in device '{}' logged out", email, disp.deviceId());
-
+    
     return ResponseEntity.ok(ApiResponse.emptySuccess());
   }
-
+  
   /**
    * Solicita el reset de contraseña.
    * Siempre devuelve 200 aunque el email no exista (evita enumeración de usuarios).
@@ -129,13 +125,13 @@ public class AuthController {
   public ResponseEntity<ApiResponse<Void>> requestPasswordReset(
       @Valid @RequestBody RequestPasswordResetRequest req,
       Locale locale) {
-
+    
     userService.findByEmailOptional(req.email())
         .ifPresent(user -> notificationService.sendPasswordResetEmail(user, locale));
-
+    
     return ResponseEntity.ok(ApiResponse.emptySuccess());
   }
-
+  
   /**
    * Recibe el token del email y redirige a la app móvil via deep link.
    * No valida ni consume el token aquí — eso ocurre en /resetPassword.
@@ -146,7 +142,7 @@ public class AuthController {
     log.info("Redirecting password reset to deep link");
     response.sendRedirect(DeepLinkUtils.resetPassword(encodedToken));
   }
-
+  
   /**
    * Establece la nueva contraseña usando el token de reset.
    * Invalida el token y revoca todas las sesiones activas tras el cambio.
@@ -155,20 +151,20 @@ public class AuthController {
   public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest req) {
     UserEntity user = userTokenService.validateAndConsume(req.token(), TokenType.PASSWORD_RESET)
         .orElseThrow(InvalidTokenException::new);
-
+    
     user.getAuthProviderEntities().stream()
         .filter(ap -> "LOCAL".equalsIgnoreCase(ap.getProviderName()))
         .findFirst()
         .orElseThrow(() -> new NoLocalProviderException(user.getEmail()))
         .setPasswordHash(passwordEncoder.encode(req.newPassword()));
-
+    
     userService.saveUser(user);
     refreshTokenService.revokeAllByUser(user);
-
+    
     log.info("Password reset successfully for '{}'", user.getEmail());
     return ResponseEntity.ok(ApiResponse.emptySuccess());
   }
-
+  
   /**
    * Verifica el email del usuario usando el token recibido por correo.
    * Redirige a la app móvil via deep link con el resultado (éxito o fallo).
@@ -187,19 +183,56 @@ public class AuthController {
     log.info("Email verified for '{}'", user.getEmail());
     response.sendRedirect(DeepLinkUtils.verifyEmail(true));
   }
-
+  
   /**
    * Reenvía el email de verificación al usuario autenticado.
    */
   @PostMapping("/requestVerify")
   public ResponseEntity<ApiResponse<Void>> requestVerifyEmail(Authentication authentication, Locale locale) {
-    String email    = authentication.getName();
+    String email = authentication.getName();
     UserEntity user = userService.findByEmailOptional(email)
         .orElseThrow(() -> new EmailNotFoundException(email));
-
+    
     notificationService.sendVerificationEmail(user, locale);
-
+    
     log.info("Verify email sent to '{}'", email);
     return ResponseEntity.ok(ApiResponse.emptySuccess());
+  }
+  
+  /**
+   * Autentica o registra un usuario mediante Google OAuth2.
+   *
+   * <p>El cliente Android obtiene un ID Token usando el SDK de Google Sign-In y lo envía aquí.
+   * El backend verifica la firma y la audiencia del token con {@link GoogleAuthService},
+   * luego busca o crea la cuenta de usuario con {@link UserService#registerOrLoadUserWithGoogle}
+   * y devuelve los tokens JWT propios de la aplicación.
+   *
+   * <p>Casos manejados:
+   * <ul>
+   *   <li>Usuario nuevo → se crea cuenta con proveedor GOOGLE (email verificado por defecto)</li>
+   *   <li>Email ya existe con cuenta LOCAL verificada → se vincula el proveedor GOOGLE</li>
+   *   <li>Email ya existe con cuenta LOCAL no verificada → se elimina y se crea cuenta GOOGLE</li>
+   *   <li>Usuario GOOGLE existente → login directo</li>
+   * </ul>
+   */
+  @PostMapping("/google")
+  public ResponseEntity<ApiResponse<GoogleResponse>> googleLogin(
+      @Valid @RequestBody GoogleAuthRequest googleAuthRequest,
+      HttpServletRequest request) {
+
+    Dispositive disp = CommonUtils.getDispositiveInfo(request);
+    log.info("Google login attempt from IP '{}'", disp.ipAddress());
+
+    GoogleIdToken.Payload payload = googleAuthService.verifyToken(googleAuthRequest.idToken());
+
+    String email    = payload.getEmail();
+    String name     = (String) payload.get("name");
+    String googleId = payload.getSubject();
+
+    UserEntity user      = userService.registerOrLoadUserWithGoogle(email, name, googleId);
+    Tokens newTokens     = tokensService.getNewTokens(user, disp);
+
+    log.info("Google login successful for '{}'", email);
+    return ResponseEntity.ok(ApiResponse.success(new GoogleResponse(newTokens.accessToken(), newTokens.refreshToken())));
   }
 }

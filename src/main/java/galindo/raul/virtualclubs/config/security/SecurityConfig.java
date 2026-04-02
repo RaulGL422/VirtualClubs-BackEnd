@@ -74,7 +74,8 @@ public class SecurityConfig {
                 "/v1/auth/requestPasswordReset",
                 "/v1/auth/resetPasswordRedirect",
                 "/v1/auth/resetPassword",
-                "/v1/auth/verify"
+                "/v1/auth/verify",
+                "/v1/auth/google"
             ).permitAll()
             .anyRequest().authenticated()
         )

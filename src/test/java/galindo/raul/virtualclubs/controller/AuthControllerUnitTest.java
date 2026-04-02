@@ -1,10 +1,13 @@
 package galindo.raul.virtualclubs.controller;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import galindo.raul.virtualclubs.config.security.filters.JwtAuthFilter;
 import galindo.raul.virtualclubs.config.security.utils.JwtUtils;
 import galindo.raul.virtualclubs.models.Tokens;
 import galindo.raul.virtualclubs.models.entities.UserEntity;
+import galindo.raul.virtualclubs.models.exceptions.InvalidTokenException;
 import galindo.raul.virtualclubs.models.exceptions.UserAlreadyExistException;
+import galindo.raul.virtualclubs.services.GoogleAuthService;
 import galindo.raul.virtualclubs.services.RefreshTokenService;
 import galindo.raul.virtualclubs.services.TokensService;
 import galindo.raul.virtualclubs.services.UserEntityServiceImpl;
@@ -16,6 +19,7 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
@@ -66,6 +70,7 @@ class AuthControllerUnitTest {
     @MockitoBean private galindo.raul.virtualclubs.services.NotificationService notificationService;
     @MockitoBean private galindo.raul.virtualclubs.services.UserTokenService userTokenService;
     @MockitoBean private org.springframework.security.crypto.password.PasswordEncoder passwordEncoder;
+    @MockitoBean private GoogleAuthService googleAuthService;
 
     // ─────────────────────────────────────────────────────────────
     // POST /v1/auth/register
@@ -186,6 +191,53 @@ class AuthControllerUnitTest {
     }
 
     // ─────────────────────────────────────────────────────────────
+    // POST /v1/auth/google
+    // ─────────────────────────────────────────────────────────────
+
+    @Test
+    void googleLogin_idTokenValido_retorna200ConTokens() throws Exception {
+        GoogleIdToken.Payload payload = new GoogleIdToken.Payload();
+        payload.setEmail(EMAIL);
+        payload.setSubject("google-sub-123");
+        payload.set("name", "Test User");
+
+        UserEntity user = UserEntity.builder().id(1L).email(EMAIL).build();
+        when(googleAuthService.verifyToken("valid-google-token")).thenReturn(payload);
+        when(userService.registerOrLoadUserWithGoogle(eq(EMAIL), eq("Test User"), eq("google-sub-123")))
+                .thenReturn(user);
+        when(tokensService.getNewTokens(eq(user), any())).thenReturn(new Tokens("acc-token", "ref-token"));
+
+        mockMvc.perform(post(BASE + "/google")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"idToken\": \"valid-google-token\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.accessToken").value("acc-token"))
+                .andExpect(jsonPath("$.data.refreshToken").value("ref-token"));
+    }
+
+    @Test
+    void googleLogin_idTokenBlanco_retorna400() throws Exception {
+        mockMvc.perform(post(BASE + "/google")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"idToken\": \"\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false));
+    }
+
+    @Test
+    void googleLogin_tokenRechazadoPorGoogle_retorna403ConErrorType4() throws Exception {
+        when(googleAuthService.verifyToken("invalid-token")).thenThrow(new InvalidTokenException());
+
+        mockMvc.perform(post(BASE + "/google")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"idToken\": \"invalid-token\"}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.message").value(4)); // ErrorType.INVALID_TOKEN = 4
+    }
+
+    // ─────────────────────────────────────────────────────────────
     // Helpers
     // ─────────────────────────────────────────────────────────────
 
@@ -215,7 +267,7 @@ class AuthControllerUnitTest {
             http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/v1/auth/login", "/v1/auth/register", "/v1/auth/refresh").permitAll()
+                    .requestMatchers("/v1/auth/login", "/v1/auth/register", "/v1/auth/refresh", "/v1/auth/google").permitAll()
                     .anyRequest().authenticated()
                 )
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
