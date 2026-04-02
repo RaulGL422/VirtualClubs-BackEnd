@@ -23,18 +23,36 @@ Si la rama actual no es `development`, avisa pero permite continuar:
 
 ## Paso 2: Obtener features pendientes de Notion
 
-Busca **todas** las tarjetas con estado `📦 Pendiente debug` usando `notion-search` con:
-- `data_source_url`: `"collection://276a7f5d-0a0f-802c-8d6f-000b821853c1"`
-- `query`: `"Pendiente debug"`
+La búsqueda semántica de Notion no filtra por valor de propiedad — para encontrar **todas** las tarjetas con `📦 Pendiente debug` hay que lanzar varias búsquedas con términos distintos y luego verificar el estado de cada resultado individualmente.
 
-Para cada tarjeta encontrada, extrae:
+### 2.1 — Búsquedas en paralelo
+
+Lanza estas 4 búsquedas en paralelo usando `notion-search`, todas con `data_source_url: "collection://276a7f5d-0a0f-802c-8d6f-000b821853c1"` y `page_size: 25`:
+
+| # | `query` | Objetivo |
+|---|---------|----------|
+| A | `"implementar funcionalidad backend"` | Captura tareas de feature/API |
+| B | `"bug error corregir fix"` | Captura tarjetas de errores |
+| C | `"mejora refactor tests arquitectura"` | Captura tareas internas |
+| D | `"VirtualClubs tarea"` | Red de seguridad amplia |
+
+Combina los resultados de las 4 búsquedas eliminando duplicados por `id`.
+
+### 2.2 — Verificar estado de cada resultado
+
+Para cada página encontrada (en paralelo, máx. 6 a la vez), usa `notion-fetch` con el `id` de la página y lee la propiedad `Estado` del JSON de propiedades.
+
+**Incluye en el release únicamente las que tengan `"Estado": "📦 Pendiente debug"`.**
+
+Para cada tarjeta incluida, extrae:
 - `userDefined:ID` → número VC-N
 - `Nombre de la tarea`
 - `Tipo de tarea` (multi_select, para clasificar en CHANGELOG)
-- ID de la página Notion (para actualizar estado después)
+- `id` de la página (para actualizar estado en el Paso 10)
 
-**Si no hay tarjetas en `📦 Pendiente debug`:**
-> "No hay tarjetas marcadas como 'Pendiente debug' en Notion. ¿Continuar igualmente, documentando los commits recientes? (sí/no)"
+### 2.3 — Si no hay tarjetas confirmadas en `📦 Pendiente debug`
+
+> "No encontré tarjetas en estado 'Pendiente debug' en Notion. ¿Continuar igualmente documentando los commits recientes? (sí/no)"
 >
 > Si sí → usa solo git log (Paso 3). Si no → detente.
 
@@ -53,7 +71,7 @@ Esta información complementa lo que ya traen las tarjetas Notion.
 
 ## Paso 4: Leer versión actual
 
-Lee `pom.xml` y extrae el valor de `<version>`. Elimina el sufijo `-SNAPSHOT` si lo tiene → versión base.
+Lee `pom.xml` y extrae el valor de `<version>` del proyecto (segunda ocurrencia — la primera es la versión del parent Spring Boot). Elimina el sufijo `-SNAPSHOT` si lo tiene → versión base.
 
 Lee `CHANGELOG.md` y extrae la última versión publicada (el encabezado `## [X.Y.Z]` más reciente, ignorando `[Sin publicar]`).
 
@@ -156,7 +174,7 @@ Al confirmar:
 Inserta la nueva entrada justo después de la línea `## [Sin publicar]` y antes de la última versión publicada. Separa con `---`.
 
 **8.2 — `pom.xml`:**
-Cambia `<version>[actual]-SNAPSHOT</version>` (o `<version>[actual]</version>`) a `<version>[X.Y.Z]</version>`.
+Cambia `<version>[actual]</version>` del proyecto (la segunda `<version>` del archivo, no la del parent) a `<version>[X.Y.Z]</version>`.
 
 **8.3 — `CLAUDE.md`:**
 Actualiza `**Versión app:** [actual]` a `**Versión app:** [X.Y.Z]`.
@@ -207,12 +225,12 @@ gh pr create \
 
 ## Paso 10: Actualizar Notion
 
-Para **cada** tarjeta encontrada en el Paso 2 con estado `📦 Pendiente debug`:
+Para **cada** tarjeta confirmada en el Paso 2 con estado `📦 Pendiente debug`, actualiza en paralelo (máx. 6 a la vez):
 - `notion-update-page` con `command: "update_properties"`
 - `page_id`: el ID de la página
-- `properties`: `{"Estado": "⌛🔎 Pendiente de Testeo"}`
+- `properties`: `{"Estado": "⌛🔎 Pendiente de testeo"}`
 
-Actualiza las tarjetas en paralelo si es posible.
+> **Nota:** el valor exacto del estado es `"⌛🔎 Pendiente de testeo"` (t minúscula).
 
 ---
 

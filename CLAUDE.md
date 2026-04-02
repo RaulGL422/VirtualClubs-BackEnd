@@ -4,7 +4,7 @@
 
 API REST Spring Boot para gestión de **clubes deportivos virtuales**. Actualmente implementa el sistema de autenticación completo. Es un proyecto en desarrollo activo por un desarrollador junior.
 
-- **Versión app:** 0.0.3 | **Spring Boot:** 4.0.5 | **Java:** 21
+- **Versión app:** 0.1.0 | **Spring Boot:** 4.0.5 | **Java:** 21
 - **Base de datos:** PostgreSQL
 - **URL producción:** https://api-vc.rgal.dev
 - **Rama de trabajo habitual:** ramas `feature/*` o `fix/*` (nunca main/development directamente)
