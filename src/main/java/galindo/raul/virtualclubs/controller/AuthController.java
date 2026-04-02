@@ -215,7 +215,8 @@ public class AuthController {
       @Valid @RequestBody GoogleAuthRequest googleAuthRequest,
       HttpServletRequest request) {
 
-    log.info("Google login attempt from IP '{}'", CommonUtils.getDispositiveInfo(request).ipAddress());
+    Dispositive disp = CommonUtils.getDispositiveInfo(request);
+    log.info("Google login attempt from IP '{}'", disp.ipAddress());
 
     GoogleIdToken.Payload payload = googleAuthService.verifyToken(googleAuthRequest.idToken());
 
@@ -224,7 +225,7 @@ public class AuthController {
     String googleId = payload.getSubject();
 
     UserEntity user      = userService.registerOrLoadUserWithGoogle(email, name, googleId);
-    Tokens newTokens     = tokensService.getNewTokens(user, CommonUtils.getDispositiveInfo(request));
+    Tokens newTokens     = tokensService.getNewTokens(user, disp);
 
     log.info("Google login successful for '{}'", email);
     return ResponseEntity.ok(ApiResponse.success(new GoogleResponse(newTokens.accessToken(), newTokens.refreshToken())));
