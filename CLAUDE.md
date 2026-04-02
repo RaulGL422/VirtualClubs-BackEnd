@@ -4,7 +4,7 @@
 
 API REST Spring Boot para gestión de **clubes deportivos virtuales**. Actualmente implementa el sistema de autenticación completo. Es un proyecto en desarrollo activo por un desarrollador junior.
 
-- **Versión app:** 0.0.3 | **Spring Boot:** 3.5.3 | **Java:** 21
+- **Versión app:** 0.0.3 | **Spring Boot:** 4.0.5 | **Java:** 21
 - **Base de datos:** PostgreSQL
 - **URL producción:** https://api-vc.rgal.dev
 - **Rama de trabajo habitual:** ramas `feature/*` o `fix/*` (nunca main/development directamente)
@@ -18,9 +18,9 @@ API REST Spring Boot para gestión de **clubes deportivos virtuales**. Actualmen
 src/main/java/galindo/raul/virtualclubs/
 ├── config/
 │   ├── AsyncConfig.java            ThreadPoolTaskExecutor (5 core, 20 max, 50 queue)
-│   ├── CorsConfig.java             Orígenes CORS desde properties
+│   ├── CorsProperties.java         Orígenes CORS desde properties
 │   └── security/
-│       ├── SecurityConfig.java     Cadena de filtros, endpoints públicos
+│       ├── SecurityConfig.java     Cadena de filtros, endpoints públicos, CORS (CorsConfigurationSource)
 │       ├── EncoderConfig.java      BCryptPasswordEncoder bean
 │       ├── filters/
 │       │   ├── JwtAuthFilter.java          Valida Bearer token en cada request
