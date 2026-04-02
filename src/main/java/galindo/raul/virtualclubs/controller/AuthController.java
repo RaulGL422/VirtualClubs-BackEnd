@@ -101,10 +101,15 @@ public class AuthController {
   @DeleteMapping("/logout")
   public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    UserDetails user = (UserDetails) authentication.getPrincipal();
-    String email = user.getUsername();
-    Dispositive disp = CommonUtils.getDispositiveInfo(request);
     
+    if (authentication == null) {
+      return ResponseEntity.ok(ApiResponse.emptySuccess());
+    }
+    
+    UserDetails user  = (UserDetails) authentication.getPrincipal();
+    String email      = user.getUsername();
+    Dispositive disp  = CommonUtils.getDispositiveInfo(request);
+
     refreshTokenService.removeTokenFromDevice(userService.getUserFromEmail(email), disp);
     
     log.info("User '{}' in device '{}' logged out", email, disp.deviceId());
