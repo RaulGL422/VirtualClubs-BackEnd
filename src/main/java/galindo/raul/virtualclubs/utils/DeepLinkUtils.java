@@ -16,19 +16,19 @@ public final class DeepLinkUtils {
    * Deep link al flujo de reset de contraseña con el token incluido.
    *
    * @param token token de reset codificado en URL (ya debe venir codificado)
-   * @return URI del tipo {@code virtualclubs://pass/reset-password?token=...}
+   * @return URI del tipo {@code virtualclubs://pass/resetPassword?token=...}
    */
   public static String resetPassword(String token) {
-    return String.format("%spass/reset-password?token=%s", DEEP_LINK_URL, token);
+    return String.format("%spass/resetPassword?token=%s", DEEP_LINK_URL, token);
   }
 
   /**
    * Deep link al flujo de verificación de email con el resultado.
    *
    * @param success {@code true} si la verificación fue exitosa
-   * @return URI del tipo {@code virtualclubs://email/verify-email?status=1} o {@code ?status=0}
+   * @return URI del tipo {@code virtualclubs://email/verifyEmail?status=1} o {@code ?status=0}
    */
   public static String verifyEmail(boolean success) {
-    return String.format("%semail/verify-email?status=%d", DEEP_LINK_URL, success ? 1 : 0);
+    return String.format("%semail/verifyEmail?status=%d", DEEP_LINK_URL, success ? 1 : 0);
   }
 }
