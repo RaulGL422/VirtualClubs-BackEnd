@@ -126,6 +126,26 @@ ApiResponse.error(ErrorType.CODIGO) // respuesta de error con código
 ### Códigos de Error (ErrorType enum)
 Los errores siempre se devuelven con un código numérico (1-13) para que el cliente mobile los maneje. Ver `models/enums/ErrorType.java` para la lista completa.
 
+### Documentación Swagger (OpenAPI)
+**Regla:** todo endpoint nuevo debe incluir anotaciones Swagger — es parte del contrato, no opcional.
+
+```java
+// Endpoint público
+@Operation(summary = "Título corto", description = "Qué hace y casos especiales.")
+@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Éxito")
+@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Datos inválidos (código 7-10)")
+@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "429", description = "Rate limit (código 13)")
+@PostMapping("/ruta")
+
+// Endpoint protegido — añadir security a @Operation
+@Operation(summary = "...", security = @SecurityRequirement(name = "bearerAuth"))
+@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token inválido (código 4)")
+```
+
+- La configuración global está en `config/OpenApiConfig.java`
+- La UI está disponible en `/swagger-ui.html` (acceso público, sin auth)
+- Añadir nuevos endpoints también a `SecurityConfig` si son públicos, y a la tabla de endpoints de este CLAUDE.md
+
 ### Seguridad JWT
 - **Access token:** 10 horas (`jwt.expiration=36000000`)
 - **Refresh token:** 7 días (`jwt.refreshExpiration=604800000`)

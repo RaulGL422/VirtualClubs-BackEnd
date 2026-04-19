@@ -124,7 +124,7 @@ class PasswordResetIntegrationTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(result -> {
                     String location = result.getResponse().getHeader("Location");
-                    assertThat(location).startsWith("virtualclubs://pass/reset-password?token=");
+                    assertThat(location).startsWith("virtualclubs://pass/resetPassword?token=");
                 });
     }
 

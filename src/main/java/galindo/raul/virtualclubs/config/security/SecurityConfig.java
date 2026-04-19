@@ -75,7 +75,9 @@ public class SecurityConfig {
                 "/v1/auth/resetPasswordRedirect",
                 "/v1/auth/resetPassword",
                 "/v1/auth/verify",
-                "/v1/auth/google"
+                "/v1/auth/google",
+                "/swagger-ui/**",
+                "/v3/api-docs/**"
             ).permitAll()
             .anyRequest().authenticated()
         )
