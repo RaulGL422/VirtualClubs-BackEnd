@@ -76,8 +76,10 @@ public class SecurityConfig {
                 "/v1/auth/resetPassword",
                 "/v1/auth/verify",
                 "/v1/auth/google",
+                "/swagger-ui.html",
                 "/swagger-ui/**",
-                "/v3/api-docs/**"
+                "/v3/api-docs/**",
+                "/webjars/**"
             ).permitAll()
             .anyRequest().authenticated()
         )
