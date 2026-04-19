@@ -15,7 +15,7 @@ class DeepLinkUtilsTest {
     @Test
     void resetPassword_contieneRutaYToken() {
         String link = DeepLinkUtils.resetPassword("mi-token");
-        assertThat(link).contains("pass/reset-password?token=mi-token");
+        assertThat(link).contains("pass/resetPassword?token=mi-token");
     }
 
     @Test
