@@ -21,7 +21,7 @@ Archivos a crear/modificar:
 - [ ] DTO Request: dtos/request/[Nombre]Request.java (si aplica)
 - [ ] DTO Response: dtos/response/[Nombre]Response.java (si aplica)
 - [ ] Servicio: services/[Nombre]Service.java o método en servicio existente
-- [ ] Controller: método en controller apropiado
+- [ ] Controller: método en controller apropiado con anotaciones Swagger
 - [ ] Excepciones: si hay nuevos casos de error
 - [ ] ErrorType: si hay nuevos códigos de error
 - [ ] SecurityConfig: si el endpoint es público o requiere rol específico
@@ -66,6 +66,13 @@ return ResponseEntity.badRequest().body(ApiResponse.error(ErrorType.CODIGO)); //
 
 **Método del controller:**
 ```java
+// Siempre incluir @Operation con summary, description y @ApiResponse por cada código HTTP posible
+@Operation(summary = "Título corto",
+    description = "Descripción detallada de qué hace y casos especiales.")
+@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Éxito")
+@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Datos inválidos (código 7-10)")
+// Si requiere auth:
+@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token inválido (código 4)")
 // Siempre incluir @RequestBody @Valid en POST/PUT para activar las validaciones del DTO
 @PostMapping("/ruta")
 public ResponseEntity<ApiResponse<NombreResponse>> metodo(
@@ -73,6 +80,11 @@ public ResponseEntity<ApiResponse<NombreResponse>> metodo(
         HttpServletRequest httpRequest) {  // solo si necesitas info del dispositivo
     ...
 }
+```
+
+**Endpoints protegidos con JWT** — añadir `security` a `@Operation`:
+```java
+@Operation(summary = "...", security = @SecurityRequirement(name = "bearerAuth"))
 ```
 
 **Seguridad del endpoint:**

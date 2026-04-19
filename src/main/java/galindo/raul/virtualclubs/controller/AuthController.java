@@ -17,6 +17,9 @@ import galindo.raul.virtualclubs.models.exceptions.NoLocalProviderException;
 import galindo.raul.virtualclubs.services.*;
 import galindo.raul.virtualclubs.utils.CommonUtils;
 import galindo.raul.virtualclubs.utils.DeepLinkUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -40,6 +43,7 @@ import java.util.Locale;
 @RestController
 @RequestMapping("/v1/auth")
 @RequiredArgsConstructor
+@Tag(name = "Autenticación", description = "Registro, login, gestión de sesiones y recuperación de contraseña")
 public class AuthController {
   
   private final UserService userService;
@@ -51,10 +55,12 @@ public class AuthController {
   private final PasswordEncoder passwordEncoder;
   private final GoogleAuthService googleAuthService;
   
-  /**
-   * Registra un nuevo usuario y genera los tokens de autenticación iniciales.
-   * Envía automáticamente un email de verificación al idioma del cliente.
-   */
+  @Operation(summary = "Registrar usuario",
+      description = "Crea una nueva cuenta y devuelve los tokens JWT. Envía automáticamente un email de verificación.")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Usuario registrado correctamente")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Datos inválidos (código 7-10)")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "El email ya está registrado (código 6)")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "429", description = "Demasiadas peticiones (código 13)")
   @PostMapping("/register")
   public ResponseEntity<ApiResponse<RegisterResponse>> register(
       @Valid @RequestBody RegisterRequest registerRequest,
@@ -75,9 +81,10 @@ public class AuthController {
         .body(ApiResponse.success(new RegisterResponse(newTokens.accessToken(), newTokens.refreshToken(), email)));
   }
   
-  /**
-   * Renueva los tokens usando un refresh token válido.
-   */
+  @Operation(summary = "Renovar tokens",
+      description = "Intercambia un refresh token válido por un nuevo par de tokens. El refresh token anterior queda invalidado.")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Tokens renovados")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Refresh token inválido o revocado (código 3)")
   @PostMapping("/refresh")
   public ResponseEntity<ApiResponse<RefreshResponse>> refreshToken(
       @Valid @RequestBody RefreshRequest refreshRequest,
@@ -95,9 +102,10 @@ public class AuthController {
     return ResponseEntity.ok(ApiResponse.success(new RefreshResponse(newTokens.accessToken(), newTokens.refreshToken())));
   }
   
-  /**
-   * Cierra la sesión del dispositivo actual revocando su refresh token.
-   */
+  @Operation(summary = "Cerrar sesión", description = "Revoca el refresh token del dispositivo actual. Las otras sesiones permanecen activas.",
+      security = @SecurityRequirement(name = "bearerAuth"))
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Sesión cerrada")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token inválido o expirado (código 4)")
   @DeleteMapping("/logout")
   public ResponseEntity<ApiResponse<Void>> logout(HttpServletRequest request) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -117,10 +125,10 @@ public class AuthController {
     return ResponseEntity.ok(ApiResponse.emptySuccess());
   }
   
-  /**
-   * Solicita el reset de contraseña.
-   * Siempre devuelve 200 aunque el email no exista (evita enumeración de usuarios).
-   */
+  @Operation(summary = "Solicitar reset de contraseña",
+      description = "Envía un email con enlace de reset. Siempre devuelve 200 aunque el email no exista (anti-enumeración).")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Solicitud procesada")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "429", description = "Demasiadas peticiones (código 13)")
   @PostMapping("/requestPasswordReset")
   public ResponseEntity<ApiResponse<Void>> requestPasswordReset(
       @Valid @RequestBody RequestPasswordResetRequest req,
@@ -132,10 +140,9 @@ public class AuthController {
     return ResponseEntity.ok(ApiResponse.emptySuccess());
   }
   
-  /**
-   * Recibe el token del email y redirige a la app móvil via deep link.
-   * No valida ni consume el token aquí — eso ocurre en /resetPassword.
-   */
+  @Operation(summary = "Redirigir reset de contraseña",
+      description = "Recibe el token del email y redirige a la app móvil via deep link `virtualclubs://`. No consume el token.")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "302", description = "Redirección al deep link de la app")
   @GetMapping("/resetPasswordRedirect")
   public void redirectResetPassword(@RequestParam String token, HttpServletResponse response) throws IOException {
     String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8);
@@ -143,10 +150,10 @@ public class AuthController {
     response.sendRedirect(DeepLinkUtils.resetPassword(encodedToken));
   }
   
-  /**
-   * Establece la nueva contraseña usando el token de reset.
-   * Invalida el token y revoca todas las sesiones activas tras el cambio.
-   */
+  @Operation(summary = "Restablecer contraseña",
+      description = "Establece la nueva contraseña usando el token de reset (válido 30 min). Revoca todas las sesiones activas.")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Contraseña restablecida")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token inválido, expirado o ya usado (código 4)")
   @PostMapping("/resetPassword")
   public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest req) {
     UserEntity user = userTokenService.validateAndConsume(req.token(), TokenType.PASSWORD_RESET)
@@ -165,10 +172,9 @@ public class AuthController {
     return ResponseEntity.ok(ApiResponse.emptySuccess());
   }
   
-  /**
-   * Verifica el email del usuario usando el token recibido por correo.
-   * Redirige a la app móvil via deep link con el resultado (éxito o fallo).
-   */
+  @Operation(summary = "Verificar email",
+      description = "Consume el token de verificación (válido 24h) y redirige a la app con el resultado via deep link.")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "302", description = "Redirección al deep link con resultado")
   @GetMapping("/verify")
   public void verifyEmail(@RequestParam String token, HttpServletResponse response) throws IOException {
     var maybeUser = userTokenService.validateAndConsume(token, TokenType.EMAIL_VERIFICATION);
@@ -184,9 +190,12 @@ public class AuthController {
     response.sendRedirect(DeepLinkUtils.verifyEmail(true));
   }
   
-  /**
-   * Reenvía el email de verificación al usuario autenticado.
-   */
+  @Operation(summary = "Reenviar email de verificación",
+      description = "Genera un nuevo token y reenvía el email de verificación al usuario autenticado.",
+      security = @SecurityRequirement(name = "bearerAuth"))
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Email enviado")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token inválido o expirado (código 4)")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "429", description = "Demasiadas peticiones (código 13)")
   @PostMapping("/requestVerify")
   public ResponseEntity<ApiResponse<Void>> requestVerifyEmail(Authentication authentication, Locale locale) {
     String email = authentication.getName();
@@ -215,6 +224,11 @@ public class AuthController {
    *   <li>Usuario GOOGLE existente → login directo</li>
    * </ul>
    */
+  @Operation(summary = "Login con Google",
+      description = "Autentica o registra un usuario usando un ID Token del SDK de Google Sign-In (Android). Devuelve tokens JWT propios.")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Login / registro con Google correcto")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "ID Token de Google inválido (código 4)")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "429", description = "Demasiadas peticiones (código 13)")
   @PostMapping("/google")
   public ResponseEntity<ApiResponse<GoogleResponse>> googleLogin(
       @Valid @RequestBody GoogleAuthRequest googleAuthRequest,
