@@ -8,7 +8,7 @@
 REST API para la gestión de **clubes deportivos virtuales**, construida con Spring Boot 4 y Java 21. Actualmente implementa el sistema de autenticación completo con soporte multi-dispositivo, verificación de email, reset de contraseña y login con Google.
 
 > **API en producción:** `https://api-vc.rgal.dev`
-> **Documentación interactiva:** `https://api-vc.rgal.dev/swagger-ui.html`
+> **Documentación interactiva:** `https://api-vc.rgal.dev/swagger-ui/index.html`
 
 ---
 
