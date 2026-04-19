@@ -18,8 +18,6 @@ import galindo.raul.virtualclubs.services.*;
 import galindo.raul.virtualclubs.utils.CommonUtils;
 import galindo.raul.virtualclubs.utils.DeepLinkUtils;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -210,11 +208,6 @@ public class AuthController {
     return ResponseEntity.ok(ApiResponse.emptySuccess());
   }
   
-  @Operation(summary = "Login con Google",
-      description = "Autentica o registra un usuario usando un ID Token del SDK de Google Sign-In (Android). Devuelve tokens JWT propios.")
-  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Login / registro con Google correcto")
-  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "ID Token de Google inválido (código 4)")
-  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "429", description = "Demasiadas peticiones (código 13)")
   /**
    * Autentica o registra un usuario mediante Google OAuth2.
    *
@@ -231,6 +224,11 @@ public class AuthController {
    *   <li>Usuario GOOGLE existente → login directo</li>
    * </ul>
    */
+  @Operation(summary = "Login con Google",
+      description = "Autentica o registra un usuario usando un ID Token del SDK de Google Sign-In (Android). Devuelve tokens JWT propios.")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Login / registro con Google correcto")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "ID Token de Google inválido (código 4)")
+  @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "429", description = "Demasiadas peticiones (código 13)")
   @PostMapping("/google")
   public ResponseEntity<ApiResponse<GoogleResponse>> googleLogin(
       @Valid @RequestBody GoogleAuthRequest googleAuthRequest,

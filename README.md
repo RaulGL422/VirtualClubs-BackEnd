@@ -1,6 +1,6 @@
 # Virtual Clubs — Backend API
 
-![Build](https://github.com/RaulGL422/backend/actions/workflows/build.yml/badge.svg)
+![Build](https://github.com/RaulGL422/VirtualClubs-BackEnd/actions/workflows/build.yml/badge.svg)
 ![Java](https://img.shields.io/badge/Java-21-blue)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.5-6DB33F)
 ![License](https://img.shields.io/github/license/RaulGL422/backend)
@@ -197,7 +197,7 @@ USERNAME_DATABASE_POSTGRES_DEBUG=postgres
 PASSWORD_DATABASE_POSTGRES_DEBUG=tu_password
 JWT_SECRET_DEBUG=clave-hmac-sha256-de-minimo-32-caracteres
 RESEND_API_KEY=re_xxxx
-GOOGLE_CLIENT_ID_DEBUG=xxxx.apps.googleusercontent.com
+GOOGLE_CONTENT_ID_DEBUG=xxxx.apps.googleusercontent.com
 ```
 
 ### 2. Ejecutar con Maven
