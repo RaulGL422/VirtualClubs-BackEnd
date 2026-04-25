@@ -6,13 +6,12 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
 import galindo.raul.virtualclubs.models.exceptions.InvalidTokenException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
+import java.util.List;
 
 /**
  * Servicio para verificar ID Tokens de Google OAuth2.
@@ -25,10 +24,9 @@ public class GoogleAuthService {
 
     private final GoogleIdTokenVerifier verifier;
 
-    @Autowired
     public GoogleAuthService(@Value("${google.id}") String clientId) {
         verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
-                .setAudience(Collections.singletonList(clientId))
+                .setAudience(List.of(clientId))
                 .build();
     }
 
