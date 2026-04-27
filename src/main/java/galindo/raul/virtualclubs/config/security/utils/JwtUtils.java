@@ -49,10 +49,11 @@ public class JwtUtils {
    * @param millisToExpire duration in milliseconds
    */
   private String generateToken(String username, String type, Long millisToExpire) {
+    Instant now = Instant.now();
     return Jwts.builder()
         .subject(username)
-        .issuedAt(Date.from(Instant.now()))
-        .expiration(Date.from(Instant.now().plusMillis(millisToExpire)))
+        .issuedAt(Date.from(now))
+        .expiration(Date.from(now.plusMillis(millisToExpire)))
         .claim("type", type)
         .signWith(getSignatureKey())
         .compact();
