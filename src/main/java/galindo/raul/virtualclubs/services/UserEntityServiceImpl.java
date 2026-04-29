@@ -5,7 +5,9 @@ import galindo.raul.virtualclubs.models.entities.RoleEntity;
 import galindo.raul.virtualclubs.models.entities.UserEntity;
 import galindo.raul.virtualclubs.models.enums.Role;
 import galindo.raul.virtualclubs.models.exceptions.EmailNotFoundException;
+import galindo.raul.virtualclubs.models.exceptions.InternalErrorException;
 import galindo.raul.virtualclubs.models.exceptions.UserAlreadyExistException;
+import galindo.raul.virtualclubs.repositories.RoleEntityRepository;
 import galindo.raul.virtualclubs.repositories.UserEntityRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,7 @@ import java.util.Set;
 public class UserEntityServiceImpl implements UserService {
 
   private final UserEntityRepository userRepository;
+  private final RoleEntityRepository roleRepository;
   private final PasswordEncoder passwordEncoder;
   
   @Override
@@ -84,7 +87,7 @@ public class UserEntityServiceImpl implements UserService {
         .build();
 
     newUser.addAuthProvider(authProvider);
-    newUser.addRole(RoleEntity.builder().role(Role.USER).build());
+    newUser.addRole(findRoleOrThrow(Role.USER));
     userRepository.saveAndFlush(newUser);
     
     return newUser;
@@ -160,7 +163,7 @@ public class UserEntityServiceImpl implements UserService {
         .build();
     
     addGoogleProvider(user, googleId);
-    user.addRole(RoleEntity.builder().role(Role.USER).build());
+    user.addRole(findRoleOrThrow(Role.USER));
     return user;
   }
   
@@ -182,5 +185,10 @@ public class UserEntityServiceImpl implements UserService {
   @Transactional
   public UserEntity saveUser(UserEntity user) {
     return userRepository.save(user);
+  }
+
+  private RoleEntity findRoleOrThrow(Role role) {
+    return roleRepository.findByRole(role)
+        .orElseThrow(() -> new InternalErrorException("Rol no encontrado en BD: " + role.name()));
   }
 }
