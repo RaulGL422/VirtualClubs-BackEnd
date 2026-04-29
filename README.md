@@ -1,11 +1,11 @@
 # Virtual Clubs — Backend API
 
 ![Build](https://github.com/RaulGL422/VirtualClubs-BackEnd/actions/workflows/build.yml/badge.svg)
-![Java](https://img.shields.io/badge/Java-21-blue)
+![Java](https://img.shields.io/badge/Java-25-blue)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.5-6DB33F)
 ![License](https://img.shields.io/github/license/RaulGL422/backend)
 
-REST API para la gestión de **clubes deportivos virtuales**, construida con Spring Boot 4 y Java 21. Actualmente implementa el sistema de autenticación completo con soporte multi-dispositivo, verificación de email, reset de contraseña y login con Google.
+REST API para la gestión de **clubes deportivos virtuales**, construida con Spring Boot 4 y Java 25. Actualmente implementa el sistema de autenticación completo con soporte multi-dispositivo, verificación de email, reset de contraseña y login con Google.
 
 > **API en producción:** `https://api-vc.rgal.dev`
 > **Documentación interactiva:** `https://api-vc.rgal.dev/swagger-ui/index.html`
@@ -17,7 +17,7 @@ REST API para la gestión de **clubes deportivos virtuales**, construida con Spr
 | Capa | Tecnología |
 |------|-----------|
 | Framework | Spring Boot 4.0.5 |
-| Lenguaje | Java 21 |
+| Lenguaje | Java 25 |
 | Seguridad | Spring Security + JJWT (HMAC-SHA256) |
 | Base de datos | PostgreSQL + Spring Data JPA |
 | Migraciones | Flyway |
@@ -172,7 +172,7 @@ roles / permissions     RBAC — roles ADMIN y USER
 ## Ejecutar en local
 
 ### Requisitos previos
-- Java 21
+- Java 25
 - PostgreSQL (o Docker)
 - Una API key de [Resend](https://resend.com) para los emails
 - Un Client ID de Google Cloud Console para el login con Google
