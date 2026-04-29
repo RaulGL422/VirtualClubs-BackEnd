@@ -261,4 +261,4 @@ El versionado se hace por path (`/v1/`, `/v2/`). La versión activa es `v1`.
 
 ## Licencia
 
-[MIT](LICENSE)
+[Apache 2.0](LICENSE)
