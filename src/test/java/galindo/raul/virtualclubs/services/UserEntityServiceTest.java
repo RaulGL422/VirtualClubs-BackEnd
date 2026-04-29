@@ -1,8 +1,11 @@
 package galindo.raul.virtualclubs.services;
 
+import galindo.raul.virtualclubs.models.entities.RoleEntity;
 import galindo.raul.virtualclubs.models.entities.UserEntity;
+import galindo.raul.virtualclubs.models.enums.Role;
 import galindo.raul.virtualclubs.models.exceptions.EmailNotFoundException;
 import galindo.raul.virtualclubs.models.exceptions.UserAlreadyExistException;
+import galindo.raul.virtualclubs.repositories.RoleEntityRepository;
 import galindo.raul.virtualclubs.repositories.UserEntityRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,12 +33,19 @@ import static org.mockito.Mockito.*;
 class UserEntityServiceTest {
 
     @Mock private UserEntityRepository userRepository;
+    @Mock private RoleEntityRepository roleRepository;
     @Mock private PasswordEncoder passwordEncoder;
 
     @InjectMocks private UserEntityServiceImpl userService;
 
     private static final String EMAIL    = "service@test.com";
     private static final String PASSWORD = "PAss12";
+
+    @BeforeEach
+    void setUp() {
+        lenient().when(roleRepository.findByRole(Role.USER))
+                .thenReturn(Optional.of(RoleEntity.builder().role(Role.USER).build()));
+    }
 
     // ─────────────────────────────────────────────────────────────
     // registerUser

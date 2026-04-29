@@ -6,6 +6,7 @@ import galindo.raul.virtualclubs.models.entities.UserEntity;
 import galindo.raul.virtualclubs.models.enums.Role;
 import galindo.raul.virtualclubs.models.exceptions.EmailNotFoundException;
 import galindo.raul.virtualclubs.models.exceptions.UserAlreadyExistException;
+import galindo.raul.virtualclubs.repositories.RoleEntityRepository;
 import galindo.raul.virtualclubs.repositories.UserEntityRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +37,9 @@ class VirtualClubsUsersDetailsServiceTest {
     private UserEntityRepository userRepository;
 
     @Mock
+    private RoleEntityRepository roleRepository;
+
+    @Mock
     private PasswordEncoder passwordEncoder;
 
     @InjectMocks
@@ -45,6 +49,8 @@ class VirtualClubsUsersDetailsServiceTest {
 
     @BeforeEach
     void setUp() {
+        lenient().when(roleRepository.findByRole(Role.USER))
+                .thenReturn(Optional.of(RoleEntity.builder().role(Role.USER).build()));
         AuthProviderEntity localProvider = AuthProviderEntity.builder()
                 .providerName("LOCAL")
                 .passwordHash("$2a$10$hashedpassword")
