@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.time.Instant;
 import java.util.Date;
 import java.util.function.Function;
 
@@ -48,10 +49,11 @@ public class JwtUtils {
    * @param millisToExpire duration in milliseconds
    */
   private String generateToken(String username, String type, Long millisToExpire) {
+    Instant now = Instant.now();
     return Jwts.builder()
         .subject(username)
-        .issuedAt(new Date(System.currentTimeMillis()))
-        .expiration(new Date(System.currentTimeMillis() + millisToExpire))
+        .issuedAt(Date.from(now))
+        .expiration(Date.from(now.plusMillis(millisToExpire)))
         .claim("type", type)
         .signWith(getSignatureKey())
         .compact();
