@@ -16,6 +16,19 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.1.1] — 2026-05-02
+
+### Fixed
+- Duplicate key error when registering multiple users: pre-seed USER and ADMIN roles via Flyway migration — VC-94
+
+### Internal
+- Migrate Java 21 → 25 (LTS); update Maven wrapper and Docker base image
+- Fix Swagger UI access: add `/swagger-ui.html` and `/webjars/**` to public endpoints
+- Dynamize API base URL via `API_BASE_URL_DEBUG` / `API_BASE_URL_PROD` environment variables
+- Prepare repository for public release: translate all docs and skills to English, add CONTRIBUTING.md, PR template, update .gitignore
+
+---
+
 ## [0.1.0] — 2026-04-02
 
 ### Added
