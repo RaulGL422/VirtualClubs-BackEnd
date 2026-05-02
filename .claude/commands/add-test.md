@@ -1,93 +1,92 @@
-# /add-test — Generar Tests para una Clase
+# /add-test — Generate Tests for a Class
 
-Genera tests unitarios e integración para una clase del proyecto.
+Generates unit and integration tests for a project class.
 
-## Uso
+## Usage
 - `/add-test UserEntityServiceImpl`
 - `/add-test TokensService`
 - `/add-test AuthController`
 
-## Paso 1: Localizar la clase
+## Step 1: Locate the class
 
-Busca el archivo de la clase indicada en `src/main/java/`.
+Find the file in `src/main/java/` and read it completely to understand:
+- Its dependencies (constructor / `@Autowired` fields)
+- All public methods
+- The exceptions it can throw
+- The error and success cases for each method
 
-Lee la clase completa para entender:
-- Sus dependencias (campos `@Autowired` / constructor)
-- Todos sus métodos públicos
-- Las excepciones que puede lanzar
-- Los casos de error y éxito en cada método
+## Step 2: Check existing tests
 
-## Paso 2: Verificar tests existentes
+Look in `src/test/java/` for existing tests for this class. If found, read them to avoid duplication.
 
-Busca si ya hay tests en `src/test/java/` para esta clase. Si hay, léelos para no duplicar.
+## Step 3: Plan the tests
 
-## Paso 3: Planificar los tests
-
-Antes de escribir código, muestra el plan:
+Before writing code, show the plan:
 
 ```
-Tests a generar para [NombreClase]:
+Tests to generate for [ClassName]:
 
-Método: [nombre]
-  ✓ caso feliz: [descripción]
-  ✗ caso error: [excepción] cuando [condición]
-  ✗ caso error: [excepción] cuando [condición]
+Method: [name]
+  ✓ happy path: [description]
+  ✗ error case: [exception] when [condition]
+  ✗ error case: [exception] when [condition]
 
-Método: [nombre]
-  ✓ caso feliz: [descripción]
+Method: [name]
+  ✓ happy path: [description]
   ...
 
-Tipo de test: [Unitario con Mockito / Integración con @SpringBootTest]
-Archivo: src/test/java/galindo/raul/virtualclubs/[paquete]/[NombreClase]Test.java
+Test type: [Unit with Mockito / Integration with @SpringBootTest]
+File: src/test/java/galindo/raul/virtualclubs/[package]/[ClassName]Test.java
 
-¿Continúo con esta implementación? (sí/no/modificar)
+Proceed with this implementation? (yes/no/modify)
 ```
 
-## Paso 4: Generar los tests
+## Step 4: Generate the tests
 
-### Estructura base para test unitario (servicios):
+### Base structure for unit tests (services):
 ```java
 @ExtendWith(MockitoExtension.class)
-class NombreClaseTest {
+class ClassNameTest {
 
     @Mock
-    private DependenciaRepository dependenciaRepository; // una por dependencia
+    private DependencyRepository dependencyRepository; // one per dependency
 
     @InjectMocks
-    private NombreClase nombreClase;
+    private ClassName className;
 
     @Test
-    @DisplayName("Descripción legible del caso")
-    void metodoCasoFeliz() {
+    @DisplayName("Readable description of the case")
+    void methodHappyPath() {
         // Arrange
-        when(dependencia.metodo(any())).thenReturn(valorMock);
+        when(dependency.method(any())).thenReturn(mockValue);
 
         // Act
-        TipoRetorno resultado = nombreClase.metodo(param);
+        ReturnType result = className.method(param);
 
         // Assert
-        assertThat(resultado).isNotNull();
-        verify(dependencia, times(1)).metodo(any());
+        assertThat(result).isNotNull();
+        verify(dependency, times(1)).method(any());
     }
 
     @Test
-    @DisplayName("Lanza [Excepcion] cuando [condición]")
-    void metodoLanzaExcepcion() {
+    @DisplayName("Throws [Exception] when [condition]")
+    void methodThrowsException() {
         // Arrange
-        when(dependencia.metodo(any())).thenReturn(Optional.empty());
+        when(dependency.method(any())).thenReturn(Optional.empty());
 
         // Act & Assert
-        assertThrows(ExcepcionEsperada.class, () -> nombreClase.metodo(param));
+        assertThrows(ExpectedException.class, () -> className.method(param));
     }
 }
 ```
 
-### Estructura base para test de integración (controllers):
+### Base structure for integration tests (controllers):
 ```java
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-@ActiveProfiles("dev") // usa perfil dev
-class NombreControllerTest {
+@ActiveProfiles({"dev", "test"})
+@Transactional
+class ControllerNameTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -96,31 +95,31 @@ class NombreControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    @DisplayName("POST /ruta - caso feliz")
-    void endpointCasoFeliz() throws Exception {
-        var request = new NombreRequest(...);
+    @DisplayName("POST /path - happy path")
+    void endpointHappyPath() throws Exception {
+        var request = new NameRequest(...);
 
-        mockMvc.perform(post("/v1/ruta")
+        mockMvc.perform(post("/v1/path")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.success").value(true));
+            .andExpect(jsonPath("$.data").exists());
     }
 }
 ```
 
-### Convenciones:
-- Un método de test por caso (no mezclar escenarios)
-- `@DisplayName` en español, legible ("Lanza excepción cuando el email ya existe")
-- Estructura **Arrange / Act / Assert** con comentarios
-- Mockear solo las dependencias externas (repositorios, servicios externos)
-- Nunca mockear la clase bajo prueba
+### Conventions:
+- One test method per case (do not mix scenarios)
+- `@DisplayName` in English, human-readable ("Throws exception when email already exists")
+- **Arrange / Act / Assert** structure with comments
+- Mock only external dependencies (repositories, external services)
+- Never mock the class under test
 
-## Paso 5: Crear el archivo
+## Step 5: Create the file
 
-Crea el archivo en la ruta correcta dentro de `src/test/java/`.
+Create the file at the correct path inside `src/test/java/`.
 
-## Paso 6: Recordatorio
+## Step 6: Reminder
 
-Al terminar indica cuántos casos se cubrieron y cuáles quedan pendientes de implementar.
-Sugiere ejecutar `./mvnw test` para verificar que pasan.
+When done, report how many cases were covered and which ones remain.
+Suggest running `./mvnw test` to verify they pass.

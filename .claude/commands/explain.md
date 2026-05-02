@@ -1,47 +1,47 @@
-# /explain — Explicar un Archivo o Concepto
+# /explain — Explain a File or Concept
 
-Explica un archivo del proyecto o un concepto técnico en términos claros, pensado para alguien que está aprendiendo.
+Explains a project file or technical concept in clear terms, aimed at someone who is learning.
 
-## Uso
+## Usage
 - `/explain JwtAuthFilter`
 - `/explain SecurityConfig`
 - `/explain TokensService`
 - `/explain refresh token`
 - `/explain rebase`
 
-## Paso 1: Determinar si es un archivo del proyecto o un concepto general
+## Step 1: Determine whether it is a project file or a general concept
 
-**Si es un archivo del proyecto:**
-Búscalo en `src/main/java/` y léelo completo antes de responder.
+**If it is a project file:**
+Find it in `src/main/java/` and read it completely before responding.
 
-**Si es un concepto general** (JWT, rebase, BCrypt, etc.):
-Responde desde conocimiento general, con ejemplos concretos del proyecto cuando sea posible.
+**If it is a general concept** (JWT, rebase, BCrypt, etc.):
+Answer from general knowledge, using concrete examples from this project where possible.
 
-## Paso 2: Estructura de la explicación
+## Step 2: Structure of the explanation
 
-Adapta el nivel al desarrollador junior que usa este proyecto. Sigue este orden:
+Adapt the level to the junior developer working on this project. Follow this order:
 
-### ¿Qué es? (1-2 oraciones)
-La respuesta más corta posible a "¿para qué sirve esto?".
+### What is it? (1-2 sentences)
+The shortest possible answer to "what is this for?".
 
-### ¿Por qué existe en este proyecto?
-El problema concreto que resuelve. Si es un archivo, qué pasaría si no existiera.
+### Why does it exist in this project?
+The specific problem it solves. For a file: what would happen if it did not exist.
 
-### ¿Cómo funciona? (el núcleo)
-Explica el flujo paso a paso con lenguaje simple.
-- Usa analogías del mundo real cuando ayuden
-- Para archivos Java: explica los métodos principales uno por uno
-- Señala las líneas o secciones más importantes con el número de línea
+### How does it work? (the core)
+Explain the flow step by step in simple language.
+- Use real-world analogies when they help
+- For Java files: explain the main methods one by one
+- Point out the most important lines or sections with the line number
 
-### ¿Cómo se conecta con el resto del proyecto?
-Qué lo llama, qué llama él, de qué depende.
+### How does it connect with the rest of the project?
+What calls it, what it calls, what it depends on.
 
-### ¿Qué NO hace? (si aplica)
-Límites o confusiones comunes sobre su responsabilidad.
+### What does it NOT do? (if applicable)
+Boundaries or common misconceptions about its responsibility.
 
-### Ejemplo concreto (si aplica)
-Un flujo real del proyecto que use esta pieza (ej: "cuando el usuario hace login, esto es lo que pasa en este archivo...").
+### Concrete example (if applicable)
+A real flow in the project that uses this piece (e.g. "when the user logs in, this is what happens in this file...").
 
-## Paso 3: Preguntar si hay dudas
+## Step 3: Offer to go deeper
 
-Al final, ofrece profundizar en algún aspecto específico.
+At the end, offer to expand on any specific aspect.

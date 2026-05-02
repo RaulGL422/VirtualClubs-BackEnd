@@ -1,190 +1,161 @@
-# /review-pr — Revisión de Pull Request
+# /review-pr — Pull Request Review
 
-Revisa el PR actual (o el especificado como argumento) de forma exhaustiva.
+Reviews the current PR (or the one specified as argument) exhaustively.
 
-## Uso
-- `/review-pr` — revisa el PR de la rama actual
-- `/review-pr 42` — revisa el PR número 42
+## Usage
+- `/review-pr` — reviews the PR for the current branch
+- `/review-pr 42` — reviews PR number 42
 
-## Paso 1: Identificar el PR
+## Step 1: Identify the PR
 
-Si se pasó un número como argumento, usa ese PR.
+If a number was passed as argument, use that PR.
 
-Si no, ejecuta:
+If not, run:
 ```
 git branch --show-current
-gh pr list --head [rama-actual] --json number,title,url,baseRefName
+gh pr list --head [current-branch] --json number,title,url,baseRefName
 ```
 
-Si no existe PR para la rama actual, avisa al usuario y detente.
+If no PR exists for the current branch, notify the user and stop.
 
-**Detectar tarjeta Notion:** Extrae el número N si el nombre de la rama contiene `vc-[N]`. Se usará al final para actualizar el estado.
+## Step 2: Get PR information
 
-## Paso 2: Obtener información del PR
-
-Ejecuta:
+Run:
 ```
-gh pr view [numero] --json title,body,baseRefName,headRefName,additions,deletions,changedFiles,commits
-gh pr diff [numero]
+gh pr view [number] --json title,body,baseRefName,headRefName,additions,deletions,changedFiles,commits
+gh pr diff [number]
 ```
 
-## Paso 3: Revisar el código (análisis exhaustivo)
+## Step 3: Review the code (exhaustive analysis)
 
-Analiza el diff completo evaluando **todas** las categorías siguientes:
-
----
-
-### 🔴 ERRORES CRÍTICOS (bloquean el merge)
-
-- Excepciones sin manejar que podrían causar 500
-- NullPointerException potenciales (sin validación previa)
-- Lógica de negocio incorrecta o broken
-- Migraciones de BD incompatibles o destructivas
-- Compilación rota
-- `TODO`, `FIXME`, `HACK` o `System.out.println` olvidados en el diff
-- Descripción del PR vacía o sin secciones requeridas
+Analyze the full diff evaluating **all** of the following categories:
 
 ---
 
-### 🔐 SEGURIDAD (basado en OWASP Top 10)
+### 🔴 CRITICAL ERRORS (block merge)
 
-- [ ] **SQL Injection:** ¿Se usan queries parametrizadas? ¿No hay concatenación de strings en queries?
-- [ ] **XSS:** ¿Se sanitiza input del usuario antes de devolver en respuestas?
-- [ ] **Broken Authentication:** ¿Tokens validados correctamente? ¿Expiraciones correctas?
-- [ ] **Sensitive Data Exposure:** ¿Passwords, tokens o datos sensibles en logs o respuestas?
-- [ ] **Broken Access Control:** ¿Endpoints nuevos tienen la anotación de seguridad correcta?
-- [ ] **Security Misconfiguration:** ¿Se exponen endpoints de actuator o info innecesarios?
-- [ ] **Credentials hardcodeadas:** ¿Hay secrets o contraseñas en el código?
-- [ ] **JWT handling:** ¿Se verifica la firma? ¿Se valida expiración? ¿Se usa `ApiResponse` estándar?
-
----
-
-### 📚 DOCUMENTACIÓN
-
-- [ ] ¿Los métodos públicos nuevos tienen Javadoc?
-- [ ] ¿Los endpoints REST tienen comentarios que expliquen el propósito?
-- [ ] ¿Los campos en entidades y DTOs tienen descripción cuando no son evidentes?
-- [ ] ¿Las excepciones nuevas tienen un mensaje claro?
-- [ ] ¿Se actualizó `CLAUDE.md` si se agregaron endpoints o patrones nuevos?
+- Unhandled exceptions that could cause 500s
+- Potential NullPointerExceptions (no prior validation)
+- Incorrect or broken business logic
+- Incompatible or destructive DB migrations
+- Broken compilation
+- Forgotten `TODO`, `FIXME`, `HACK`, or `System.out.println` in the diff
+- Empty PR description or missing required sections
 
 ---
 
-### 🏗️ ARQUITECTURA Y MALAS PRÁCTICAS
+### 🔐 SECURITY (OWASP Top 10)
 
-- ¿Se respeta la separación de capas? (Controller no llama a Repository directamente)
-- ¿Los DTOs no contienen lógica de negocio?
-- ¿Se usa `ApiResponse<T>` en todos los endpoints? (`ApiResponse.success(data)`, `ApiResponse.emptySuccess()`, `ApiResponse.error(ErrorType.X)`)
-- ¿Los endpoints nuevos usan `@RequestBody @Valid` para activar las validaciones del DTO?
-- ¿Las excepciones de negocio están en `GlobalExceptionHandler`?
-- ¿Se usa `@Transactional` donde corresponde?
-- ¿Hay código duplicado que podría extraerse a utilidades?
-- ¿Se usó Lombok correctamente (`@Data`, `@Builder`, `@RequiredArgsConstructor`)?
-- ¿Hay imports sin usar o código comentado innecesario?
-- ¿Los nombres de variables y métodos son descriptivos y en inglés?
-- ¿Los endpoints siguen la convención REST (verbos HTTP correctos, plural para colecciones)?
+- [ ] **SQL Injection:** parameterized queries used? No string concatenation in queries?
+- [ ] **XSS:** user input sanitized before returning in responses?
+- [ ] **Broken Authentication:** tokens validated correctly? Expiries correct?
+- [ ] **Sensitive Data Exposure:** passwords, tokens, or sensitive data in logs or responses?
+- [ ] **Broken Access Control:** new endpoints have correct security annotations?
+- [ ] **Security Misconfiguration:** unnecessary actuator or info endpoints exposed?
+- [ ] **Hardcoded credentials:** any secrets or passwords in the code?
+- [ ] **JWT handling:** signature verified? Expiry validated? `ApiResponse` standard used?
 
 ---
 
-### ⚡ RENDIMIENTO
+### 📚 DOCUMENTATION
 
-- ¿Hay queries N+1 (fetch sin JOIN cuando se necesitan relaciones)?
-- ¿Se usan índices en campos que se buscan frecuentemente?
-- ¿Operaciones costosas que deberían ser asíncronas (`@Async`, ya configurado en `AsyncConfig`)?
-- ¿Se pagina correctamente cuando se devuelven listas?
+- [ ] New public methods have Javadoc?
+- [ ] New REST endpoints have annotations explaining their purpose?
+- [ ] New entity/DTO fields have descriptions where not self-evident?
+- [ ] New exceptions have clear messages?
+- [ ] `CLAUDE.md` updated if new endpoints or patterns were added?
+
+---
+
+### 🏗️ ARCHITECTURE & BAD PRACTICES
+
+- Layering respected? (Controller does not call Repository directly)
+- DTOs contain no business logic?
+- `ApiResponse<T>` used on all endpoints? (`ApiResponse.success(data)`, `ApiResponse.emptySuccess()`, `ApiResponse.error(ErrorType.X)`)
+- New endpoints use `@RequestBody @Valid` to activate DTO validation?
+- Business exceptions handled in `GlobalExceptionHandler`?
+- `@Transactional` used where appropriate?
+- Duplicated code that could be extracted to utilities?
+- Lombok used correctly (`@Data`, `@Builder`, `@RequiredArgsConstructor`)?
+- Unused imports or unnecessary commented-out code?
+- Variable and method names are descriptive and in English?
+- Endpoints follow REST conventions (correct HTTP verbs, plural for collections)?
+
+---
+
+### ⚡ PERFORMANCE
+
+- N+1 queries? (fetch without JOIN when relations are needed)
+- Indexes on frequently searched fields?
+- Expensive operations that should be async (`@Async`, already configured in `AsyncConfig`)?
+- Lists returned with proper pagination?
 
 ---
 
 ### ✅ TESTS
 
-- ¿El nuevo código tiene tests unitarios o de integración en `src/test/`?
-- ¿Se cubren los casos de error además del happy path?
-- **Nota:** No es posible verificar si los tests pasan solo con el diff. Si hay tests nuevos, indicar que deben ejecutarse manualmente antes del merge.
+- New code has unit or integration tests in `src/test/`?
+- Error cases covered in addition to the happy path?
+- **Note:** it is not possible to verify test results from the diff alone. If new tests exist, indicate they must be run manually before merge.
 
 ---
 
-## Paso 4: Generar reporte
-
-Presenta el resultado con este formato:
+## Step 4: Generate report
 
 ```
-## Revisión PR #[numero]: [título]
+## PR Review #[number]: [title]
 
-**Base:** [rama-base] ← [rama-head]
-**Cambios:** +[adiciones] / -[eliminaciones] en [N] archivos
-
----
-
-### 🔴 Errores Críticos
-[lista o "Ninguno encontrado"]
-
-### 🔐 Problemas de Seguridad
-[lista o "Ninguno encontrado"]
-
-### 📚 Documentación Faltante
-[lista o "Completa"]
-
-### 🏗️ Malas Prácticas
-[lista o "Ninguna encontrada"]
-
-### ⚡ Problemas de Rendimiento
-[lista o "Ninguno encontrado"]
-
-### ✅ Estado de Tests
-[observaciones]
+**Base:** [base-branch] ← [head-branch]
+**Changes:** +[additions] / -[deletions] in [N] files
 
 ---
 
-### Veredicto
-[APROBADO / APROBADO CON SUGERENCIAS / CAMBIOS REQUERIDOS]
+### 🔴 Critical Errors
+[list or "None found"]
 
-### Próximos pasos sugeridos:
-1. [acción concreta]
-2. [acción concreta]
+### 🔐 Security Issues
+[list or "None found"]
+
+### 📚 Missing Documentation
+[list or "Complete"]
+
+### 🏗️ Bad Practices
+[list or "None found"]
+
+### ⚡ Performance Issues
+[list or "None found"]
+
+### ✅ Test Coverage
+[observations]
+
+---
+
+### Verdict
+[APPROVED / APPROVED WITH SUGGESTIONS / CHANGES REQUIRED]
+
+### Suggested next steps:
+1. [concrete action]
+2. [concrete action]
 ```
 
-Si hay errores críticos o problemas de seguridad, explica el riesgo y propón el fix concreto con código.
+If there are critical errors or security issues, explain the risk and propose a concrete fix with code.
 
 ---
 
-## Paso 5: Actualizar estado en Notion (si aplica)
+## Step 5: Update documentation if needed
 
-Si se detectó una tarjeta Notion (VC-N en el nombre de rama), actualiza el estado según el veredicto:
+After generating the report, read `CLAUDE.md` and check if the PR introduces changes that make it outdated. Evaluate:
 
-| Veredicto | Estado Notion |
-|-----------|---------------|
-| APROBADO | `📦 Pendiente debug` |
-| APROBADO CON SUGERENCIAS | `📦 Pendiente debug` |
-| CAMBIOS REQUERIDOS | `🔄️Cambios Solicitados` |
+**Active Endpoints table** — did the PR add, remove, or modify any endpoint? Update the table if so.
 
-Busca la página con `notion-search` en `data_source_url: "collection://276a7f5d-0a0f-802c-8d6f-000b821853c1"` usando el número N, luego usa `notion-update-page` con `command: "update_properties"` y el estado correspondiente.
+**Environment Variables** — did the PR add new required variables? Add them to the relevant section.
 
----
+**Patterns & Conventions** — did the PR introduce a new pattern worth documenting? Add it with an example.
 
-## Paso 6: Actualizar documentación si corresponde
+If nothing needs updating, state: `"CLAUDE.md is up to date, no changes needed."`
 
-Después de generar el reporte, lee `CLAUDE.md` y determina si el PR introduce cambios que lo dejan desactualizado. Evalúa estas secciones específicas:
-
-**Tabla de Endpoints Activos**
-¿El PR agrega, elimina o modifica algún endpoint? Si es así, actualiza la tabla.
-
-**Endpoints Comentados**
-¿El PR reactiva alguna funcionalidad que estaba comentada (Google OAuth2, email, password reset)? Si es así, muévela a "Activos" y elimínala de "Comentados".
-
-**Deuda Técnica Conocida**
-¿El PR resuelve algún ítem de la tabla de deuda técnica (agrega tests, implementa rate limiting, etc.)? Si es así, elimina esa fila.
-¿El PR introduce deuda nueva (código comentado, TODO, funcionalidad a medias)? Agrégala.
-
-**Variables de Entorno**
-¿El PR añade nuevas variables de entorno requeridas? Agrégalas a la sección correspondiente.
-
-**Patrones y Convenciones**
-¿El PR introduce un patrón nuevo que no está documentado y que se usará en el futuro? Agrégalo con un ejemplo.
-
-Si no hay nada que actualizar en `CLAUDE.md`, indica: `"CLAUDE.md está al día, no requiere cambios."`
-
-Si hay cambios, aplícalos directamente y al final muestra un resumen:
+If there are changes, apply them directly and show a summary:
 ```
-### Documentación actualizada
-- [sección]: [qué cambió]
-- [sección]: [qué cambió]
+### Documentation updated
+- [section]: [what changed]
 ```

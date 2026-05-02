@@ -1,105 +1,101 @@
-# /commit — Commit Semántico + Push
+# /commit — Semantic Commit + Push
 
-Ejecuta el flujo de commit completo con soporte opcional de referencia a tarjetas Notion.
+Executes the full commit flow.
 
-## Paso 1: Verificar rama actual
+## Step 1: Verify current branch
 
-Ejecuta `git branch --show-current` y verifica que la rama actual **NO sea** `main` ni `development`.
+Run `git branch --show-current` and verify the current branch is **NOT** `main` or `development`.
 
-Si la rama es `main` o `development`, **detente inmediatamente** y avisa:
-> "⛔ Estás en la rama `[nombre]`. No está permitido hacer commits directamente en `main` o `development`. Crea una rama nueva con `/new-feature` o cambia de rama manualmente."
+If it is, stop immediately:
+> "⛔ You are on branch `[name]`. Committing directly to `main` or `development` is not allowed. Create a new branch with `/new-feature` or switch branches manually."
 
-**Detectar tarjeta Notion:** Si el nombre de la rama contiene el patrón `vc-[N]` (ej: `feature/vc-5-verificar-email`), extrae el número N. Se usará automáticamente como referencia en el mensaje de commit.
+**Detect task reference:** If the branch name contains the pattern `vc-[N]` (e.g. `feature/vc-5-email-verification`), extract the number N. It will be used as a reference in the commit message.
 
-## Paso 2: Ver estado del repositorio
+## Step 2: Check repository state
 
-Ejecuta en paralelo:
+Run in parallel:
 - `git status`
 - `git diff --staged`
 
-## Paso 3: Evaluar si hay cambios staged
+## Step 3: Evaluate staged changes
 
-**Si NO hay nada en staged (`git diff --staged` está vacío):**
+**If nothing is staged (`git diff --staged` is empty):**
 
-Ejecuta `git status` para mostrar los archivos modificados/nuevos y pregunta al usuario:
-> "No hay cambios en staging. Encontré los siguientes archivos modificados:
-> [lista de archivos]
+Run `git status` to list modified/new files and ask the user:
+> "Nothing is staged. Found the following modified files:
+> [file list]
 >
-> ¿Quieres que haga `git add -A` para agregar todos? (sí/no) O indícame qué archivos específicos agregar."
+> Do you want me to run `git add -A` to stage all of them? (yes/no) Or tell me which specific files to add."
 
-Espera la confirmación antes de continuar.
+Wait for confirmation before continuing.
 
-**Si hay archivos staged:**
-Continúa directamente al Paso 4.
+**If there are staged files:** continue directly to Step 4.
 
-## Paso 4: Analizar los cambios
+## Step 4: Analyze the changes
 
-Lee el diff completo con `git diff --staged` y determina:
+Read the full diff with `git diff --staged` and determine:
 
-1. **Tipo de commit** según los cambios:
-   - `feat` — nueva funcionalidad
-   - `fix` — corrección de bug
-   - `refactor` — refactoring sin cambio de comportamiento
-   - `chore` — mantenimiento, configuración, dependencias
-   - `docs` — solo documentación
-   - `test` — solo tests
-   - `style` — formato, espacios (sin cambio de lógica)
-   - `perf` — mejora de rendimiento
-   - `ci` — cambios en CI/CD
+1. **Commit type:**
+   - `feat` — new functionality
+   - `fix` — bug fix
+   - `refactor` — refactoring with no behavior change
+   - `chore` — maintenance, config, dependencies
+   - `docs` — documentation only
+   - `test` — tests only
+   - `style` — formatting, whitespace (no logic change)
+   - `perf` — performance improvement
+   - `ci` — CI/CD changes
 
-2. **Scope opcional** (en qué módulo): `auth`, `security`, `tokens`, `user`, `config`, `deps`, etc.
+2. **Optional scope** (which module): `auth`, `security`, `tokens`, `user`, `config`, `deps`, etc.
 
-3. **Descripción** en español, concisa, en imperativo (ej: "agrega endpoint de logout")
+3. **Description** in English, concise, imperative mood (e.g. `add logout endpoint`, `fix refresh token expiry`)
 
-## Paso 5: Proponer mensaje de commit
+## Step 5: Propose commit message
 
-Si se detectó una tarjeta Notion (VC-N en el nombre de rama), incluye la referencia en el cuerpo del commit:
+If a task reference was detected (vc-N in branch name), include it in the commit body:
 
 ```
-[tipo]([scope]): descripción en español
+[type]([scope]): description
 
 Ref: VC-[N]
 ```
 
-Si NO hay tarjeta Notion detectada, el mensaje es solo la primera línea:
+If no task reference was detected:
 ```
-[tipo]([scope]): descripción en español
-```
-
-Muestra al usuario el resumen y el mensaje propuesto:
-
-```
-Archivos que entran en este commit:
-  [output de git diff --staged --stat]
-
-Mensaje propuesto:
-  [tipo](scope): descripción corta en español
-
-  Ref: VC-N   ← si aplica
+[type]([scope]): description
 ```
 
-Ejemplos con Notion:
-- `feat(auth): agrega endpoint de verificación de email` + `Ref: VC-5`
-- `fix(tokens): corrige expiración incorrecta del refresh token` + `Ref: VC-3`
+Show the user a summary:
 
-Ejemplos sin Notion:
-- `feat(auth): agrega endpoint de logout`
-- `refactor(security): extrae lógica de hash a TokenUtils`
+```
+Files in this commit:
+  [output of git diff --staged --stat]
 
-**Espera confirmación explícita del usuario antes de continuar.** Opciones:
-- `sí` / `ok` / `confirmar` → procede al Paso 6
-- `editar [nuevo mensaje]` → usa el nuevo mensaje y confirma de nuevo
-- `cancelar` → detente sin hacer commit
+Proposed message:
+  [type](scope): short description
 
-## Paso 6: Confirmar y hacer commit
+  Ref: VC-N   ← if applicable
+```
 
-Ejecuta el commit solo después de recibir confirmación explícita del usuario.
+Examples:
+- `feat(auth): add email verification endpoint`
+- `fix(tokens): fix incorrect refresh token expiry`
+- `refactor(security): extract hash logic to TokenUtils`
 
-Luego ejecuta `git push origin [rama-actual]`.
+**Wait for explicit user confirmation before continuing:**
+- `yes` / `ok` → proceed to Step 6
+- `edit [new message]` → use the new message and confirm again
+- `cancel` → stop without committing
 
-Si el push falla porque la rama no tiene upstream, usa:
-`git push --set-upstream origin [rama-actual]`
+## Step 6: Commit and push
 
-## Paso 7: Confirmar resultado
+Run the commit only after receiving explicit confirmation.
 
-Muestra el resultado del push y el hash del commit creado.
+Then run `git push origin [current-branch]`.
+
+If the push fails because the branch has no upstream:
+`git push --set-upstream origin [current-branch]`
+
+## Step 7: Confirm result
+
+Show the push result and the hash of the created commit.

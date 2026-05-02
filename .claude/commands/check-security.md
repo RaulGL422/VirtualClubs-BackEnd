@@ -1,100 +1,100 @@
-# /check-security — Auditoría de Seguridad del Código
+# /check-security — Security Audit
 
-Realiza una revisión de seguridad enfocada en el código del proyecto.
+Performs a security review focused on the project's code.
 
-## Uso
-- `/check-security` — audita todo el código modificado desde `main`
-- `/check-security src/main/java/galindo/raul/virtualclubs/controller/AuthController.java` — audita archivo específico
+## Usage
+- `/check-security` — audits all code modified since `main`
+- `/check-security src/main/java/galindo/raul/virtualclubs/controller/AuthController.java` — audits a specific file
 
-## Paso 1: Determinar alcance
+## Step 1: Determine scope
 
-Si se pasó un archivo como argumento, audita ese archivo.
+If a file was passed as argument, audit that file.
 
-Si no, obtén los archivos modificados desde main:
+If not, get the files modified since main:
 ```bash
 git diff main...HEAD --name-only -- "*.java"
 ```
 
-Si no hay archivos modificados, audita los archivos de seguridad críticos del proyecto:
+If no files are modified, audit the project's critical security files:
 - `config/security/`
 - `services/TokensService.java`
 - `services/UserEntityServiceImpl.java`
 - `controller/AuthController.java`
 
-## Paso 2: Leer y analizar los archivos
+## Step 2: Read and analyze the files
 
-Lee cada archivo en el alcance y evalúa:
+Read each file in scope and evaluate:
 
 ---
 
 ### OWASP A01 — Broken Access Control
-- ¿Endpoints protegidos con `@PreAuthorize` o configurados en `SecurityConfig`?
-- ¿Hay endpoints que devuelvan datos de otros usuarios sin verificar identidad?
-- ¿El usuario autenticado solo puede modificar sus propios recursos?
+- Are endpoints protected with `@PreAuthorize` or configured in `SecurityConfig`?
+- Are there endpoints that return other users' data without verifying identity?
+- Can authenticated users only modify their own resources?
 
 ### OWASP A02 — Cryptographic Failures
-- ¿Se usan algoritmos débiles (MD5, SHA-1 para passwords)?
-- ¿Las contraseñas se hashean con BCrypt correctamente?
-- ¿Los refresh tokens se almacenan como hash (SHA-256), no en texto plano?
-- ¿El JWT secret es suficientemente largo y proviene de variable de entorno?
+- Are weak algorithms used (MD5, SHA-1 for passwords)?
+- Are passwords hashed with BCrypt correctly?
+- Are refresh tokens stored as hashes (SHA-256), not in plain text?
+- Is the JWT secret long enough and sourced from an environment variable?
 
 ### OWASP A03 — Injection
-- ¿Hay queries construidas por concatenación de strings?
-- ¿Se usan métodos de Spring Data JPA o `@Query` con parámetros?
-- ¿Hay deserialización de objetos sin validar?
+- Are there queries built by string concatenation?
+- Are Spring Data JPA methods or `@Query` with parameters used?
+- Is there unsanitized object deserialization?
 
 ### OWASP A04 — Insecure Design
-- ¿Rate limiting en endpoints de autenticación? (login, register, reset-password)
-- ¿Límite en intentos fallidos de login?
-- ¿Los mensajes de error revelan información interna (stack traces, nombres de tablas)?
+- Is rate limiting in place on auth endpoints (login, register, reset-password)?
+- Are failed login attempts limited?
+- Do error messages reveal internal information (stack traces, table names)?
 
 ### OWASP A05 — Security Misconfiguration
-- ¿CSRF deshabilitado apropiadamente (API stateless)?
-- ¿Actuator expone solo endpoints necesarios?
-- ¿CORS configurado restrictivamente (no `*`)?
-- ¿Headers de seguridad HTTP presentes?
+- Is CSRF disabled appropriately (stateless API)?
+- Does Actuator expose only the necessary endpoints?
+- Is CORS configured restrictively (not `*`)?
+- Are HTTP security headers present?
 
 ### OWASP A07 — Authentication Failures
-- ¿JWT valida firma, expiración y tipo de token?
-- ¿Refresh tokens son single-use o se invalidan al rotar?
-- ¿Logout efectivamente invalida el token en BD?
-- ¿Los tokens tienen tiempo de expiración razonable?
+- Does the JWT validate signature, expiry, and token type?
+- Are refresh tokens single-use or invalidated on rotation?
+- Does logout effectively revoke the token in the database?
+- Do tokens have a reasonable expiry time?
 
 ### OWASP A09 — Logging Failures
-- ¿Se loggean eventos de seguridad (login fallido, acceso denegado)?
-- ¿Los logs NO contienen passwords, tokens o datos sensibles?
-- ¿Hay logging suficiente para detectar ataques?
+- Are security events logged (failed login, access denied)?
+- Do logs NOT contain passwords, tokens, or sensitive data?
+- Is there sufficient logging to detect attacks?
 
-### Específico del Proyecto
-- ¿`@StrongPassword` validación es suficientemente fuerte?
-- ¿El `deviceId` generado por SHA-256 es predecible/manipulable?
-- ¿El manejo de Google ID tokens verifica correctamente el emisor?
-
----
-
-## Paso 3: Generar reporte de seguridad
-
-```
-## Auditoría de Seguridad — [fecha]
-
-**Archivos analizados:** [lista]
-
-### 🔴 Vulnerabilidades Críticas (parchear urgente)
-[lista con descripción, ubicación exacta (archivo:línea) y fix propuesto]
-
-### 🟡 Vulnerabilidades Medias (parchear pronto)
-[lista con descripción, ubicación y recomendación]
-
-### 🟢 Mejoras de Hardening (buenas prácticas)
-[sugerencias opcionales para fortalecer la seguridad]
-
-### ✅ Controles Correctos
-[menciona lo que sí está bien implementado]
+### Project-specific
+- Is the `@StrongPassword` validation strong enough?
+- Is the SHA-256-generated `deviceId` predictable or manipulable?
+- Does Google ID token handling correctly verify the issuer?
 
 ---
 
-**Puntuación de riesgo:** [ALTO / MEDIO / BAJO]
-**Recomendación:** [acción inmediata si hay críticos]
+## Step 3: Generate security report
+
+```
+## Security Audit — [date]
+
+**Files analyzed:** [list]
+
+### 🔴 Critical Vulnerabilities (patch urgently)
+[list with description, exact location (file:line) and proposed fix]
+
+### 🟡 Medium Vulnerabilities (patch soon)
+[list with description, location and recommendation]
+
+### 🟢 Hardening Improvements (best practices)
+[optional suggestions to strengthen security]
+
+### ✅ Correct Controls
+[highlights what is implemented correctly]
+
+---
+
+**Risk score:** [HIGH / MEDIUM / LOW]
+**Recommendation:** [immediate action if there are critical issues]
 ```
 
-Para cada vulnerabilidad encontrada, muestra el código vulnerable y el fix propuesto con código.
+For each vulnerability found, show the vulnerable code and the proposed fix with code.

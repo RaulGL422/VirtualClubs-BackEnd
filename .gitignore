@@ -25,6 +25,12 @@ replay_pid*
 
 *.env
 
+# Certificates and keystores
+*.p12
+*.jks
+*.pem
+*.key
+
 # IntelliJ IDEA
 .idea/
 *.iml

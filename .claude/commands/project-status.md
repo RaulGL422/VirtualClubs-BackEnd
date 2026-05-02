@@ -1,10 +1,10 @@
-# /project-status — Estado General del Proyecto
+# /project-status — Project Status Overview
 
-Genera un resumen del estado actual del proyecto.
+Generates a summary of the current state of the project.
 
-## Paso 1: Estado de Git y GitHub
+## Step 1: Git and GitHub state
 
-Ejecuta en paralelo:
+Run in parallel:
 ```bash
 git branch --show-current
 git log --oneline -8
@@ -13,38 +13,37 @@ git stash list
 gh pr list --state open --json number,title,headRefName,createdAt
 ```
 
-## Paso 2: Funcionalidades comentadas
+## Step 2: Commented-out pending features
 
-Busca código comentado de features pendientes con patrones concretos:
+Search for commented-out feature code with concrete patterns:
 ```bash
 grep -r "GoogleAuthService\|MailerService\|UserTokenService\|UserTokenEntity\|UserTokenRepository" \
   src/main/java --include="*.java" -l
 ```
 
-Busca TODOs y FIXMEs pendientes:
+Search for pending TODOs and FIXMEs:
 ```bash
 grep -rn "TODO\|FIXME\|HACK\|System\.out\.print" src/main/java --include="*.java"
 ```
 
-## Paso 3: Generar reporte
+## Step 3: Generate report
 
 ```
-## Estado del Proyecto — Virtual Clubs Backend — [fecha actual]
+## Project Status — Virtual Clubs Backend — [current date]
 
 ### Git
-- Rama actual: [rama]
-- Últimos commits: [lista]
-- Cambios sin commitear: [N archivos] / Limpio
-- Stashes guardados: [N] / Ninguno
-- PRs abiertos: [lista con número y título] / Ninguno
+- Current branch: [branch]
+- Recent commits: [list]
+- Uncommitted changes: [N files] / Clean
+- Saved stashes: [N] / None
+- Open PRs: [list with number and title] / None
 
-### Deuda Técnica
-- TODOs/FIXMEs encontrados: [lista con archivo:línea] / Ninguno
-- Funcionalidades comentadas pendientes:
-  - [ ] Google OAuth2
-  - [ ] Verificación de email + Password reset
-  - [ ] [otras encontradas]
+### Technical Debt
+- TODOs/FIXMEs found: [list with file:line] / None
+- Commented-out pending features:
+  - [ ] [feature found]
+  - [ ] [feature found]
 
-### Próxima acción sugerida
-[Una sola acción concreta basada en el estado actual]
+### Suggested next action
+[A single concrete action based on the current state]
 ```

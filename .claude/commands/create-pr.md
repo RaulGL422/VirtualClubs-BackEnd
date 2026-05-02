@@ -1,79 +1,73 @@
-# /create-pr — Crear Pull Request
+# /create-pr — Create Pull Request
 
-Crea un PR desde la rama actual hacia `development` (por defecto) o la base especificada.
+Creates a PR from the current branch toward `development` (default) or the specified base.
 
-## Uso
-- `/create-pr` — crea PR hacia `development`
-- `/create-pr main` — crea PR hacia `main`
+## Usage
+- `/create-pr` — creates PR toward `development`
+- `/create-pr main` — creates PR toward `main`
 
-## Paso 1: Verificar precondiciones
+## Step 1: Verify preconditions
 
-Ejecuta `git branch --show-current`.
+Run `git branch --show-current`.
 
-Si la rama es `main` o `development`, detente:
-> "No puedes crear un PR desde `main` o `development`."
+If the branch is `main` or `development`, stop:
+> "You cannot create a PR from `main` or `development`."
 
-La rama base es `development` por defecto. Si se pasó un argumento (ej. `main`), úsalo como base.
+The base branch defaults to `development`. If an argument was passed (e.g. `main`), use it as the base.
 
-**Detectar tarjeta Notion:** Si el nombre de la rama contiene el patrón `vc-[N]`, extrae el número N para usarlo más adelante.
+**Detect task reference:** If the branch name contains the pattern `vc-[N]`, extract the number N for later use.
 
-Verifica que hay commits por encima de la rama base:
+Verify there are commits ahead of the base branch:
 ```bash
-git log [rama-base]...HEAD --oneline
+git log [base-branch]...HEAD --oneline
 ```
 
-Si no hay commits, detente:
-> "No hay cambios para crear un PR. Haz commits primero con `/commit`."
+If there are no commits, stop:
+> "No changes to create a PR from. Make commits first with `/commit`."
 
-## Paso 2: Revisar los cambios
+## Step 2: Review the changes
 
-Ejecuta en paralelo (usando [rama-base] determinada en el paso anterior):
-- `git log [rama-base]...HEAD --oneline` — ver todos los commits del PR
-- `git diff [rama-base]...HEAD --stat` — resumen de archivos cambiados
-- `git diff [rama-base]...HEAD` — diff completo para entender el contexto
+Run in parallel:
+- `git log [base-branch]...HEAD --oneline`
+- `git diff [base-branch]...HEAD --stat`
+- `git diff [base-branch]...HEAD`
 
-## Paso 3: Verificar autenticación de gh
+## Step 3: Verify gh authentication
 
 ```bash
 gh auth status
 ```
 
-Si no está autenticado, detente y avisa:
-> "El CLI de GitHub (`gh`) no está autenticado. Ejecuta `gh auth login` en tu terminal y vuelve a intentarlo."
+If not authenticated, stop:
+> "GitHub CLI (`gh`) is not authenticated. Run `gh auth login` in your terminal and try again."
 
-## Paso 4: Generar título y descripción del PR
+## Step 4: Generate PR title and description
 
-Basándote en los commits y el diff, genera:
+Based on the commits and diff, generate:
 
-**Título** (máx 70 caracteres): Claro y descriptivo, en español.
+**Title** (max 70 characters): clear and descriptive, in English.
 
-**Descripción** con las secciones:
-- **¿Qué hace este PR?** — Resumen en 2-3 puntos
-- **Cambios principales** — Lista de archivos y qué cambió
-- **Cómo probar** — Pasos para verificar que funciona
-- **Checklist** — Checkboxes de: tests, documentación, CLAUDE.md actualizado, seguridad revisada
+**Description** with these sections:
+- **What does this PR do?** — 2–3 bullet points
+- **Main changes** — list of files and what changed
+- **How to test** — steps to verify it works
+- **Checklist** — `[ ]` tests added/updated, `[ ]` documentation updated, `[ ]` CLAUDE.md updated if needed, `[ ]` security reviewed
 
-## Paso 5: Confirmar y crear el PR
+## Step 5: Confirm and create the PR
 
-Muestra al usuario el título y la descripción generados y pregunta:
-> "¿Creo el PR con este título y descripción? (sí/editar/cancelar)"
+Show the user the generated title and description and ask:
+> "Create the PR with this title and description? (yes/edit/cancel)"
 
-Espera confirmación antes de continuar.
+Wait for confirmation before continuing.
 
-Si confirma, primero empuja la rama y luego crea el PR:
+If confirmed, push the branch and create the PR:
 ```bash
-git push --set-upstream origin [rama-actual]
-gh pr create --title "[título]" --body "[descripción]" --base [rama-base]
+git push --set-upstream origin [current-branch]
+gh pr create --title "[title]" --body "[description]" --base [base-branch]
 ```
 
-## Paso 6: Actualizar estado en Notion (si aplica)
+## Step 6: Launch automatic review
 
-Si se detectó una tarjeta Notion (VC-N en el nombre de rama), actualiza su estado a `📬 PR Abierto`:
-- Busca la página con `notion-search` en `data_source_url: "collection://276a7f5d-0a0f-802c-8d6f-000b821853c1"` usando el número N
-- Usa `notion-update-page` con `command: "update_properties"` y `properties: {"Estado": "📬 PR Abierto"}`
+After creating the PR, automatically run `/review-pr [number]` for an immediate review.
 
-## Paso 7: Lanzar revisión automática
-
-Después de crear el PR, ejecuta automáticamente `/review-pr [numero]` para obtener la revisión inmediata del PR recién creado.
-
-Muestra la URL del PR al final.
+Show the PR URL at the end.

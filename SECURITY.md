@@ -1,17 +1,17 @@
-# Política de Seguridad
+# Security Policy
 
-## Versiones soportadas
+## Supported versions
 
-| Versión | Soporte |
+| Version | Support |
 |---------|---------|
-| `latest` (rama `development`) | Activa |
+| `latest` (`development` branch) | Active |
 
-## Reportar una vulnerabilidad
+## Reporting a vulnerability
 
-Si encuentras una vulnerabilidad de seguridad, **no abras un issue público**. En su lugar:
+If you find a security vulnerability, **do not open a public issue**. Instead:
 
-1. Envía un email a **raulglprogram@gmail.com** con el asunto `[SECURITY] VirtualClubs Backend`.
-2. Incluye una descripción del problema, pasos para reproducirlo y el impacto estimado.
-3. Recibirás respuesta en un plazo máximo de 72 horas.
+1. Send an email to **raulglprogram@gmail.com** with the subject `[SECURITY] VirtualClubs Backend`.
+2. Include a description of the issue, steps to reproduce it, and the estimated impact.
+3. You will receive a response within 72 hours.
 
-Una vez confirmada la vulnerabilidad, se publicará un parche antes de hacer pública cualquier divulgación.
+Once the vulnerability is confirmed, a patch will be published before any public disclosure.

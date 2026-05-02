@@ -1,75 +1,73 @@
-# /update-deps — Revisar y Actualizar Dependencias
+# /update-deps — Review and Update Dependencies
 
-Revisa el `pom.xml` en busca de dependencias desactualizadas y propone actualizaciones seguras.
+Reviews `pom.xml` for outdated dependencies and proposes safe updates.
 
-## Paso 1: Leer el pom.xml
+## Step 1: Read pom.xml
 
-Lee `pom.xml` completo y extrae todas las dependencias con sus versiones actuales.
+Read the full `pom.xml` and extract all dependencies with their current versions.
 
-## Paso 2: Ejecutar el plugin de versiones de Maven
+## Step 2: Run the Maven versions plugin
 
 ```bash
 ./mvnw versions:display-dependency-updates -q 2>&1 | grep -E "\->" | head -40
 ```
 
-Esto muestra directamente qué tiene actualizaciones disponibles.
+This shows directly which dependencies have updates available.
 
-Si el comando falla, analiza las versiones manualmente contra el conocimiento de las últimas versiones estables de cada dependencia.
+If the command fails, analyze the versions manually against knowledge of the latest stable version of each dependency.
 
-## Paso 3: Clasificar las actualizaciones
+## Step 3: Classify the updates
 
-Para cada dependencia con actualización disponible, clasifica:
+For each dependency with an available update, classify it as:
 
-**SEGURA (patch / minor sin breaking changes conocidos):**
-- Cambio de versión patch (x.y.Z → x.y.Z+1)
-- Minor en librerías maduras con buen historial de compatibilidad
+**SAFE (patch / minor with no known breaking changes):**
+- Patch version change (x.y.Z → x.y.Z+1)
+- Minor in mature libraries with a good compatibility track record
 
-**REQUIERE REVISIÓN (minor con posibles cambios):**
-- jjwt — cambios de API entre versiones menores
-- Spring Security — puede requerir ajustes en SecurityConfig
-- google-api-client — puede tener cambios en firmas
+**REQUIRES REVIEW (minor with possible changes):**
+- jjwt — API changes between minor versions
+- Spring Security — may require adjustments in `SecurityConfig`
+- google-api-client — may have signature changes
 
-**MAYOR / NO RECOMENDADA ahora:**
+**MAJOR / NOT RECOMMENDED now:**
 - Spring Boot major versions
 - Java version changes
-- Cambios que requieren migración
+- Changes that require migration
 
-## Paso 4: Presentar reporte
+## Step 4: Present report
 
 ```
-## Actualizaciones de Dependencias — [fecha]
+## Dependency Updates — [date]
 
-### Actualizaciones Seguras (aplico automáticamente si confirmas)
-| Dependencia | Versión actual | Versión nueva | Tipo |
-|-------------|---------------|---------------|------|
+### Safe Updates (I apply automatically if you confirm)
+| Dependency | Current version | New version | Type |
+|------------|----------------|-------------|------|
 | commons-codec | 1.15 | 1.17.1 | patch |
-| ... | | | |
 
-### Requieren Revisión (te explico qué cambia antes de actualizar)
-| Dependencia | Versión actual | Versión nueva | Riesgo |
-|-------------|---------------|---------------|--------|
-| jjwt | 0.11.5 | 0.12.x | API cambia en 0.12 |
-| ... | | | |
+### Require Review (I explain what changes before updating)
+| Dependency | Current version | New version | Risk |
+|------------|----------------|-------------|------|
+| jjwt | 0.11.5 | 0.12.x | API changes in 0.12 |
 
-### No Recomendadas Ahora
-[dependencias con major bump o razones para no actualizar]
+### Not Recommended Now
+[dependencies with major bump or reasons not to update]
 
 ---
-¿Quieres que aplique las actualizaciones seguras? (sí/no)
-¿Quieres que te explique los cambios de alguna dependencia específica? (nombre)
+Apply the safe updates? (yes/no)
+Explain what changes in a specific dependency? (name)
 ```
 
-## Paso 5: Aplicar actualizaciones confirmadas
+## Step 5: Apply confirmed updates
 
-Si el usuario confirma, edita el `pom.xml` actualizando solo las versiones aprobadas.
+If the user confirms, edit `pom.xml` updating only the approved versions.
 
-Luego ejecuta para verificar que compila:
+Then run to verify it compiles:
 ```bash
 ./mvnw compile -q
 ```
 
-Si hay error de compilación después de actualizar, revierte el cambio específico y reporta qué dependencia causó el problema.
+If there is a compilation error after updating, revert the specific change and report which dependency caused the problem.
 
-## Paso 6: Recordatorio
+## Step 6: Reminder
 
-Al terminar, sugiere hacer `/commit` con tipo `chore(deps): actualiza dependencias`.
+When done, suggest running `/commit` with type `chore(deps): update dependencies`.

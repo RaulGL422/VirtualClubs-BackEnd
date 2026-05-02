@@ -1,103 +1,97 @@
-# /add-endpoint — Agregar Nuevo Endpoint REST
+# /add-endpoint — Add New REST Endpoint
 
-Guía el proceso completo para agregar un endpoint correctamente siguiendo los patrones del proyecto.
+Guides the complete process of adding an endpoint following the project's patterns.
 
-## Uso
-- `/add-endpoint POST /v1/users/profile actualizar perfil del usuario`
+## Usage
+- `/add-endpoint POST /v1/users/profile update user profile`
 
-## Paso 1: Analizar el endpoint solicitado
+## Step 1: Analyze the requested endpoint
 
-Del argumento extrae:
-- **Método HTTP:** GET / POST / PUT / PATCH / DELETE
-- **Ruta:** /v1/...
-- **Descripción:** qué debe hacer
+From the argument extract:
+- **HTTP method:** GET / POST / PUT / PATCH / DELETE
+- **Path:** /v1/...
+- **Description:** what it should do
 
-Muestra un plan al usuario antes de escribir código:
+Show a plan to the user before writing any code:
 ```
-Endpoint: [MÉTODO] [ruta]
-Descripción: [qué hace]
+Endpoint: [METHOD] [path]
+Description: [what it does]
 
-Archivos a crear/modificar:
-- [ ] DTO Request: dtos/request/[Nombre]Request.java (si aplica)
-- [ ] DTO Response: dtos/response/[Nombre]Response.java (si aplica)
-- [ ] Servicio: services/[Nombre]Service.java o método en servicio existente
-- [ ] Controller: método en controller apropiado con anotaciones Swagger
-- [ ] Excepciones: si hay nuevos casos de error
-- [ ] ErrorType: si hay nuevos códigos de error
-- [ ] SecurityConfig: si el endpoint es público o requiere rol específico
-- [ ] GlobalExceptionHandler: si hay nuevas excepciones
+Files to create/modify:
+- [ ] DTO Request: dtos/request/[Name]Request.java (if applicable)
+- [ ] DTO Response: dtos/response/[Name]Response.java (if applicable)
+- [ ] Service: services/[Name]Service.java or method in existing service
+- [ ] Controller: method in the appropriate controller with Swagger annotations
+- [ ] Exceptions: if there are new error cases
+- [ ] ErrorType: if there are new error codes
+- [ ] SecurityConfig: if the endpoint is public or requires a specific role
+- [ ] GlobalExceptionHandler: if there are new exceptions
 
-¿Continúo con esta implementación? (sí/no/modificar)
+Proceed with this implementation? (yes/no/modify)
 ```
 
-## Paso 2: Crear los archivos
+## Step 2: Create the files
 
-Sigue el orden: Excepciones → DTOs → Servicio → Controller → Security → Handler
+Follow this order: Exceptions → DTOs → Service → Controller → Security → Handler
 
-### Convenciones obligatorias:
+### Required conventions:
 
-**DTOs Request:**
+**Request DTOs:**
 ```java
-public record NombreRequest(
-    @NotBlank String campo,
-    @Valid @StrongPassword String password // si aplica
+public record NameRequest(
+    @NotBlank String field,
+    @Valid @StrongPassword String password // if applicable
 ) {}
 ```
 
-**DTOs Response:**
+**Response DTOs:**
 ```java
-public record NombreResponse(
-    // solo campos necesarios, nunca entidades JPA directamente
+public record NameResponse(
+    // only necessary fields, never JPA entities directly
 ) {}
 ```
 
-**Respuesta del endpoint:**
+**Endpoint response:**
 ```java
-// Siempre ResponseEntity<ApiResponse<T>>
-return ResponseEntity.ok(ApiResponse.success(data));         // con datos
-return ResponseEntity.ok(ApiResponse.emptySuccess());        // sin datos
-return ResponseEntity.badRequest().body(ApiResponse.error(ErrorType.CODIGO)); // error
-
-// Firma real de ApiResponse:
-// ApiResponse.success(T data)
-// ApiResponse.emptySuccess()
-// ApiResponse.error(ErrorType message)
+// Always ResponseEntity<ApiResponse<T>>
+return ResponseEntity.ok(ApiResponse.success(data));                              // with data
+return ResponseEntity.ok(ApiResponse.emptySuccess());                             // no data
+return ResponseEntity.badRequest().body(ApiResponse.error(ErrorType.CODE));       // error
 ```
 
-**Método del controller:**
+**Controller method:**
 ```java
-// Siempre incluir @Operation con summary, description y @ApiResponse por cada código HTTP posible
-@Operation(summary = "Título corto",
-    description = "Descripción detallada de qué hace y casos especiales.")
-@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Éxito")
-@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Datos inválidos (código 7-10)")
-// Si requiere auth:
-@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Token inválido (código 4)")
-// Siempre incluir @RequestBody @Valid en POST/PUT para activar las validaciones del DTO
-@PostMapping("/ruta")
-public ResponseEntity<ApiResponse<NombreResponse>> metodo(
-        @RequestBody @Valid NombreRequest request,
-        HttpServletRequest httpRequest) {  // solo si necesitas info del dispositivo
+@Operation(summary = "Short title",
+    description = "Detailed description of what it does and edge cases.")
+@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Success")
+@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid input (code 7-10)")
+// If auth required:
+@io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "Invalid token (code 4)")
+// Always include @RequestBody @Valid on POST/PUT to activate DTO validation
+@PostMapping("/path")
+public ResponseEntity<ApiResponse<NameResponse>> method(
+        @RequestBody @Valid NameRequest request,
+        HttpServletRequest httpRequest) {  // only if device info is needed
     ...
 }
 ```
 
-**Endpoints protegidos con JWT** — añadir `security` a `@Operation`:
+**Protected endpoints with JWT** — add `security` to `@Operation`:
 ```java
 @Operation(summary = "...", security = @SecurityRequirement(name = "bearerAuth"))
 ```
 
-**Seguridad del endpoint:**
-Añadir a SecurityConfig en la sección correcta:
-- `.requestMatchers(HttpMethod.POST, "/v1/ruta").permitAll()` — si es público
-- Nada si requiere solo autenticación (ya está cubierto)
-- `.requestMatchers("/v1/ruta").hasRole("ADMIN")` — si requiere rol específico
+**Endpoint security:**
+Add to `SecurityConfig` in the correct section:
+- `.requestMatchers(HttpMethod.POST, "/v1/path").permitAll()` — if public
+- Nothing if it only requires authentication (already covered by the filter)
+- `.requestMatchers("/v1/path").hasRole("ADMIN")` — if a specific role is required
 
-## Paso 3: Actualizar CLAUDE.md
+## Step 3: Update CLAUDE.md
 
-Añade el nuevo endpoint a la tabla de endpoints en CLAUDE.md.
+Add the new endpoint to the endpoints table in CLAUDE.md.
 
-## Paso 4: Recordatorio
+## Step 4: Reminder
 
-Al terminar, indica:
-> "Endpoint creado. Considera agregar tests y luego usa `/commit` para guardar los cambios."
+When done, indicate:
+> "Endpoint created. Consider adding tests, then use `/commit` to save the changes."
