@@ -4,7 +4,7 @@
 
 REST API built with Spring Boot for managing **virtual sports clubs**. Currently implements the full authentication system.
 
-- **App version:** 0.1.0 | **Spring Boot:** 4.0.5 | **Java:** 25
+- **App version:** 0.1.1 | **Spring Boot:** 4.0.5 | **Java:** 25
 - **Database:** PostgreSQL
 - **Production URL:** https://api-vc.rgal.dev
 - **Swagger UI:** https://api-vc.rgal.dev/swagger-ui.html
