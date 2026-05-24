@@ -1,11 +1,13 @@
 # /add-test — Generate Tests for a Class
 
-Generates unit and integration tests for a project class.
+Generates unit and integration tests for a project class. Executes immediately without waiting for confirmation.
 
 ## Usage
 - `/add-test UserEntityServiceImpl`
 - `/add-test TokensService`
 - `/add-test AuthController`
+
+---
 
 ## Step 1: Locate the class
 
@@ -15,111 +17,173 @@ Find the file in `src/main/java/` and read it completely to understand:
 - The exceptions it can throw
 - The error and success cases for each method
 
-## Step 2: Check existing tests
+Also check `src/test/java/` for existing tests to avoid duplication.
 
-Look in `src/test/java/` for existing tests for this class. If found, read them to avoid duplication.
+---
 
-## Step 3: Plan the tests
+## Step 2: Choose the test type
 
-Before writing code, show the plan:
+| Class type | Test strategy |
+|------------|---------------|
+| Service / Util / Validator | Unit test with Mockito (`@ExtendWith(MockitoExtension.class)`) |
+| Controller | `@WebMvcTest` — web layer only, no DB |
+| Full flow (auth, tokens, email) | `@SpringBootTest(webEnvironment = MOCK)` with H2 |
+| Spring Security filter | Use `/add-filter-test` instead |
+| `@RestControllerAdvice` | Use `/add-exception-handler-test` instead |
 
+---
+
+## Step 3: Generate the tests immediately
+
+Write every test case without pausing for confirmation. Cover:
+- Happy path for every public method
+- Every exception the method can throw
+- Edge cases visible in the implementation (null inputs, empty collections, boundary conditions)
+
+### Project-specific patterns — ALWAYS apply these
+
+**Imports (Spring Boot 4.x / Jackson 3.x):**
+```java
+import tools.jackson.databind.ObjectMapper;                       // NOT com.fasterxml
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean; // NOT @MockBean
 ```
-Tests to generate for [ClassName]:
 
-Method: [name]
-  ✓ happy path: [description]
-  ✗ error case: [exception] when [condition]
-  ✗ error case: [exception] when [condition]
-
-Method: [name]
-  ✓ happy path: [description]
-  ...
-
-Test type: [Unit with Mockito / Integration with @SpringBootTest]
-File: src/test/java/galindo/raul/virtualclubs/[package]/[ClassName]Test.java
-
-Proceed with this implementation? (yes/no/modify)
+**Profiles and transaction:**
+```java
+@ActiveProfiles({"dev", "test"})   // always both for integration tests
+@Transactional                      // integration tests auto-rollback after each test
 ```
 
-## Step 4: Generate the tests
+**Mocking external services — always @MockitoBean for:**
+- `GoogleAuthService` — would call Google APIs
+- `EmailService` — would send real emails
 
-### Base structure for unit tests (services):
+**Password valid for tests:** `"PAss12"` (2 upper, 2 lower, 1 digit — passes `@StrongPassword` and `@Size(min=6)`)
+
+---
+
+### Unit test structure (services, utils):
+
 ```java
 @ExtendWith(MockitoExtension.class)
-class ClassNameTest {
+class UserEntityServiceImplTest {
 
-    @Mock
-    private DependencyRepository dependencyRepository; // one per dependency
+    @Mock private UserEntityRepository userRepository;
+    @Mock private PasswordEncoder passwordEncoder;
 
-    @InjectMocks
-    private ClassName className;
+    @InjectMocks private UserEntityServiceImpl userService;
 
     @Test
-    @DisplayName("Readable description of the case")
-    void methodHappyPath() {
+    void registerUser_emailNuevo_retornaUsuarioGuardado() {
         // Arrange
-        when(dependency.method(any())).thenReturn(mockValue);
+        when(userRepository.existsByEmail("test@test.com")).thenReturn(false);
+        when(passwordEncoder.encode("PAss12")).thenReturn("hashed");
+        when(userRepository.save(any())).thenAnswer(inv -> inv.getArgument(0));
 
         // Act
-        ReturnType result = className.method(param);
+        UserEntity result = userService.registerUser("test@test.com", "PAss12");
 
         // Assert
-        assertThat(result).isNotNull();
-        verify(dependency, times(1)).method(any());
+        assertThat(result.getEmail()).isEqualTo("test@test.com");
+        verify(userRepository).save(any(UserEntity.class));
     }
 
     @Test
-    @DisplayName("Throws [Exception] when [condition]")
-    void methodThrowsException() {
-        // Arrange
-        when(dependency.method(any())).thenReturn(Optional.empty());
+    void registerUser_emailDuplicado_lanzaUserAlreadyExistException() {
+        when(userRepository.existsByEmail("test@test.com")).thenReturn(true);
 
-        // Act & Assert
-        assertThrows(ExpectedException.class, () -> className.method(param));
+        assertThrows(UserAlreadyExistException.class,
+                () -> userService.registerUser("test@test.com", "PAss12"));
     }
 }
 ```
 
-### Base structure for integration tests (controllers):
+---
+
+### @WebMvcTest structure (controller — web layer only):
+
+```java
+@WebMvcTest(AuthController.class)
+@ActiveProfiles({"dev", "test"})
+class AuthControllerUnitTest {
+
+    @Autowired private MockMvc mockMvc;
+
+    @MockitoBean private UserEntityServiceImpl userService;
+    @MockitoBean private TokensService tokensService;
+    // ... one @MockitoBean per dependency the controller uses
+
+    @TestConfiguration
+    @EnableWebSecurity
+    static class TestSecurityConfig {
+        @Bean
+        SecurityFilterChain testSecurityFilterChain(HttpSecurity http,
+                JwtUtils jwtUtils, UserEntityServiceImpl userService,
+                ObjectMapper objectMapper) throws Exception {
+            JwtAuthFilter jwtAuthFilter = new JwtAuthFilter(jwtUtils, userService, objectMapper);
+            http
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/v1/auth/register", "/v1/auth/refresh", "/v1/auth/google").permitAll()
+                    .anyRequest().authenticated())
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+            return http.build();
+        }
+    }
+}
+```
+
+---
+
+### Integration test structure (full context with H2):
+
 ```java
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
 @ActiveProfiles({"dev", "test"})
 @Transactional
-class ControllerNameTest {
+class AuthControllerIntegrationTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+    @Autowired private MockMvc mockMvc;
+    @Autowired private ObjectMapper objectMapper;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    @MockitoBean private GoogleAuthService googleAuthService;
+    @MockitoBean private EmailService emailService;
 
     @Test
-    @DisplayName("POST /path - happy path")
-    void endpointHappyPath() throws Exception {
-        var request = new NameRequest(...);
-
-        mockMvc.perform(post("/v1/path")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.data").exists());
+    void register_usuarioNuevo_retorna201ConTokens() throws Exception {
+        mockMvc.perform(post("/v1/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"test@test.com\",\"password\":\"PAss12\"}"))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.accessToken").isNotEmpty());
     }
 }
 ```
 
-### Conventions:
-- One test method per case (do not mix scenarios)
-- `@DisplayName` in English, human-readable ("Throws exception when email already exists")
-- **Arrange / Act / Assert** structure with comments
-- Mock only external dependencies (repositories, external services)
-- Never mock the class under test
+---
 
-## Step 5: Create the file
+### Naming convention for test methods:
 
-Create the file at the correct path inside `src/test/java/`.
+```
+[method]_[condition]_[expected outcome]
+```
 
-## Step 6: Reminder
+Examples:
+- `registerUser_emailDuplicado_lanzaUserAlreadyExistException`
+- `getNewTokens_usuarioValido_retornaTokesConAccessYRefresh`
+- `logout_sinAutenticacion_retorna403`
 
-When done, report how many cases were covered and which ones remain.
-Suggest running `./mvnw test` to verify they pass.
+---
+
+## Step 4: Run the tests
+
+After creating the file, run:
+```bash
+./mvnw test -Dtest=ClassName --no-transfer-progress
+```
+
+Report the result: how many tests were created, how many passed, and which cases remain uncovered.
