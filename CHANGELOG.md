@@ -16,6 +16,20 @@ and this project follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [0.2.0] — 2026-05-24
+
+### Added
+- Splash screen with invisible auto-login; eliminates auth flash on app launch — VC-95
+
+### Changed
+- Refactor AuthPage to Design System Stadium tokens (VCTheme, VCGradient, VCSpacing, VCMotion, VCShapes) — VC-89
+
+### Internal
+- Improve Claude Code skills and add three new project-specific skills
+- Add unit and integration tests for auth filter, exception handler, and security config
+
+---
+
 ## [0.1.1] — 2026-05-02
 
 ### Fixed
