@@ -9,6 +9,7 @@ import galindo.raul.virtualclubs.repositories.UserEntityRepository;
 import jakarta.annotation.PreDestroy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Profile;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.Method;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.time.Instant;
 
 @Component
@@ -33,6 +36,9 @@ public class SandboxDataInitializer implements ApplicationRunner {
     private final UserEntityRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${server.port:8080}")
+    private int serverPort;
+
     private Object h2WebServer;
 
     @Override
@@ -41,6 +47,7 @@ public class SandboxDataInitializer implements ApplicationRunner {
         seedRoles();
         seedTestUser();
         startH2Console();
+        printBanner();
     }
 
     @PreDestroy
@@ -59,9 +66,34 @@ public class SandboxDataInitializer implements ApplicationRunner {
             h2WebServer = createWebServer.invoke(null,
                     (Object) new String[]{"-web", "-webPort", String.valueOf(H2_CONSOLE_PORT), "-webDaemon"});
             serverClass.getMethod("start").invoke(h2WebServer);
-            log.debug("[SANDBOX] Servidor H2 arrancado en el puerto {}", H2_CONSOLE_PORT);
         } catch (Exception e) {
             log.warn("[SANDBOX] No se pudo arrancar la consola H2: {}", e.getMessage());
+        }
+    }
+
+    private void printBanner() {
+        String ip = resolveLocalIp();
+        log.info("""
+
+                ╔══════════════════════════════════════════════╗
+                ║       SANDBOX — Usuario de prueba listo      ║
+                ║                                              ║
+                ║  Email:    test@sandbox.local                ║
+                ║  Password: VCtest123!  (verificado ✓)        ║
+                ╚══════════════════════════════════════════════╝
+
+                  Swagger  →  http://{}:{}/swagger-ui/index.html
+                  H2       →  http://{}:{}  (JDBC: jdbc:h2:mem:virtualclubs)
+                """, ip, serverPort, ip, H2_CONSOLE_PORT);
+    }
+
+    private String resolveLocalIp() {
+        try (DatagramSocket socket = new DatagramSocket()) {
+            // No se conecta realmente — solo pregunta al SO qué interfaz usaría
+            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+            return socket.getLocalAddress().getHostAddress();
+        } catch (Exception e) {
+            return "localhost";
         }
     }
 
@@ -74,9 +106,7 @@ public class SandboxDataInitializer implements ApplicationRunner {
     }
 
     private void seedTestUser() {
-        if (userRepository.findByEmail(SANDBOX_EMAIL).isPresent()) {
-            return;
-        }
+        if (userRepository.findByEmail(SANDBOX_EMAIL).isPresent()) return;
 
         RoleEntity userRole = roleRepository.findByRole(Role.USER)
                 .orElseThrow(() -> new IllegalStateException("[SANDBOX] Role USER no encontrado"));
@@ -96,20 +126,6 @@ public class SandboxDataInitializer implements ApplicationRunner {
 
         user.addAuthProvider(localProvider);
         userRepository.save(user);
-
-        log.info("""
-
-                ╔══════════════════════════════════════════════════════╗
-                ║          SANDBOX — Usuario de prueba listo           ║
-                ║                                                      ║
-                ║  Email:      test@sandbox.local                      ║
-                ║  Password:   VCtest123!                              ║
-                ║  Estado:     email verificado ✓                      ║
-                ║                                                      ║
-                ║  Consola H2: http://localhost:8082                   ║
-                ║  JDBC URL:   jdbc:h2:mem:virtualclubs                ║
-                ║  Swagger:    http://localhost:8080/swagger-ui/index.html ║
-                ╚══════════════════════════════════════════════════════╝
-                """);
+        log.debug("[SANDBOX] Usuario de prueba creado: {}", SANDBOX_EMAIL);
     }
 }
