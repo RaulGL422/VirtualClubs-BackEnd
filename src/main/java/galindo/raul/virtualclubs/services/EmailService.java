@@ -44,6 +44,7 @@ public class EmailService {
       String html = templateEngine.process(request.template(), context);
       helper.setText(html, true);
 
+      log.debug("[EMAIL] to={} subject='{}' template={} model={}", request.to(), request.subject(), request.template(), request.model());
       mailSender.send(message);
       log.info("Email enviado a: {}", request.to());
 
