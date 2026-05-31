@@ -40,8 +40,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * - POST /v1/auth/refresh  → {"success":true, "message":null, "data":{"accessToken":"...","refreshToken":"..."}}
  * - DELETE /v1/auth/logout → {"success":true, "message":null, "data":null}  (requiere Bearer token)
  *
- * Contraseña válida: mínimo 2 mayúsculas, 2 minúsculas, 1 dígito (@StrongPassword) y mínimo 6 caracteres (@Size).
- * Ejemplo usado en tests: "PAss12" (P,A mayúsculas | s,s minúsculas | 1,2 dígitos — cumple @StrongPassword y @Size(min=6)).
+ * Contraseña válida: mínimo 6 caracteres, al menos 1 letra y 1 dígito (@StrongPassword).
+ * Ejemplo usado en tests: "PAss12" — cumple @StrongPassword (letras + dígitos, 6 chars).
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
@@ -51,7 +51,7 @@ class AuthControllerIntegrationTest {
 
     private static final String BASE    = "/v1/auth";
     private static final String EMAIL   = "test@test.com";
-    private static final String PASSWORD = "PAss12"; // 2 upper, 2 lower, 2 digits — cumple @StrongPassword y @Size(min=6)
+    private static final String PASSWORD = "PAss12"; // letras + dígitos, 6 chars — cumple @StrongPassword
 
     @Autowired private MockMvc mockMvc;
     @Autowired private ObjectMapper objectMapper;

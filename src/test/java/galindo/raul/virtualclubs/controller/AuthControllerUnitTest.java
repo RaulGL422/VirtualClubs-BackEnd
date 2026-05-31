@@ -59,7 +59,7 @@ class AuthControllerUnitTest {
 
     private static final String BASE     = "/v1/auth";
     private static final String EMAIL    = "unit@test.com";
-    private static final String PASSWORD = "PAss12"; // 2 upper, 2 lower, 2 digits
+    private static final String PASSWORD = "PAss12"; // letras + dígitos, 6 chars — cumple @StrongPassword
 
     @Autowired private MockMvc mockMvc;
 

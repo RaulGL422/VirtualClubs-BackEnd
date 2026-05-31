@@ -149,7 +149,7 @@ Global config lives in `config/OpenApiConfig.java`. Swagger UI is public at `/sw
 - An invalid/expired `Bearer` token on **any** endpoint — including `permitAll()` ones — returns 401 + `ApiResponse.error(ErrorType.INVALID_TOKEN)`
 
 ### Password Rules (`@StrongPassword`)
-Minimum: 2 uppercase, 2 lowercase, 1 digit.
+Minimum 6 characters, at least 1 letter (any case) and 1 digit.
 
 ### Rate Limiting
 - Configured in `application.properties` under the `rate-limiting.limits` prefix

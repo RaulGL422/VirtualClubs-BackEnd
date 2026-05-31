@@ -9,19 +9,19 @@ import jakarta.validation.ConstraintValidatorContext;
  * Validates that a string meets specific complexity requirements.
  */
 public class StrongPasswordValidator implements ConstraintValidator<StrongPassword, String> {
-  
+
   /**
    * Regular expression for password validation.
-   * Requires at least 2 uppercase letters, 2 lowercase letters, and 1 digit.
+   * Requires at least 1 letter, 1 digit, and a minimum length of 6 characters.
    */
   private static final String PASSWORD_REGEX =
-      "^(?=(?:.*[A-Z]){2,})(?=(?:.*[a-z]){2,})(?=.*\\d).*$";
+      "^(?=.*[a-zA-Z])(?=.*\\d).{6,}$";
   
   /**
-   * Validates the given password against the security requirements.
+   * Validates the given password against the requirements.
    *
    * @param password the password string to validate.
-   * @param context context in which the constraint is evaluated.
+   * @param context  context in which the constraint is evaluated.
    * @return true if the password matches the regex and is not null, false otherwise.
    */
   @Override
