@@ -78,9 +78,9 @@ public class SandboxDataInitializer implements ApplicationRunner {
                 ║  Password:   VCtest123!                              ║
                 ║  Estado:     email verificado ✓                      ║
                 ║                                                      ║
-                ║  Consola H2: http://localhost:8080/h2-console        ║
+                ║  Consola H2: http://localhost:8080/h2-console/       ║
                 ║  JDBC URL:   jdbc:h2:mem:virtualclubs                ║
-                ║  Swagger:    http://localhost:8080/swagger-ui.html   ║
+                ║  Swagger:    http://localhost:8080/swagger-ui/index.html ║
                 ╚══════════════════════════════════════════════════════╝
                 """);
     }

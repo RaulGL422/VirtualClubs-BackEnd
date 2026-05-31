@@ -17,15 +17,13 @@ import org.springframework.security.web.SecurityFilterChain;
 @Profile("sandbox")
 public class SandboxSecurityConfig {
 
-    private static final String H2_CONSOLE_PATH = "/h2-console/**";
-
     @Bean
     @Order(1)
     public SecurityFilterChain h2ConsoleSecurityFilterChain(HttpSecurity http) throws Exception {
         http
-                .securityMatcher(H2_CONSOLE_PATH)
+                .securityMatcher("/h2-console", "/h2-console/**")
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .csrf(csrf -> csrf.ignoringRequestMatchers(H2_CONSOLE_PATH))
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/h2-console", "/h2-console/**"))
                 .headers(headers -> headers
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
         return http.build();
