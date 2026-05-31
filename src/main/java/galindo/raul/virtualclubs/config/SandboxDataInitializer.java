@@ -82,9 +82,10 @@ public class SandboxDataInitializer implements ApplicationRunner {
                 ║  Password: VCtest123!  (verificado ✓)        ║
                 ╚══════════════════════════════════════════════╝
 
+                  App      →  http://{}:{}
                   Swagger  →  http://{}:{}/swagger-ui/index.html
                   H2       →  http://{}:{}  (JDBC: jdbc:h2:mem:virtualclubs)
-                """, ip, serverPort, ip, H2_CONSOLE_PORT);
+                """, ip, serverPort, ip, serverPort, ip, H2_CONSOLE_PORT);
     }
 
     private String resolveLocalIp() {
