@@ -13,17 +13,17 @@ class StrongPasswordValidatorTest {
 
     /**
      * Tabla exhaustiva de contraseñas contra el regex:
-     * ≥2 mayúsculas, ≥2 minúsculas, ≥1 dígito.
+     * ≥1 letra (mayúscula o minúscula), ≥1 dígito, longitud mínima 6.
      */
     @ParameterizedTest(name = "[{index}] ''{0}'' → válida={1}")
     @CsvSource({
-        "PAss12,   true",   // exactamente el mínimo: 2U 2L 1D
-        "AaBb1cDd, true",   // más chars de los necesarios
-        "abcde12,  false",  // 0 mayúsculas
-        "ABCDE12,  false",  // 0 minúsculas
-        "PASSword, false",  // 0 dígitos
-        "Aa1bbbbb, false",  // solo 1 mayúscula — necesita ≥2
-        "AAbbbbbb, false",  // 2U 2L pero 0D
+        "abc123,    true",   // mínimo estricto: 1 letra, 1 dígito, 6 chars
+        "PAss12,    true",   // mezcla de mayúsculas/minúsculas + dígitos
+        "password1, true",   // solo minúsculas + 1 dígito
+        "UPPER123,  true",   // solo mayúsculas + dígitos
+        "abcde,     false",  // sin dígito
+        "123456,    false",  // sin letra
+        "abc12,     false",  // 5 chars — menos del mínimo de 6
     })
     void validate_variasContrasenas(String password, boolean esperado) {
         assertThat(validator.isValid(password.strip(), null)).isEqualTo(esperado);

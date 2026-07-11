@@ -29,6 +29,24 @@ REST API built with Spring Boot for managing **virtual sports clubs**. Currently
    ./mvnw test
    ```
 
+### Sandbox profile — BD limpia sin configuración
+
+Arranca la app con una BD H2 en memoria, sin variables de entorno y con un usuario de prueba ya listo:
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=sandbox
+```
+
+| Detalle | Valor |
+|---------|-------|
+| Email de prueba | `test@sandbox.local` |
+| Password | `VCtest123!` |
+| Email verificado | Sí (listo para login directo) |
+| Swagger UI | http://localhost:8080/swagger-ui.html |
+| Consola H2 | http://localhost:8080/h2-console (JDBC: `jdbc:h2:mem:virtualclubs`, user: `sa`) |
+
+**Comportamiento del email en sandbox:** los correos no se envían pero su contenido completo (incluida la URL del token) aparece en la consola al nivel `DEBUG`. Útil para probar los flujos de verificación y reset de contraseña sin necesitar una cuenta de Resend.
+
 ---
 
 ## Architecture
@@ -131,7 +149,7 @@ Global config lives in `config/OpenApiConfig.java`. Swagger UI is public at `/sw
 - An invalid/expired `Bearer` token on **any** endpoint — including `permitAll()` ones — returns 401 + `ApiResponse.error(ErrorType.INVALID_TOKEN)`
 
 ### Password Rules (`@StrongPassword`)
-Minimum: 2 uppercase, 2 lowercase, 1 digit.
+Minimum 6 characters, at least 1 letter (any case) and 1 digit.
 
 ### Rate Limiting
 - Configured in `application.properties` under the `rate-limiting.limits` prefix
