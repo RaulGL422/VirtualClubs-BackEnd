@@ -4,6 +4,9 @@ on:
   push:
     branches: [development]
 
+permissions:
+  contents: write
+
 jobs:
   update-graph:
     runs-on: ubuntu-latest
@@ -22,9 +25,12 @@ jobs:
           git diff --staged --quiet || git commit -m "chore: update knowledge graph"
           git push
       - name: Notify hub repo
+        # GITHUB_TOKEN is scoped to this repo only; a repository_dispatch on
+        # virtualclubs-graph-hub needs a separate fine-grained PAT with
+        # Contents: Read and write on that repo, stored here as GRAPH_HUB_TOKEN.
         run: |
           curl -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: token ${{ secrets.GRAPH_HUB_TOKEN }}" \
             -H "Accept: application/vnd.github.v3+json" \
             https://api.github.com/repos/raulgl422/virtualclubs-graph-hub/dispatches \
             -d '{"event_type":"graph-updated"}'
