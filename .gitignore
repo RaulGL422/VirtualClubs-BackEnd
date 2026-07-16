@@ -52,3 +52,8 @@ graphify-out/cost.json
 # graphify — backups fechados del grafo previos a cada update (solo red de seguridad local)
 graphify-out/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
 
+# graphify — rutas locales de esta máquina (intérprete Python, raíz absoluta);
+# no portables entre contribuidores ni válidas para el runner de CI
+graphify-out/.graphify_python
+graphify-out/.graphify_root
+
