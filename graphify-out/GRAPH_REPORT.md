@@ -5,12 +5,12 @@
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1242 nodes · 2596 edges · 77 communities (68 shown, 9 thin omitted)
+- 1242 nodes · 2595 edges · 78 communities (69 shown, 9 thin omitted)
 - Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 245 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `ddcdc8ae`
+- Built from commit: `95ec4c93`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -90,6 +90,7 @@
 - ExtendWith
 - Component
 - Override
+- Contributing to VirtualClubs Backend
 - Startup Banner (banner.txt)
 - TokensService
 
@@ -126,7 +127,7 @@
 - **Error handling pattern: ErrorType, GlobalExceptionHandler, ApiResponse, add-error-type command** — src_main_java_galindo_raul_virtualclubs_models_enums_errortype_errortype, src_main_java_galindo_raul_virtualclubs_controller_globalexceptionhandler_globalexceptionhandler, src_main_java_galindo_raul_virtualclubs_dtos_response_apiresponse_apiresponse, claude_commands_add_error_type_add_error_type [EXTRACTED 0.90]
 - **Thymeleaf Email Template System (layout fragment + verify/reset content templates)** — src_main_resources_templates_layout_layout_fragment, src_main_resources_templates_password_reset_email_template, src_main_resources_templates_verify_email_template [EXTRACTED 1.00]
 
-## Communities (77 total, 9 thin omitted)
+## Communities (78 total, 9 thin omitted)
 
 ### Community 0 - "Login Filter & Auth Controller"
 Cohesion: 0.17
@@ -257,8 +258,8 @@ Cohesion: 0.11
 Nodes (21): AuthenticationException, Authentication, AuthenticationManager, FilterChain, HttpServletRequest, HttpServletResponse, ObjectMapper, Override (+13 more)
 
 ### Community 36 - "CLAUDE.md — Virtual Clubs Backend"
-Cohesion: 0.05
-Nodes (39): Active Endpoints, API Versioning, Architecture, CI/CD, CLAUDE.md — Virtual Clubs Backend, Contributing, Database Migrations (Flyway), Deprecation headers (+31 more)
+Cohesion: 0.07
+Nodes (26): Active Endpoints, API Versioning, Architecture, CI/CD, CLAUDE.md — Virtual Clubs Backend, Contributing, Database Migrations (Flyway), Deprecation headers (+18 more)
 
 ### Community 37 - "Virtual Clubs — Backend API"
 Cohesion: 0.25
@@ -396,6 +397,10 @@ Nodes (4): Authentication — `/v1/auth`, Endpoints, Error codes, Response forma
 Cohesion: 0.50
 Nodes (4): Autenticación — `/v1/auth`, Códigos de error, Endpoints, Formato de respuesta
 
+### Community 75 - "Contributing to VirtualClubs Backend"
+Cohesion: 0.14
+Nodes (13): Branch naming, Code style, Commit format, Conventional Commits, Contributing to VirtualClubs Backend, Getting started, Opening a pull request, Rules (+5 more)
+
 ### Community 84 - "TokensService"
 Cohesion: 0.60
 Nodes (4): /explain command, RequiredArgsConstructor, Service, TokensService
@@ -405,7 +410,7 @@ Nodes (4): /explain command, RequiredArgsConstructor, Service, TokensService
   .claude/commands/check-security.md · relation: references
 
 ## Knowledge Gaps
-- **242 isolated node(s):** `galindo.raul:virtualclubs`, `INTERNAL_ERROR`, `INVALID_CREDENTIALS`, `INVALID_REFRESH_TOKEN`, `INVALID_TOKEN` (+237 more)
+- **242 isolated node(s):** `Project Overview`, `Sandbox profile — BD limpia sin configuración`, `Architecture`, `Active Endpoints`, `Support policy` (+237 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -415,12 +420,12 @@ _Questions this graph is uniquely positioned to answer:_
 - **What is the exact relationship between `TokenUtils` and `/check-security command`?**
   _Edge tagged AMBIGUOUS (relation: references) - confidence is low._
 - **Why does `UserEntity` connect `User Entity Service Impl` to `Login Filter & Auth Controller`, `Refresh & User Token Utilities`, `Device & Refresh Token Persistence`, `JwtAuthLoginFilter.java`, `Google Auth & Security Integration Tests`, `Email Notification Service`, `RequestPasswordResetRequest`, `Test`, `/check-structure command`, `AuthProviderEntity`, `Role Entity & Seeding`, `Password Reset Integration Tests`, `User Entity & Exceptions`, `TokensService`, `User Entity Service Tests`, `JWT Token Validation Tests`, `SecurityConfigIntegrationTest`?**
-  _High betweenness centrality (0.155) - this node is a cross-community bridge._
+  _High betweenness centrality (0.162) - this node is a cross-community bridge._
 - **Why does `GoogleAuthService` connect `Google Auth Integration Tests` to `Login Filter & Auth Controller`, `Global Exception Handling`, `Auth Controller Integration Test Utils`, `Auth Controller Unit Tests`, `Email Verification Integration Tests`, `Endpoints`, `User Entity Service Tests`, `Endpoints`?**
-  _High betweenness centrality (0.089) - this node is a cross-community bridge._
-- **Why does `JwtUtils` connect `JWT Utils & Properties` to `RequestPasswordResetRequest`, `Auth Controller Unit Tests`, `Security Config & CORS`, `Token Refresh Service`, `JWT Auth Filter Tests`, `TokensService`, `User Entity Service Tests`, `JWT Auth Filter & ErrorType`?**
-  _High betweenness centrality (0.054) - this node is a cross-community bridge._
-- **What connects `galindo.raul:virtualclubs`, `INTERNAL_ERROR`, `INVALID_CREDENTIALS` to the rest of the system?**
+  _High betweenness centrality (0.093) - this node is a cross-community bridge._
+- **Why does `AuthController` connect `User Entity Service Tests` to `RequestPasswordResetRequest`, `Global Exception Handling`, `JwtAuthLoginFilter.java`, `Google Auth Integration Tests`, `Test`, `Security Config & CORS`, `/check-structure command`, `Password Reset Integration Tests`, `TokensService`, `JWT Utils & Properties`?**
+  _High betweenness centrality (0.061) - this node is a cross-community bridge._
+- **What connects `Project Overview`, `Sandbox profile — BD limpia sin configuración`, `Architecture` to the rest of the system?**
   _242 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Device & Refresh Token Persistence` be split into smaller, more focused modules?**
   _Cohesion score 0.07547169811320754 - nodes in this community are weakly interconnected._
