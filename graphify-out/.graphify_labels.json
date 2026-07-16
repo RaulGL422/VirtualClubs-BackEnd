@@ -74,19 +74,6 @@
   "72": "ExtendWith",
   "73": "Component",
   "74": "Override",
-  "75": "PasswordEncoder",
-  "76": "Profile",
-  "77": "RequiredArgsConstructor",
-  "78": "Slf4j",
-  "79": "Transactional",
   "80": "Startup Banner (banner.txt)",
-  "81": "PasswordEncoder",
-  "82": "Test",
-  "83": "[0.1.0] — 2026-04-02",
-  "84": "TokensService",
-  "85": "[0.2.0] — 2026-05-24",
-  "86": "[0.0.3] — 2026-03-28",
-  "87": "ExtendWith",
-  "88": "PasswordEncoder",
-  "89": "Test"
+  "84": "TokensService"
 }

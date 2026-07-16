@@ -1,7 +1,7 @@
 {
   ".claude/settings.json": {
-    "mtime": 1784127126.8992257,
-    "ast_hash": "da91ed73405df42c2bc8f555f4ec546e",
+    "mtime": 1784203021.6571019,
+    "ast_hash": "7a36d37e87425738b260e493aae675e9",
     "semantic_hash": ""
   },
   "mvnw": {
@@ -45,7 +45,7 @@
     "semantic_hash": "c13d10939b10798a430d16ac75dbd248"
   },
   "src/main/java/galindo/raul/virtualclubs/config/SandboxDataInitializer.java": {
-    "mtime": 1784127191.2989364,
+    "mtime": 1784203021.682101,
     "ast_hash": "467ec743b013fbf5bdf90a1e7200e013",
     "semantic_hash": ""
   },
@@ -470,7 +470,7 @@
     "semantic_hash": "520ee255804a12c256e7d82b8cde2c20"
   },
   "src/test/java/galindo/raul/virtualclubs/services/EmailServiceTest.java": {
-    "mtime": 1784127293.2723322,
+    "mtime": 1784203021.6841016,
     "ast_hash": "efa1724a05ab8f7fed07697ff57b33d4",
     "semantic_hash": ""
   },
@@ -480,7 +480,7 @@
     "semantic_hash": "d7d7a5e4d7a8866aae5da00564be9ba4"
   },
   "src/test/java/galindo/raul/virtualclubs/services/NotificationServiceTest.java": {
-    "mtime": 1784127306.633595,
+    "mtime": 1784203021.6851017,
     "ast_hash": "583c4613992f9fa765735c1dfdf0c9f7",
     "semantic_hash": ""
   },
@@ -495,8 +495,8 @@
     "semantic_hash": "b2540e1c91d61360bc63733fa6c56c24"
   },
   "src/test/java/galindo/raul/virtualclubs/services/UserEntityServiceTest.java": {
-    "mtime": 1784200535.482534,
-    "ast_hash": "1c514731054ba2c8658deee3e8d713b8",
+    "mtime": 1784203021.6861012,
+    "ast_hash": "fde488fe586e0eacfd636c658c7d068a",
     "semantic_hash": ""
   },
   "src/test/java/galindo/raul/virtualclubs/services/UserTokenServiceTest.java": {
@@ -565,7 +565,7 @@
     "semantic_hash": "e1816958bbff8436a934d69a2d137178"
   },
   ".claude/commands/check-security.md": {
-    "mtime": 1784127148.3576057,
+    "mtime": 1784203021.6561022,
     "ast_hash": "358af82fa8341cc5338647d3571b1bf8",
     "semantic_hash": ""
   },
@@ -625,8 +625,8 @@
     "semantic_hash": "a1dc88ddc22d7c16b1266afebeb5ac85"
   },
   "CLAUDE.md": {
-    "mtime": 1784127173.1278694,
-    "ast_hash": "fc723aaf355314dad07b234093e45f74",
+    "mtime": 1784204160.1459746,
+    "ast_hash": "6d4fa25d0ac6ff96615a0b83491e170a",
     "semantic_hash": ""
   },
   "CONTRIBUTING.md": {
@@ -635,12 +635,12 @@
     "semantic_hash": "18ba212b8a5180b7b5a393948e1616ca"
   },
   "README.es.md": {
-    "mtime": 1784127183.3752909,
+    "mtime": 1784203021.6621013,
     "ast_hash": "ba5f189ba765d4ad6a0dbc9f46cf7d60",
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1784127181.9069705,
+    "mtime": 1784203021.6631012,
     "ast_hash": "aef1253f6c5b1ff8d2a5fcc4314b9f15",
     "semantic_hash": ""
   },
@@ -670,12 +670,12 @@
     "semantic_hash": "15fc9e11aad2c8dbc5a2dbf3c256ccfd"
   },
   "src/test/java/galindo/raul/virtualclubs/config/security/filters/JwtAuthLoginFilterTest.java": {
-    "mtime": 1784127357.4169934,
-    "ast_hash": "12b19c906e8974ee6514eab040cffccd",
+    "mtime": 1784203021.683101,
+    "ast_hash": "b34de97e8c090be3cc2b127b8033dba3",
     "semantic_hash": ""
   },
   ".github/workflows/graphify.yml": {
-    "mtime": 1784200448.470334,
+    "mtime": 1784203021.6581025,
     "ast_hash": "7835a83419905e975fa5c8fb886f60f0",
     "semantic_hash": ""
   }
