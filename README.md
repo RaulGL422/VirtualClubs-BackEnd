@@ -1,6 +1,6 @@
 # Virtual Clubs — Backend API
 
-![Build](https://github.com/RaulGL422/VirtualClubs-BackEnd/actions/workflows/build.yml/badge.svg)
+![Build](https://github.com/RaulGL422/VirtualClubs-BackEnd/actions/workflows/deploy.yml/badge.svg)
 ![Java](https://img.shields.io/badge/Java-25-blue)
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.5-6DB33F)
 ![License](https://img.shields.io/github/license/RaulGL422/VirtualClubs-BackEnd)
@@ -10,7 +10,7 @@
 REST API for managing **virtual sports clubs**, built with Spring Boot 4 and Java 25. Currently implements a full authentication system with multi-device support, email verification, password reset, and Google login.
 
 > **Production API:** `https://api-vc.rgal.dev`
-> **Interactive docs:** `https://api-vc.rgal.dev/swagger-ui/index.html`
+> **Interactive docs:** `https://api-vc.rgal.dev/swagger-ui.html`
 
 ---
 

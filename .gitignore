@@ -45,3 +45,7 @@ target/
 # Tests de conectividad manual (no forman parte de la suite automática)
 src/test/java/**/EmailConnectivityTest.java
 
+# graphify — artefactos de build puros (cache de extraccion, contador de tokens)
+graphify-out/cache/
+graphify-out/cost.json
+
