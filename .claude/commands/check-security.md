@@ -10,9 +10,9 @@ Performs a security review focused on the project's code.
 
 If a file was passed as argument, audit that file.
 
-If not, get the files modified since main:
+If not, get the files modified since development:
 ```bash
-git diff main...HEAD --name-only -- "*.java"
+git diff development...HEAD --name-only -- "*.java"
 ```
 
 If no files are modified, audit the project's critical security files:

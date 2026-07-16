@@ -45,3 +45,15 @@ target/
 # Tests de conectividad manual (no forman parte de la suite automática)
 src/test/java/**/EmailConnectivityTest.java
 
+# graphify — artefactos de build puros (cache de extraccion, contador de tokens)
+graphify-out/cache/
+graphify-out/cost.json
+
+# graphify — backups fechados del grafo previos a cada update (solo red de seguridad local)
+graphify-out/[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/
+
+# graphify — rutas locales de esta máquina (intérprete Python, raíz absoluta);
+# no portables entre contribuidores ni válidas para el runner de CI
+graphify-out/.graphify_python
+graphify-out/.graphify_root
+

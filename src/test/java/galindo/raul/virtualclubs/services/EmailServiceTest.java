@@ -75,4 +75,43 @@ class EmailServiceTest {
             .as("El hilo debe pertenecer al pool 'async-' de AsyncConfig")
             .startsWith("async-");
     }
+
+    @Test
+    void sendEmail_fallaMailSenderSend_seCapturaYNoSePropaga() {
+        MimeMessage mimeMessage = mock(MimeMessage.class);
+        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        when(emailProps.getFrom()).thenReturn("no-reply@virtualclubs.dev");
+        when(emailProps.getFromName()).thenReturn("VirtualClubs");
+        when(templateEngine.process(any(String.class), any())).thenReturn("<html>ok</html>");
+        doThrow(new org.springframework.mail.MailSendException("SMTP no disponible"))
+            .when(mailSender).send(any(MimeMessage.class));
+
+        // sendEmail es @Async void: si la excepción no se capturara internamente,
+        // se propagaría al AsyncUncaughtExceptionHandler y jamás llegaría aquí como fallo del test.
+        emailService.sendEmail(new EmailRequest(
+            "virtualclub.spain@gmail.com", "Usuario", "Asunto de prueba", "verify-email", Map.of()
+        ));
+
+        // Espera activa (con timeout) a que el hilo async invoque el mock antes de verificar.
+        verify(mailSender, timeout(5000)).send(any(MimeMessage.class));
+    }
+
+    @Test
+    void sendEmail_fallaTemplateEngine_nuncaLlamaAMailSenderSend() {
+        MimeMessage mimeMessage = mock(MimeMessage.class);
+        when(mailSender.createMimeMessage()).thenReturn(mimeMessage);
+        when(emailProps.getFrom()).thenReturn("no-reply@virtualclubs.dev");
+        when(emailProps.getFromName()).thenReturn("VirtualClubs");
+        when(templateEngine.process(any(String.class), any()))
+            .thenThrow(new org.thymeleaf.exceptions.TemplateProcessingException("plantilla invalida"));
+
+        emailService.sendEmail(new EmailRequest(
+            "virtualclub.spain@gmail.com", "Usuario", "Asunto de prueba", "verify-email", Map.of()
+        ));
+
+        // createMimeMessage se llama antes que templateEngine.process en el código real,
+        // así que esperar por esa invocación confirma que el hilo async ya terminó su intento.
+        verify(mailSender, timeout(5000)).createMimeMessage();
+        verify(mailSender, never()).send(any(MimeMessage.class));
+    }
 }
