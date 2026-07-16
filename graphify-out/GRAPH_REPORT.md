@@ -1,16 +1,16 @@
 # Graph Report - Back  (2026-07-16)
 
 ## Corpus Check
-- 131 files · ~36,021 words
+- 130 files · ~35,876 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1279 nodes · 2593 edges · 76 communities (59 shown, 17 thin omitted)
-- Extraction: 91% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 220 edges (avg confidence: 0.8)
+- 1277 nodes · 2517 edges · 90 communities (64 shown, 26 thin omitted)
+- Extraction: 93% EXTRACTED · 7% INFERRED · 0% AMBIGUOUS · INFERRED: 171 edges (avg confidence: 0.8)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8a6c9c54`
+- Built from commit: `696fb472`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -63,10 +63,12 @@
 - Step 2: Read and analyze the files
 - /review-pr — Pull Request Review
 - .sha256Hex
+- PermissionEntity
 - .handleNoLocalProvider
 - /add-error-type — Añadir Tipo de Error
 - /add-test — Generate Tests for a Class
 - Step 2: Structure of the explanation
+- Endpoints
 - GoogleAuthRequest
 - /add-endpoint — Add New REST Endpoint
 - /add-exception-handler-test — Test the GlobalExceptionHandler
@@ -76,6 +78,7 @@
 - /check-api-contract — Verificar Contrato API
 - /commit — Semantic Commit + Push
 - /create-pr — Create Pull Request
+- Endpoints
 - /update-deps — Review and Update Dependencies
 - RequestPasswordResetRequest
 - Running locally
@@ -83,6 +86,8 @@
 - /project-status — Project Status Overview
 - pull_request_template.md
 - ghcr.io/raulgl422/backend Docker Image
+- BeforeEach
+- ExtendWith
 - Component
 - Override
 - PasswordEncoder
@@ -91,30 +96,39 @@
 - Slf4j
 - Transactional
 - Startup Banner (banner.txt)
+- PasswordEncoder
+- Test
+- [0.1.0] — 2026-04-02
+- TokensService
+- [0.2.0] — 2026-05-24
+- [0.0.3] — 2026-03-28
+- ExtendWith
+- PasswordEncoder
+- Test
 
 ## God Nodes (most connected - your core abstractions)
-1. `UserEntity` - 82 edges
+1. `UserEntity` - 80 edges
 2. `JwtUtils` - 32 edges
 3. `ApiResponse` - 32 edges
 4. `AuthControllerIntegrationTest` - 29 edges
 5. `PasswordResetIntegrationTest` - 28 edges
 6. `GoogleAuthService` - 27 edges
-7. `EmailService` - 26 edges
-8. `AuthController` - 25 edges
-9. `AuthControllerUnitTest` - 25 edges
-10. `ErrorType` - 24 edges
+7. `UserEntityServiceTest` - 26 edges
+8. `EmailService` - 26 edges
+9. `AuthController` - 25 edges
+10. `AuthControllerUnitTest` - 25 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `/check-security command` --references--> `TokenUtils`  [AMBIGUOUS]
   .claude/commands/check-security.md → src/main/java/galindo/raul/virtualclubs/utils/TokenUtils.java
-- `/add-endpoint command` --references--> `SecurityConfig`  [EXTRACTED]
-  .claude/commands/add-endpoint.md → src/main/java/galindo/raul/virtualclubs/config/security/SecurityConfig.java
-- `/check-api-contract command` --references--> `SecurityConfig`  [EXTRACTED]
-  .claude/commands/check-api-contract.md → src/main/java/galindo/raul/virtualclubs/config/security/SecurityConfig.java
-- `/check-security command` --references--> `SecurityConfig`  [EXTRACTED]
-  .claude/commands/check-security.md → src/main/java/galindo/raul/virtualclubs/config/security/SecurityConfig.java
-- `/check-structure command` --references--> `SecurityConfig`  [EXTRACTED]
-  .claude/commands/check-structure.md → src/main/java/galindo/raul/virtualclubs/config/security/SecurityConfig.java
+- `/explain command` --references--> `SecurityConfig`  [EXTRACTED]
+  .claude/commands/explain.md → src/main/java/galindo/raul/virtualclubs/config/security/SecurityConfig.java
+- `/add-filter-test command` --references--> `JwtAuthFilter`  [EXTRACTED]
+  .claude/commands/add-filter-test.md → src/main/java/galindo/raul/virtualclubs/config/security/filters/JwtAuthFilter.java
+- `/add-test command` --references--> `JwtAuthFilter`  [EXTRACTED]
+  .claude/commands/add-test.md → src/main/java/galindo/raul/virtualclubs/config/security/filters/JwtAuthFilter.java
+- `/explain command` --references--> `JwtAuthFilter`  [EXTRACTED]
+  .claude/commands/explain.md → src/main/java/galindo/raul/virtualclubs/config/security/filters/JwtAuthFilter.java
 
 ## Import Cycles
 - None detected.
@@ -125,27 +139,27 @@
 - **Error handling pattern: ErrorType, GlobalExceptionHandler, ApiResponse, add-error-type command** — src_main_java_galindo_raul_virtualclubs_models_enums_errortype_errortype, src_main_java_galindo_raul_virtualclubs_controller_globalexceptionhandler_globalexceptionhandler, src_main_java_galindo_raul_virtualclubs_dtos_response_apiresponse_apiresponse, claude_commands_add_error_type_add_error_type [EXTRACTED 0.90]
 - **Thymeleaf Email Template System (layout fragment + verify/reset content templates)** — src_main_resources_templates_layout_layout_fragment, src_main_resources_templates_password_reset_email_template, src_main_resources_templates_verify_email_template [EXTRACTED 1.00]
 
-## Communities (76 total, 17 thin omitted)
+## Communities (90 total, 26 thin omitted)
 
 ### Community 0 - "Login Filter & Auth Controller"
-Cohesion: 0.40
-Nodes (5): [0.1.0] — 2026-04-02, Added, Changed, Fixed, Internal
+Cohesion: 0.17
+Nodes (9): GoogleAuthIntegrationTest, ActiveProfiles, AutoConfigureMockMvc, BeforeEach, MockMvc, Payload, SpringBootTest, Test (+1 more)
 
 ### Community 1 - "Refresh & User Token Utilities"
-Cohesion: 0.50
-Nodes (4): [0.2.0] — 2026-05-24, Added, Changed, Internal
+Cohesion: 0.25
+Nodes (6): PasswordEncoder, RequiredArgsConstructor, Service, Slf4j, Transactional, UserEntityServiceImpl
 
 ### Community 2 - "Device & Refresh Token Persistence"
-Cohesion: 0.07
-Nodes (38): JpaRepository, Page, Pageable, DeviceEntity, AllArgsConstructor, Builder, Entity, Getter (+30 more)
+Cohesion: 0.06
+Nodes (38): Page, Pageable, DeviceEntity, AllArgsConstructor, Builder, Entity, Getter, NoArgsConstructor (+30 more)
 
 ### Community 3 - "Global Exception Handling"
-Cohesion: 0.25
+Cohesion: 0.23
 Nodes (10): Bucket, Cache, Filter, ServletRequest, ServletResponse, FilterChain, HttpServletRequest, ObjectMapper (+2 more)
 
 ### Community 4 - "Google Auth & Security Integration Tests"
-Cohesion: 0.21
-Nodes (6): ActiveProfiles, AutoConfigureMockMvc, MockMvc, SpringBootTest, Test, SecurityConfigIntegrationTest
+Cohesion: 0.16
+Nodes (15): PostConstruct, AllArgsConstructor, Builder, Entity, Getter, NoArgsConstructor, Table, RoleEntity (+7 more)
 
 ### Community 5 - "Email Notification Service"
 Cohesion: 0.09
@@ -156,20 +170,20 @@ Cohesion: 0.08
 Nodes (19): Import, GlobalExceptionHandlerTest, ActiveProfiles, Bean, EnableWebSecurity, GetMapping, HttpSecurity, MockMvc (+11 more)
 
 ### Community 7 - "Google Auth Integration Tests"
-Cohesion: 0.06
-Nodes (30): /project-status command, AuthProviderEntity, AllArgsConstructor, Builder, Entity, Getter, NoArgsConstructor, Setter (+22 more)
+Cohesion: 0.09
+Nodes (22): /project-status command, GoogleAuthService, GoogleIdTokenVerifier, Payload, Service, Slf4j, ActiveProfiles, AutoConfigureMockMvc (+14 more)
 
 ### Community 8 - "Auth Controller Integration Test Utils"
-Cohesion: 0.14
+Cohesion: 0.13
 Nodes (11): AuthControllerIntegrationTest, ActiveProfiles, AutoConfigureMockMvc, MockMvc, ObjectMapper, SpringBootTest, Test, Transactional (+3 more)
 
 ### Community 9 - "Auth Controller Unit Tests"
-Cohesion: 0.14
-Nodes (14): Tokens, AuthControllerUnitTest, ActiveProfiles, Bean, EnableWebSecurity, HttpSecurity, MockMvc, ObjectMapper (+6 more)
+Cohesion: 0.24
+Nodes (4): Tokens, AuthControllerUnitTest, PasswordEncoder, Test
 
 ### Community 10 - "Security Config & CORS"
-Cohesion: 0.13
-Nodes (21): AuthenticationConfiguration, CorsConfigurationSource, EnableMethodSecurity, SpringBootApplication, CorsProperties, ConfigurationProperties, Validated, ConfigurationProperties (+13 more)
+Cohesion: 0.08
+Nodes (37): AuthenticationConfiguration, /add-endpoint command, /add-migration command, /check-api-contract command, /check-security command, /check-structure command, /commit command, /create-pr command (+29 more)
 
 ### Community 11 - "Project Documentation (READMEs/CLAUDE.md)"
 Cohesion: 0.14
@@ -179,41 +193,33 @@ Nodes (14): [0.0.1] — 2025-12-26, [0.0.2] — 2026-03-27, [0.1.1] — 2026-05-
 Cohesion: 0.12
 Nodes (16): Constraint, ConstraintValidator, ConstraintValidatorContext, CsvSource, Documented, NullSource, ParameterizedTest, Retention (+8 more)
 
-### Community 13 - "Role Entity & Seeding"
-Cohesion: 0.05
-Nodes (47): EntityGraph, PostConstruct, Query, AllArgsConstructor, Builder, Entity, Getter, NoArgsConstructor (+39 more)
-
 ### Community 14 - "Password Reset Integration Tests"
-Cohesion: 0.21
-Nodes (9): ActiveProfiles, AutoConfigureMockMvc, MockMvc, ObjectMapper, PasswordEncoder, SpringBootTest, Test, Transactional (+1 more)
-
-### Community 15 - "Token Refresh Service"
-Cohesion: 0.20
-Nodes (6): Dispositive, RefreshTokenService, BeforeEach, ExtendWith, Test, TokensServiceTest
+Cohesion: 0.26
+Nodes (10): ActiveProfiles, Bean, EnableWebSecurity, HttpSecurity, MockMvc, ObjectMapper, SecurityFilterChain, TestConfiguration (+2 more)
 
 ### Community 16 - "Email Verification Integration Tests"
 Cohesion: 0.20
 Nodes (9): EmailVerificationIntegrationTest, ActiveProfiles, AutoConfigureMockMvc, MockMvc, ObjectMapper, SpringBootTest, Test, Transactional (+1 more)
 
 ### Community 17 - "User Entity Repository & Details Service"
-Cohesion: 0.07
-Nodes (47): /add-endpoint command, /add-error-type command, /add-exception-handler-test command, /add-filter-test command, /add-migration command, /add-test command, /check-api-contract command, /check-security command (+39 more)
+Cohesion: 0.06
+Nodes (37): /add-error-type command, /add-exception-handler-test command, /add-filter-test command, /add-test command, MockitoBean / WebMvcTest / @ActiveProfiles(dev,test) testing convention, ExceptionHandler, HttpMessageNotReadableException, JwtException (+29 more)
 
 ### Community 18 - "JWT Auth Filter Tests"
 Cohesion: 0.20
 Nodes (7): AfterEach, BeforeEach, ExtendWith, FilterChain, Test, UserDetailsService, JwtAuthFilterTest
 
 ### Community 19 - "Sandbox Data Initializer"
-Cohesion: 0.17
-Nodes (13): ApplicationArguments, ApplicationRunner, Component, Override, PasswordEncoder, PreDestroy, Profile, RequiredArgsConstructor (+5 more)
+Cohesion: 0.08
+Nodes (18): ApplicationArguments, ApplicationRunner, BeforeEach, Component, ExtendWith, Override, PasswordEncoder, PreDestroy (+10 more)
 
 ### Community 20 - "User Entity & Exceptions"
-Cohesion: 0.67
-Nodes (3): [0.0.3] — 2026-03-28, Fixed, Internal
+Cohesion: 0.22
+Nodes (8): AuthProviderEntity, AllArgsConstructor, Builder, Entity, Getter, NoArgsConstructor, Setter, Table
 
 ### Community 21 - "JWT Utils & Properties"
-Cohesion: 0.38
-Nodes (5): Claims, SecretKey, Component, RequiredArgsConstructor, JwtUtils
+Cohesion: 0.21
+Nodes (9): Claims, SecretKey, ConfigurationProperties, Validated, JwtProperties, Component, RequiredArgsConstructor, JwtUtils (+1 more)
 
 ### Community 23 - "ErrorType"
 Cohesion: 0.27
@@ -225,11 +231,11 @@ Nodes (12): JsonValue, OncePerRequestFilter, FilterChain, HttpServletRequest, Ht
 
 ### Community 25 - "JWT Token Validation Tests"
 Cohesion: 0.21
-Nodes (6): ConfigurationProperties, Validated, JwtProperties, BeforeEach, Test, JwtServiceTest
+Nodes (7): EntityGraph, Query, EmailNotFoundException, Getter, UserEntityRepository, Override, UserDetails
 
 ### Community 26 - "Auth URL Utils"
-Cohesion: 0.06
-Nodes (33): Async, Environment, EmailProperties, Component, ConfigurationProperties, Getter, Setter, EmailRequest (+25 more)
+Cohesion: 0.09
+Nodes (23): Async, Environment, EmailProperties, Component, ConfigurationProperties, Getter, Setter, EmailRequest (+15 more)
 
 ### Community 28 - "Async Config"
 Cohesion: 0.27
@@ -256,8 +262,8 @@ Cohesion: 0.53
 Nodes (4): EncoderConfig, Bean, Configuration, PasswordEncoder
 
 ### Community 35 - "JwtAuthLoginFilter.java"
-Cohesion: 0.05
-Nodes (40): AuthenticationException, DeleteMapping, Operation, Authentication, AuthenticationManager, FilterChain, HttpServletRequest, HttpServletResponse (+32 more)
+Cohesion: 0.06
+Nodes (39): AuthenticationException, DeleteMapping, Operation, Authentication, AuthenticationManager, FilterChain, HttpServletRequest, HttpServletResponse (+31 more)
 
 ### Community 36 - "CLAUDE.md — Virtual Clubs Backend"
 Cohesion: 0.07
@@ -277,7 +283,7 @@ Nodes (16): 🔁 API RESPONSE, ✅ BEAN VALIDATION, /check-structure — Verify 
 
 ### Community 41 - "Test"
 Cohesion: 0.06
-Nodes (32): SecureRandom, Component, ConfigurationProperties, Getter, Setter, TokenProperties, AllArgsConstructor, Builder (+24 more)
+Nodes (32): JpaRepository, SecureRandom, Component, ConfigurationProperties, Getter, Setter, TokenProperties, AllArgsConstructor (+24 more)
 
 ### Community 45 - "Step 2: Read and analyze the files"
 Cohesion: 0.14
@@ -286,6 +292,10 @@ Nodes (13): /check-security — Security Audit, OWASP A01 — Broken Access Cont
 ### Community 46 - "/review-pr — Pull Request Review"
 Cohesion: 0.14
 Nodes (13): 🏗️ ARCHITECTURE & BAD PRACTICES, 🔴 CRITICAL ERRORS (block merge), 📚 DOCUMENTATION, ⚡ PERFORMANCE, /review-pr — Pull Request Review, 🔐 SECURITY (OWASP Top 10), Step 1: Identify the PR, Step 2: Get PR information (+5 more)
+
+### Community 48 - "PermissionEntity"
+Cohesion: 0.39
+Nodes (7): AllArgsConstructor, Builder, Entity, Getter, NoArgsConstructor, Table, PermissionEntity
 
 ### Community 49 - ".handleNoLocalProvider"
 Cohesion: 0.33
@@ -302,6 +312,10 @@ Nodes (11): /add-test — Generate Tests for a Class, Integration test structure
 ### Community 52 - "Step 2: Structure of the explanation"
 Cohesion: 0.17
 Nodes (11): Concrete example (if applicable), /explain — Explain a File or Concept, How does it connect with the rest of the project?, How does it work? (the core), Step 1: Determine whether it is a project file or a general concept, Step 2: Structure of the explanation, Step 3: Offer to go deeper, Usage (+3 more)
+
+### Community 53 - "Endpoints"
+Cohesion: 0.21
+Nodes (9): ActiveProfiles, AutoConfigureMockMvc, MockMvc, ObjectMapper, PasswordEncoder, SpringBootTest, Test, Transactional (+1 more)
 
 ### Community 54 - "GoogleAuthRequest"
 Cohesion: 0.33
@@ -339,13 +353,17 @@ Nodes (8): /commit — Semantic Commit + Push, Step 1: Verify current branch, St
 Cohesion: 0.22
 Nodes (8): /create-pr — Create Pull Request, Step 1: Verify preconditions, Step 2: Review the changes, Step 3: Verify gh authentication, Step 4: Generate PR title and description, Step 5: Confirm and create the PR, Step 6: Launch automatic review, Usage
 
+### Community 63 - "Endpoints"
+Cohesion: 0.21
+Nodes (6): ActiveProfiles, AutoConfigureMockMvc, MockMvc, SpringBootTest, Test, SecurityConfigIntegrationTest
+
 ### Community 64 - "/update-deps — Review and Update Dependencies"
 Cohesion: 0.25
 Nodes (7): Step 1: Read pom.xml, Step 2: Run the Maven versions plugin, Step 3: Classify the updates, Step 4: Present report, Step 5: Apply confirmed updates, Step 6: Reminder, /update-deps — Review and Update Dependencies
 
 ### Community 65 - "RequestPasswordResetRequest"
-Cohesion: 0.32
-Nodes (5): /explain command, RefreshTokenException, RequiredArgsConstructor, Service, TokensService
+Cohesion: 0.27
+Nodes (5): Dispositive, BeforeEach, ExtendWith, Test, TokensServiceTest
 
 ### Community 66 - "Running locally"
 Cohesion: 0.40
@@ -363,6 +381,22 @@ Nodes (4): /project-status — Project Status Overview, Step 1: Git and GitHub s
 Cohesion: 0.40
 Nodes (4): Checklist, How to test, Type of change, What does this PR do?
 
+### Community 83 - "[0.1.0] — 2026-04-02"
+Cohesion: 0.40
+Nodes (5): [0.1.0] — 2026-04-02, Added, Changed, Fixed, Internal
+
+### Community 84 - "TokensService"
+Cohesion: 0.60
+Nodes (4): /explain command, RequiredArgsConstructor, Service, TokensService
+
+### Community 85 - "[0.2.0] — 2026-05-24"
+Cohesion: 0.50
+Nodes (4): [0.2.0] — 2026-05-24, Added, Changed, Internal
+
+### Community 86 - "[0.0.3] — 2026-03-28"
+Cohesion: 0.67
+Nodes (3): [0.0.3] — 2026-03-28, Fixed, Internal
+
 ## Ambiguous Edges - Review These
 - `TokenUtils` → `/check-security command`  [AMBIGUOUS]
   .claude/commands/check-security.md · relation: references
@@ -370,22 +404,22 @@ Nodes (4): Checklist, How to test, Type of change, What does this PR do?
 ## Knowledge Gaps
 - **243 isolated node(s):** `Project Overview`, `Sandbox profile — BD limpia sin configuración`, `Architecture`, `Active Endpoints`, `Support policy` (+238 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **17 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **26 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **What is the exact relationship between `TokenUtils` and `/check-security command`?**
   _Edge tagged AMBIGUOUS (relation: references) - confidence is low._
-- **Why does `UserEntity` connect `Device & Refresh Token Persistence` to `RequestPasswordResetRequest`, `JwtAuthLoginFilter.java`, `Google Auth Integration Tests`, `Test`, `Role Entity & Seeding`, `Token Refresh Service`, `Auth URL Utils`?**
-  _High betweenness centrality (0.152) - this node is a cross-community bridge._
-- **Why does `GoogleAuthService` connect `Google Auth Integration Tests` to `JwtAuthLoginFilter.java`, `Google Auth & Security Integration Tests`, `Auth Controller Integration Test Utils`, `Auth Controller Unit Tests`, `Password Reset Integration Tests`, `Email Verification Integration Tests`, `User Entity Repository & Details Service`, `Auth URL Utils`?**
-  _High betweenness centrality (0.074) - this node is a cross-community bridge._
-- **Why does `ApiResponse` connect `User Entity Repository & Details Service` to `JwtAuthLoginFilter.java`?**
-  _High betweenness centrality (0.048) - this node is a cross-community bridge._
+- **Why does `UserEntity` connect `Device & Refresh Token Persistence` to `Login Filter & Auth Controller`, `Refresh & User Token Utilities`, `RequestPasswordResetRequest`, `JwtAuthLoginFilter.java`, `Google Auth & Security Integration Tests`, `Test`, `Auth Controller Unit Tests`, `Sandbox Data Initializer`, `User Entity & Exceptions`, `TokensService`, `JWT Token Validation Tests`, `Auth URL Utils`?**
+  _High betweenness centrality (0.141) - this node is a cross-community bridge._
+- **Why does `GoogleAuthService` connect `Google Auth Integration Tests` to `Login Filter & Auth Controller`, `JwtAuthLoginFilter.java`, `Auth Controller Integration Test Utils`, `Auth Controller Unit Tests`, `Password Reset Integration Tests`, `Email Verification Integration Tests`, `User Entity Repository & Details Service`, `Endpoints`, `Endpoints`?**
+  _High betweenness centrality (0.069) - this node is a cross-community bridge._
+- **Why does `JwtUtils` connect `JWT Utils & Properties` to `RequestPasswordResetRequest`, `JwtAuthLoginFilter.java`, `Auth Controller Unit Tests`, `Security Config & CORS`, `Password Reset Integration Tests`, `Token Refresh Service`, `JWT Auth Filter Tests`, `TokensService`, `JWT Auth Filter & ErrorType`?**
+  _High betweenness centrality (0.050) - this node is a cross-community bridge._
 - **What connects `Project Overview`, `Sandbox profile — BD limpia sin configuración`, `Architecture` to the rest of the system?**
   _243 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Device & Refresh Token Persistence` be split into smaller, more focused modules?**
-  _Cohesion score 0.06944444444444445 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06467661691542288 - nodes in this community are weakly interconnected._
 - **Should `Email Notification Service` be split into smaller, more focused modules?**
   _Cohesion score 0.08502024291497975 - nodes in this community are weakly interconnected._

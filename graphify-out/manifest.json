@@ -495,19 +495,14 @@
     "semantic_hash": "b2540e1c91d61360bc63733fa6c56c24"
   },
   "src/test/java/galindo/raul/virtualclubs/services/UserEntityServiceTest.java": {
-    "mtime": 1777748042.4408166,
-    "ast_hash": "e9b15a68b93bc6494837f83949aeef64",
-    "semantic_hash": "e9b15a68b93bc6494837f83949aeef64"
+    "mtime": 1784200535.482534,
+    "ast_hash": "1c514731054ba2c8658deee3e8d713b8",
+    "semantic_hash": ""
   },
   "src/test/java/galindo/raul/virtualclubs/services/UserTokenServiceTest.java": {
     "mtime": 1777748042.4408166,
     "ast_hash": "47873c578fbd590c3eedc3099faf3dd5",
     "semantic_hash": "47873c578fbd590c3eedc3099faf3dd5"
-  },
-  "src/test/java/galindo/raul/virtualclubs/services/VirtualClubsUsersDetailsServiceTest.java": {
-    "mtime": 1777748042.4418166,
-    "ast_hash": "0b51be76d002b9cb2575ec5f23040e46",
-    "semantic_hash": "0b51be76d002b9cb2575ec5f23040e46"
   },
   "src/test/java/galindo/raul/virtualclubs/util/IntegrationTestUtils.java": {
     "mtime": 1777748042.442816,
@@ -680,8 +675,8 @@
     "semantic_hash": ""
   },
   ".github/workflows/graphify.yml": {
-    "mtime": 1784117118.9532683,
-    "ast_hash": "ab8da4809766b01dbe6e2c9c9a451f7f",
+    "mtime": 1784200448.470334,
+    "ast_hash": "7835a83419905e975fa5c8fb886f60f0",
     "semantic_hash": ""
   }
 }
