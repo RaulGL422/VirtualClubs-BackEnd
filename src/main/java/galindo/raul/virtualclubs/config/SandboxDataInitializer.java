@@ -83,7 +83,7 @@ public class SandboxDataInitializer implements ApplicationRunner {
                 ╚══════════════════════════════════════════════╝
 
                   App      →  http://{}:{}
-                  Swagger  →  http://{}:{}/swagger-ui/index.html
+                  Swagger  →  http://{}:{}/swagger-ui.html
                   H2       →  http://localhost:{}  (solo accesible en local, JDBC: jdbc:h2:mem:virtualclubs)
                 """, ip, serverPort, ip, serverPort, H2_CONSOLE_PORT);
     }

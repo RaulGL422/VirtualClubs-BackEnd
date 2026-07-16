@@ -236,41 +236,7 @@ API_BASE_URL_PROD=
 
 ## Contributing
 
-### Branch naming
-```
-<prefix>/<short-description-in-kebab-case>
-```
-
-| Change type | Prefix |
-|-------------|--------|
-| New feature | `feature/` |
-| Bug fix | `fix/` |
-| Tests | `test/` |
-| Chore / config | `chore/` |
-
-Examples: `feature/club-membership`, `fix/refresh-token-expiry`
-
-Rules:
-- Branch off from `development`, never from `main`
-- ASCII only — no accented characters or special symbols
-- Never commit directly to `main` or `development`
-
-### Commit format
-Follows [Conventional Commits](https://www.conventionalcommits.org/) in **English**:
-```
-<type>(<optional scope>): <short description>
-
-# Examples
-feat(auth): add email verification resend endpoint
-fix(jwt): handle expired token on public endpoints
-chore(deps): bump spring-boot to 4.0.5
-```
-
-### Opening a PR
-1. Push your branch and open a PR toward `development`
-2. Fill in the PR description: what changed and why
-3. Make sure tests pass (`./mvnw test`)
-4. Request a review
+Branch naming, commit format, and PR checklist are documented in [CONTRIBUTING.md](CONTRIBUTING.md) — that's the single source of truth for both human contributors and Claude. Highlights that matter most for Claude-driven changes are already covered in [Rules for Claude](#rules-for-claude) below (never commit to `main`/`development`, branch off `development`, etc.).
 
 ---
 
@@ -286,3 +252,14 @@ chore(deps): bump spring-boot to 4.0.5
 - `ApiResponse<T>` is the only response wrapper — always use it
 - Inject **interfaces** in controllers, filters, and services — never concrete implementations (`UserService`, `RefreshTokenService`, `UserTokenService`)
 - For SHA-256 hashing always use `TokenUtils` — do not instantiate `MessageDigest` directly elsewhere
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+- If the bare `graphify` command is not on PATH (common on Windows Python installs), use `python -m graphify` (or the interpreter saved at `graphify-out/.graphify_python`) instead of failing silently.
