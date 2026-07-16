@@ -263,3 +263,7 @@ Rules:
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 - If the bare `graphify` command is not on PATH (common on Windows Python installs), use `python -m graphify` (or the interpreter saved at `graphify-out/.graphify_python`) instead of failing silently.
+- **Cross-repo questions:** if the question involves both this backend and the Android app (`VirtualClubs-FrontAndroid`), or you're not sure which side something lives in, query the merged graph instead of the local one — it has both repos' nodes and edges together:
+  1. `git -C ../graph-hub pull` (first time: `git clone https://github.com/RaulGL422/virtualclubs-graph-hub.git ../graph-hub`)
+  2. `graphify query --graph ../graph-hub/cross-repo/graph.json "<question>"` (same `--graph` flag works with `path`/`explain`)
+  The hub repo is private — if you don't have access, say so and fall back to querying this repo's graph and asking the user about the Android side, rather than guessing.
