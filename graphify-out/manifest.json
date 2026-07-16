@@ -1,0 +1,687 @@
+{
+  ".claude/settings.json": {
+    "mtime": 1784127126.8992257,
+    "ast_hash": "da91ed73405df42c2bc8f555f4ec546e",
+    "semantic_hash": ""
+  },
+  "mvnw": {
+    "mtime": 1777748042.381716,
+    "ast_hash": "2fe09837c0b4dfabab4c4b206bcd0850",
+    "semantic_hash": "2fe09837c0b4dfabab4c4b206bcd0850"
+  },
+  "pom.xml": {
+    "mtime": 1783780473.117855,
+    "ast_hash": "6809216be256af76230c8754ee9c3b96",
+    "semantic_hash": "6809216be256af76230c8754ee9c3b96"
+  },
+  "src/main/java/galindo/raul/virtualclubs/VirtualClubsApplication.java": {
+    "mtime": 1777748042.3827157,
+    "ast_hash": "dc120efb46861872920f1df4d5bba2c5",
+    "semantic_hash": "dc120efb46861872920f1df4d5bba2c5"
+  },
+  "src/main/java/galindo/raul/virtualclubs/config/AsyncConfig.java": {
+    "mtime": 1777748042.3827157,
+    "ast_hash": "40ce04e92819355a21d70fea1af872ab",
+    "semantic_hash": "40ce04e92819355a21d70fea1af872ab"
+  },
+  "src/main/java/galindo/raul/virtualclubs/config/CorsProperties.java": {
+    "mtime": 1777748042.38422,
+    "ast_hash": "3749bb74e8496ef78293943004b4bca0",
+    "semantic_hash": "3749bb74e8496ef78293943004b4bca0"
+  },
+  "src/main/java/galindo/raul/virtualclubs/config/EmailProperties.java": {
+    "mtime": 1777748042.38422,
+    "ast_hash": "25213cda5e663ca6cf9d72dc35f1fd13",
+    "semantic_hash": "25213cda5e663ca6cf9d72dc35f1fd13"
+  },
+  "src/main/java/galindo/raul/virtualclubs/config/JwtProperties.java": {
+    "mtime": 1777748042.38422,
+    "ast_hash": "01acf421f10312ba562a69470e636e27",
+    "semantic_hash": "01acf421f10312ba562a69470e636e27"
+  },
+  "src/main/java/galindo/raul/virtualclubs/config/OpenApiConfig.java": {
+    "mtime": 1777748042.3852265,
+    "ast_hash": "c13d10939b10798a430d16ac75dbd248",
+    "semantic_hash": "c13d10939b10798a430d16ac75dbd248"
+  },
+  "src/main/java/galindo/raul/virtualclubs/config/SandboxDataInitializer.java": {
+    "mtime": 1784127191.2989364,
+    "ast_hash": "467ec743b013fbf5bdf90a1e7200e013",
+    "semantic_hash": ""
+  },
+  "src/main/java/galindo/raul/virtualclubs/config/TokenProperties.java": {
+    "mtime": 1777748042.3852265,
+    "ast_hash": "7e4691232cdd86e6a2854e901f25c4df",
+    "semantic_hash": "7e4691232cdd86e6a2854e901f25c4df"
+  },
+  "src/main/java/galindo/raul/virtualclubs/config/security/EncoderConfig.java": {
+    "mtime": 1777748042.3862317,
+    "ast_hash": "0811bc0c083cd893599e496daca62234",
+    "semantic_hash": "0811bc0c083cd893599e496daca62234"
+  },
+  "src/main/java/galindo/raul/virtualclubs/config/security/SecurityConfig.java": {
+    "mtime": 1777748042.3872313,
+    "ast_hash": "afee3ac955728893c47207939ff48da2",
+    "semantic_hash": "afee3ac955728893c47207939ff48da2"
+  },
+  "src/main/java/galindo/raul/virtualclubs/config/security/filters/JwtAuthFilter.java": {
+    "mtime": 1777748042.3882287,
+    "ast_hash": "364cfce982a3bd876cc0c0b71900aea0",
+    "semantic_hash": "364cfce982a3bd876cc0c0b71900aea0"
+  },
+  "src/main/java/galindo/raul/virtualclubs/config/security/filters/JwtAuthLoginFilter.java": {
+    "mtime": 1777748042.3882287,
+    "ast_hash": "9a37d21a9e6cd6f7fc8b5a4269a84602",
+    "semantic_hash": "9a37d21a9e6cd6f7fc8b5a4269a84602"
+  },
+  "src/main/java/galindo/raul/virtualclubs/config/security/filters/RateLimitingFilter.java": {
+    "mtime": 1777748042.3892255,
+    "ast_hash": "3ad7a0eb5b014b2983745fec62c060b8",
+    "semantic_hash": "3ad7a0eb5b014b2983745fec62c060b8"
+  },
+  "src/main/java/galindo/raul/virtualclubs/config/security/filters/models/RateLimitingProperties.java": {
+    "mtime": 1777748042.3892255,
+    "ast_hash": "471680fed109f4ca1710e846e9c5431a",
+    "semantic_hash": "471680fed109f4ca1710e846e9c5431a"
+  },
+  "src/main/java/galindo/raul/virtualclubs/config/security/utils/JwtUtils.java": {
+    "mtime": 1777748042.3902256,
+    "ast_hash": "f35ed5d76e3985c9c995b6d96f701002",
+    "semantic_hash": "f35ed5d76e3985c9c995b6d96f701002"
+  },
+  "src/main/java/galindo/raul/virtualclubs/controller/AuthController.java": {
+    "mtime": 1777748042.3912272,
+    "ast_hash": "9fcf17339b6372c7a3cb64d4586841f9",
+    "semantic_hash": "9fcf17339b6372c7a3cb64d4586841f9"
+  },
+  "src/main/java/galindo/raul/virtualclubs/controller/GlobalExceptionHandler.java": {
+    "mtime": 1777748042.3922255,
+    "ast_hash": "5731ce7f88dd273e46e198dff1ca940b",
+    "semantic_hash": "5731ce7f88dd273e46e198dff1ca940b"
+  },
+  "src/main/java/galindo/raul/virtualclubs/dtos/request/AuthRequest.java": {
+    "mtime": 1777748042.3932257,
+    "ast_hash": "3f7de99485fa3dad5a15a7d4e887e661",
+    "semantic_hash": "3f7de99485fa3dad5a15a7d4e887e661"
+  },
+  "src/main/java/galindo/raul/virtualclubs/dtos/request/EmailRequest.java": {
+    "mtime": 1777748042.3932257,
+    "ast_hash": "d5a39a04bcf578980889475805c4026d",
+    "semantic_hash": "d5a39a04bcf578980889475805c4026d"
+  },
+  "src/main/java/galindo/raul/virtualclubs/dtos/request/GoogleAuthRequest.java": {
+    "mtime": 1777748042.3942318,
+    "ast_hash": "499c88b7633d4b73325230df573432f9",
+    "semantic_hash": "499c88b7633d4b73325230df573432f9"
+  },
+  "src/main/java/galindo/raul/virtualclubs/dtos/request/RefreshRequest.java": {
+    "mtime": 1777748042.394737,
+    "ast_hash": "517995b9bc5e20873384b382295c15ae",
+    "semantic_hash": "517995b9bc5e20873384b382295c15ae"
+  },
+  "src/main/java/galindo/raul/virtualclubs/dtos/request/RegisterRequest.java": {
+    "mtime": 1777748042.394737,
+    "ast_hash": "ba04d494261b5b58dc7b9860df930034",
+    "semantic_hash": "ba04d494261b5b58dc7b9860df930034"
+  },
+  "src/main/java/galindo/raul/virtualclubs/dtos/request/RequestPasswordResetRequest.java": {
+    "mtime": 1777748042.394737,
+    "ast_hash": "d9d0fee89e5ba183c3cbabd937a1578c",
+    "semantic_hash": "d9d0fee89e5ba183c3cbabd937a1578c"
+  },
+  "src/main/java/galindo/raul/virtualclubs/dtos/request/ResetPasswordRequest.java": {
+    "mtime": 1777748042.3957436,
+    "ast_hash": "e9f3678719816f65df6046aec1f3a168",
+    "semantic_hash": "e9f3678719816f65df6046aec1f3a168"
+  },
+  "src/main/java/galindo/raul/virtualclubs/dtos/response/ApiResponse.java": {
+    "mtime": 1777748042.3967497,
+    "ast_hash": "20e5b949ce8ee50137f4ad9d38e807cf",
+    "semantic_hash": "20e5b949ce8ee50137f4ad9d38e807cf"
+  },
+  "src/main/java/galindo/raul/virtualclubs/dtos/response/GoogleResponse.java": {
+    "mtime": 1777748042.3967497,
+    "ast_hash": "ae4e16440ca390ebb66751613faf471c",
+    "semantic_hash": "ae4e16440ca390ebb66751613faf471c"
+  },
+  "src/main/java/galindo/raul/virtualclubs/dtos/response/RefreshResponse.java": {
+    "mtime": 1777748042.3977485,
+    "ast_hash": "352ad378c6303fbac35f8479d9242a22",
+    "semantic_hash": "352ad378c6303fbac35f8479d9242a22"
+  },
+  "src/main/java/galindo/raul/virtualclubs/dtos/response/RegisterResponse.java": {
+    "mtime": 1777748042.3977485,
+    "ast_hash": "7726a8a44510778a55c7448f8207b2a8",
+    "semantic_hash": "7726a8a44510778a55c7448f8207b2a8"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/Dispositive.java": {
+    "mtime": 1777748042.3977485,
+    "ast_hash": "e86a15b4f803f510051eb0e34d1d85eb",
+    "semantic_hash": "e86a15b4f803f510051eb0e34d1d85eb"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/Tokens.java": {
+    "mtime": 1777748042.3987482,
+    "ast_hash": "1b985b76b4f217b1a5950f3c7ecf1502",
+    "semantic_hash": "1b985b76b4f217b1a5950f3c7ecf1502"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/annotations/StrongPassword.java": {
+    "mtime": 1777748042.3987482,
+    "ast_hash": "2267a866e654f3dcadf16bad9692a308",
+    "semantic_hash": "2267a866e654f3dcadf16bad9692a308"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/annotations/validators/StrongPasswordValidator.java": {
+    "mtime": 1783780473.120854,
+    "ast_hash": "2444206274062539c2cbbdb4b53ac4a7",
+    "semantic_hash": "2444206274062539c2cbbdb4b53ac4a7"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/entities/AuthProviderEntity.java": {
+    "mtime": 1777748042.4007485,
+    "ast_hash": "36765e996a3eca46d96598490f508911",
+    "semantic_hash": "36765e996a3eca46d96598490f508911"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/entities/DeviceEntity.java": {
+    "mtime": 1777748042.4007485,
+    "ast_hash": "9affbb18fbadcaac1e1be76000931be1",
+    "semantic_hash": "9affbb18fbadcaac1e1be76000931be1"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/entities/PermissionEntity.java": {
+    "mtime": 1777748042.4017484,
+    "ast_hash": "fbf5042c2a93d8cc75f86e860755a2a5",
+    "semantic_hash": "fbf5042c2a93d8cc75f86e860755a2a5"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/entities/RefreshTokenEntity.java": {
+    "mtime": 1777748042.4017484,
+    "ast_hash": "7f94da2d4894716e859c2fbfe9d30612",
+    "semantic_hash": "7f94da2d4894716e859c2fbfe9d30612"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/entities/RoleEntity.java": {
+    "mtime": 1777748042.4017484,
+    "ast_hash": "bcddc39431af9288e1ac00158a0767a0",
+    "semantic_hash": "bcddc39431af9288e1ac00158a0767a0"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/entities/UserEntity.java": {
+    "mtime": 1777748042.4027503,
+    "ast_hash": "8a55261f7c85caabaa946b04f99038b4",
+    "semantic_hash": "8a55261f7c85caabaa946b04f99038b4"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/entities/UserTokenEntity.java": {
+    "mtime": 1777748042.4027503,
+    "ast_hash": "70aba68a23a827bf4362441fff0da1d5",
+    "semantic_hash": "70aba68a23a827bf4362441fff0da1d5"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/enums/ErrorType.java": {
+    "mtime": 1777748042.40426,
+    "ast_hash": "d76b29c29c869da5111a44e9525bd82e",
+    "semantic_hash": "d76b29c29c869da5111a44e9525bd82e"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/enums/Role.java": {
+    "mtime": 1777748042.40426,
+    "ast_hash": "4638e01cc8fb7e426aebab7dd9a98c8a",
+    "semantic_hash": "4638e01cc8fb7e426aebab7dd9a98c8a"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/enums/TokenType.java": {
+    "mtime": 1777748042.405271,
+    "ast_hash": "b109b2df23d590bd896bfb5c165ef25c",
+    "semantic_hash": "b109b2df23d590bd896bfb5c165ef25c"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/exceptions/EmailNotFoundException.java": {
+    "mtime": 1777748042.405271,
+    "ast_hash": "74bd2f05b609fc026d499e5838e6b088",
+    "semantic_hash": "74bd2f05b609fc026d499e5838e6b088"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/exceptions/EmailNotVerifiedException.java": {
+    "mtime": 1777748042.4062715,
+    "ast_hash": "0c7079c6d7f7391adfdc854b5d69c154",
+    "semantic_hash": "0c7079c6d7f7391adfdc854b5d69c154"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/exceptions/InternalErrorException.java": {
+    "mtime": 1777748042.4072676,
+    "ast_hash": "953200c6f7c085dd57023e39eaf1a14a",
+    "semantic_hash": "953200c6f7c085dd57023e39eaf1a14a"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/exceptions/InvalidTokenException.java": {
+    "mtime": 1777748042.4072676,
+    "ast_hash": "b65dc7ec419d78c218270f399f4bce76",
+    "semantic_hash": "b65dc7ec419d78c218270f399f4bce76"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/exceptions/NoLocalProviderException.java": {
+    "mtime": 1777748042.4072676,
+    "ast_hash": "003e7cc7535ba9fb8b0e4a8bdabecfc6",
+    "semantic_hash": "003e7cc7535ba9fb8b0e4a8bdabecfc6"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/exceptions/RefreshTokenException.java": {
+    "mtime": 1777748042.40827,
+    "ast_hash": "3e6e9cf6c4bcd89dbb5be048e3aac972",
+    "semantic_hash": "3e6e9cf6c4bcd89dbb5be048e3aac972"
+  },
+  "src/main/java/galindo/raul/virtualclubs/models/exceptions/UserAlreadyExistException.java": {
+    "mtime": 1777748042.40827,
+    "ast_hash": "8ef1da32111e95a922c684754bcf28d2",
+    "semantic_hash": "8ef1da32111e95a922c684754bcf28d2"
+  },
+  "src/main/java/galindo/raul/virtualclubs/repositories/DeviceRepository.java": {
+    "mtime": 1777748042.40827,
+    "ast_hash": "55aee1abbf2edd9838a458b3098db37c",
+    "semantic_hash": "55aee1abbf2edd9838a458b3098db37c"
+  },
+  "src/main/java/galindo/raul/virtualclubs/repositories/RefreshTokenRepository.java": {
+    "mtime": 1777748042.4092717,
+    "ast_hash": "2d3a6b1ec01030d8aed9a62f7eb9909f",
+    "semantic_hash": "2d3a6b1ec01030d8aed9a62f7eb9909f"
+  },
+  "src/main/java/galindo/raul/virtualclubs/repositories/RoleEntityRepository.java": {
+    "mtime": 1777748042.4102702,
+    "ast_hash": "d2c4f26ca448400de7fc8d7a605be658",
+    "semantic_hash": "d2c4f26ca448400de7fc8d7a605be658"
+  },
+  "src/main/java/galindo/raul/virtualclubs/repositories/UserEntityRepository.java": {
+    "mtime": 1777748042.4102702,
+    "ast_hash": "59bab41cd6f879fc0f2e6e47ae06f35c",
+    "semantic_hash": "59bab41cd6f879fc0f2e6e47ae06f35c"
+  },
+  "src/main/java/galindo/raul/virtualclubs/repositories/UserTokenRepository.java": {
+    "mtime": 1777748042.41127,
+    "ast_hash": "6ba6c9ff5d15e1196fa00933956905c2",
+    "semantic_hash": "6ba6c9ff5d15e1196fa00933956905c2"
+  },
+  "src/main/java/galindo/raul/virtualclubs/services/EmailService.java": {
+    "mtime": 1783780473.1218536,
+    "ast_hash": "0a116444b9640d3669cbbf26e3ad5f08",
+    "semantic_hash": "0a116444b9640d3669cbbf26e3ad5f08"
+  },
+  "src/main/java/galindo/raul/virtualclubs/services/GoogleAuthService.java": {
+    "mtime": 1777748042.4122689,
+    "ast_hash": "78d3bb980a7074284c9387ddaaf28b9b",
+    "semantic_hash": "78d3bb980a7074284c9387ddaaf28b9b"
+  },
+  "src/main/java/galindo/raul/virtualclubs/services/NotificationService.java": {
+    "mtime": 1777748042.4122689,
+    "ast_hash": "1a4537be044b9e2b543557d997191321",
+    "semantic_hash": "1a4537be044b9e2b543557d997191321"
+  },
+  "src/main/java/galindo/raul/virtualclubs/services/RefreshTokenService.java": {
+    "mtime": 1777748042.4132655,
+    "ast_hash": "bc64de3fce7ab608e27137073487cf86",
+    "semantic_hash": "bc64de3fce7ab608e27137073487cf86"
+  },
+  "src/main/java/galindo/raul/virtualclubs/services/RefreshTokenServiceImpl.java": {
+    "mtime": 1777748042.4132655,
+    "ast_hash": "e874d0df9b989011a742676087ac5164",
+    "semantic_hash": "e874d0df9b989011a742676087ac5164"
+  },
+  "src/main/java/galindo/raul/virtualclubs/services/TokensService.java": {
+    "mtime": 1777748042.4142685,
+    "ast_hash": "f6330aed5d25a03fdd00b936cb098062",
+    "semantic_hash": "f6330aed5d25a03fdd00b936cb098062"
+  },
+  "src/main/java/galindo/raul/virtualclubs/services/UserEntityServiceImpl.java": {
+    "mtime": 1777748042.4147801,
+    "ast_hash": "07aec3cbac6dff2eec5e1defcd79f5a8",
+    "semantic_hash": "07aec3cbac6dff2eec5e1defcd79f5a8"
+  },
+  "src/main/java/galindo/raul/virtualclubs/services/UserService.java": {
+    "mtime": 1777748042.4157815,
+    "ast_hash": "204a3c010d74e0832e6410ac83f73110",
+    "semantic_hash": "204a3c010d74e0832e6410ac83f73110"
+  },
+  "src/main/java/galindo/raul/virtualclubs/services/UserTokenService.java": {
+    "mtime": 1777748042.4157815,
+    "ast_hash": "9bed34f365bf199d63f31fac5a0a0b54",
+    "semantic_hash": "9bed34f365bf199d63f31fac5a0a0b54"
+  },
+  "src/main/java/galindo/raul/virtualclubs/services/UserTokenServiceImpl.java": {
+    "mtime": 1777748042.4167817,
+    "ast_hash": "60fafaa7d4a8acdf9eb281eb9a41ee87",
+    "semantic_hash": "60fafaa7d4a8acdf9eb281eb9a41ee87"
+  },
+  "src/main/java/galindo/raul/virtualclubs/utils/AuthUrlUtils.java": {
+    "mtime": 1777748042.4177806,
+    "ast_hash": "be1cf63654a0ad2f641e826a642bc6e7",
+    "semantic_hash": "be1cf63654a0ad2f641e826a642bc6e7"
+  },
+  "src/main/java/galindo/raul/virtualclubs/utils/CommonUtils.java": {
+    "mtime": 1777748042.4177806,
+    "ast_hash": "7148dd95311508df016f3a0948df4d80",
+    "semantic_hash": "7148dd95311508df016f3a0948df4d80"
+  },
+  "src/main/java/galindo/raul/virtualclubs/utils/DeepLinkUtils.java": {
+    "mtime": 1777748042.4187808,
+    "ast_hash": "d5edb9924dec9b34e296d967bb4d654e",
+    "semantic_hash": "d5edb9924dec9b34e296d967bb4d654e"
+  },
+  "src/main/java/galindo/raul/virtualclubs/utils/TokenUtils.java": {
+    "mtime": 1777748042.4197812,
+    "ast_hash": "a5b6a85d0989bcea6f29b56171e61fc7",
+    "semantic_hash": "a5b6a85d0989bcea6f29b56171e61fc7"
+  },
+  "src/main/resources/db/migration/V10__seed_roles.sql": {
+    "mtime": 1777748042.422786,
+    "ast_hash": "63328026d8f6710aa7c3918e50af8ad9",
+    "semantic_hash": "63328026d8f6710aa7c3918e50af8ad9"
+  },
+  "src/main/resources/db/migration/V1__create_users_table.sql": {
+    "mtime": 1777748042.422786,
+    "ast_hash": "91fa33e97ca801c719ea2c9c0a522ee9",
+    "semantic_hash": "91fa33e97ca801c719ea2c9c0a522ee9"
+  },
+  "src/main/resources/db/migration/V2__create_roles_table.sql": {
+    "mtime": 1777748042.4242945,
+    "ast_hash": "70f3e7f93ab967c5f7340643b5189576",
+    "semantic_hash": "70f3e7f93ab967c5f7340643b5189576"
+  },
+  "src/main/resources/db/migration/V3__create_refresh_tokens_table.sql": {
+    "mtime": 1777748042.4242945,
+    "ast_hash": "deee91774bb6bdc1eb35a4acac4ec69f",
+    "semantic_hash": "deee91774bb6bdc1eb35a4acac4ec69f"
+  },
+  "src/main/resources/db/migration/V4__create_auth_providers_table.sql": {
+    "mtime": 1777748042.4253051,
+    "ast_hash": "8850d894ba855ea4779764c37cb7a709",
+    "semantic_hash": "8850d894ba855ea4779764c37cb7a709"
+  },
+  "src/main/resources/db/migration/V5__add_performance_indexes.sql": {
+    "mtime": 1777748042.4253051,
+    "ast_hash": "5b9d3c3099933c9f9cbad30e0e051ec4",
+    "semantic_hash": "5b9d3c3099933c9f9cbad30e0e051ec4"
+  },
+  "src/main/resources/db/migration/V6__add_device_entity.sql": {
+    "mtime": 1777748042.4253051,
+    "ast_hash": "58821c0242b0cc663fffd45a1fd7b2d0",
+    "semantic_hash": "58821c0242b0cc663fffd45a1fd7b2d0"
+  },
+  "src/main/resources/db/migration/V7__create_user_tokens_table.sql": {
+    "mtime": 1777748042.4263053,
+    "ast_hash": "4708f73156bcc7c50204c3a11c704d8e",
+    "semantic_hash": "4708f73156bcc7c50204c3a11c704d8e"
+  },
+  "src/main/resources/db/migration/V8__strengthen_constraints_and_indexes.sql": {
+    "mtime": 1777748042.4263053,
+    "ast_hash": "daad38c0b9d5127a092ac832f760e671",
+    "semantic_hash": "daad38c0b9d5127a092ac832f760e671"
+  },
+  "src/main/resources/db/migration/V9__refresh_tokens_cascade_and_timestamps.sql": {
+    "mtime": 1777748042.4273045,
+    "ast_hash": "b0cc533a23ea86239e88238c4d84b13a",
+    "semantic_hash": "b0cc533a23ea86239e88238c4d84b13a"
+  },
+  "src/test/java/galindo/raul/virtualclubs/VirtualClubsApplicationTests.java": {
+    "mtime": 1777748042.4313042,
+    "ast_hash": "3c19bcb0379c872f9ddbaf66a8422867",
+    "semantic_hash": "3c19bcb0379c872f9ddbaf66a8422867"
+  },
+  "src/test/java/galindo/raul/virtualclubs/config/TestRoleSeeder.java": {
+    "mtime": 1777748042.432304,
+    "ast_hash": "14801112464499d40129d156dee79f79",
+    "semantic_hash": "14801112464499d40129d156dee79f79"
+  },
+  "src/test/java/galindo/raul/virtualclubs/config/security/filters/JwtAuthFilterTest.java": {
+    "mtime": 1779633462.8343894,
+    "ast_hash": "c031d5462a3c2c4c95ff1b7c3ef97c1a",
+    "semantic_hash": "c031d5462a3c2c4c95ff1b7c3ef97c1a"
+  },
+  "src/test/java/galindo/raul/virtualclubs/controller/AuthControllerIntegrationTest.java": {
+    "mtime": 1783780473.1243727,
+    "ast_hash": "8ed75df1d882c830272c0f6ddabf917f",
+    "semantic_hash": "8ed75df1d882c830272c0f6ddabf917f"
+  },
+  "src/test/java/galindo/raul/virtualclubs/controller/AuthControllerUnitTest.java": {
+    "mtime": 1783780473.1253788,
+    "ast_hash": "ec2fa115db2caf0897f9d0fa64cf5c40",
+    "semantic_hash": "ec2fa115db2caf0897f9d0fa64cf5c40"
+  },
+  "src/test/java/galindo/raul/virtualclubs/controller/EmailVerificationIntegrationTest.java": {
+    "mtime": 1777748042.433305,
+    "ast_hash": "218ce1485fc7c70dd181fa429390e701",
+    "semantic_hash": "218ce1485fc7c70dd181fa429390e701"
+  },
+  "src/test/java/galindo/raul/virtualclubs/controller/GlobalExceptionHandlerTest.java": {
+    "mtime": 1779633462.8364,
+    "ast_hash": "ce5773b594b47805e63a23b3cf2ae6af",
+    "semantic_hash": "ce5773b594b47805e63a23b3cf2ae6af"
+  },
+  "src/test/java/galindo/raul/virtualclubs/controller/GoogleAuthIntegrationTest.java": {
+    "mtime": 1777748042.4343045,
+    "ast_hash": "05082ad786b446a56c92b525358c7d2b",
+    "semantic_hash": "05082ad786b446a56c92b525358c7d2b"
+  },
+  "src/test/java/galindo/raul/virtualclubs/controller/PasswordResetIntegrationTest.java": {
+    "mtime": 1777748042.4348166,
+    "ast_hash": "9cdcc01fdb59b79c03b4d5e742a7540a",
+    "semantic_hash": "9cdcc01fdb59b79c03b4d5e742a7540a"
+  },
+  "src/test/java/galindo/raul/virtualclubs/models/annotations/validators/StrongPasswordValidatorTest.java": {
+    "mtime": 1783780473.1263797,
+    "ast_hash": "13143a3abc0f6a939d3c3a5ef8712585",
+    "semantic_hash": "13143a3abc0f6a939d3c3a5ef8712585"
+  },
+  "src/test/java/galindo/raul/virtualclubs/security/JwtServiceTest.java": {
+    "mtime": 1777748042.4358203,
+    "ast_hash": "edff6db3d96b1e379cc5f53f26513ad7",
+    "semantic_hash": "edff6db3d96b1e379cc5f53f26513ad7"
+  },
+  "src/test/java/galindo/raul/virtualclubs/security/RateLimitingFilterTest.java": {
+    "mtime": 1777748042.4368205,
+    "ast_hash": "1b61f2216379ca7208c60524748854f0",
+    "semantic_hash": "1b61f2216379ca7208c60524748854f0"
+  },
+  "src/test/java/galindo/raul/virtualclubs/security/SecurityConfigIntegrationTest.java": {
+    "mtime": 1779633462.8459215,
+    "ast_hash": "520ee255804a12c256e7d82b8cde2c20",
+    "semantic_hash": "520ee255804a12c256e7d82b8cde2c20"
+  },
+  "src/test/java/galindo/raul/virtualclubs/services/EmailServiceTest.java": {
+    "mtime": 1784127293.2723322,
+    "ast_hash": "efa1724a05ab8f7fed07697ff57b33d4",
+    "semantic_hash": ""
+  },
+  "src/test/java/galindo/raul/virtualclubs/services/GoogleAuthServiceTest.java": {
+    "mtime": 1777748042.4378211,
+    "ast_hash": "d7d7a5e4d7a8866aae5da00564be9ba4",
+    "semantic_hash": "d7d7a5e4d7a8866aae5da00564be9ba4"
+  },
+  "src/test/java/galindo/raul/virtualclubs/services/NotificationServiceTest.java": {
+    "mtime": 1784127306.633595,
+    "ast_hash": "583c4613992f9fa765735c1dfdf0c9f7",
+    "semantic_hash": ""
+  },
+  "src/test/java/galindo/raul/virtualclubs/services/RefreshTokenServiceTest.java": {
+    "mtime": 1777748042.4388237,
+    "ast_hash": "0876bc20781b0efdf88750aaff82fbb3",
+    "semantic_hash": "0876bc20781b0efdf88750aaff82fbb3"
+  },
+  "src/test/java/galindo/raul/virtualclubs/services/TokensServiceTest.java": {
+    "mtime": 1777748042.4398167,
+    "ast_hash": "b2540e1c91d61360bc63733fa6c56c24",
+    "semantic_hash": "b2540e1c91d61360bc63733fa6c56c24"
+  },
+  "src/test/java/galindo/raul/virtualclubs/services/UserEntityServiceTest.java": {
+    "mtime": 1777748042.4408166,
+    "ast_hash": "e9b15a68b93bc6494837f83949aeef64",
+    "semantic_hash": "e9b15a68b93bc6494837f83949aeef64"
+  },
+  "src/test/java/galindo/raul/virtualclubs/services/UserTokenServiceTest.java": {
+    "mtime": 1777748042.4408166,
+    "ast_hash": "47873c578fbd590c3eedc3099faf3dd5",
+    "semantic_hash": "47873c578fbd590c3eedc3099faf3dd5"
+  },
+  "src/test/java/galindo/raul/virtualclubs/services/VirtualClubsUsersDetailsServiceTest.java": {
+    "mtime": 1777748042.4418166,
+    "ast_hash": "0b51be76d002b9cb2575ec5f23040e46",
+    "semantic_hash": "0b51be76d002b9cb2575ec5f23040e46"
+  },
+  "src/test/java/galindo/raul/virtualclubs/util/IntegrationTestUtils.java": {
+    "mtime": 1777748042.442816,
+    "ast_hash": "8be716b6dc512add2844c73cf0d91b12",
+    "semantic_hash": "8be716b6dc512add2844c73cf0d91b12"
+  },
+  "src/test/java/galindo/raul/virtualclubs/utils/AuthUrlUtilsTest.java": {
+    "mtime": 1777748042.442816,
+    "ast_hash": "25498189ead7cae6065c51d16ae68bea",
+    "semantic_hash": "25498189ead7cae6065c51d16ae68bea"
+  },
+  "src/test/java/galindo/raul/virtualclubs/utils/CommonUtilsTest.java": {
+    "mtime": 1777748042.4443238,
+    "ast_hash": "8337d3814c859480c5889d512dae5c8e",
+    "semantic_hash": "8337d3814c859480c5889d512dae5c8e"
+  },
+  "src/test/java/galindo/raul/virtualclubs/utils/DeepLinkUtilsTest.java": {
+    "mtime": 1777748042.4443238,
+    "ast_hash": "b0aaad09d458a0e007291e3f7f464b69",
+    "semantic_hash": "b0aaad09d458a0e007291e3f7f464b69"
+  },
+  "src/test/java/galindo/raul/virtualclubs/utils/TokenUtilsTest.java": {
+    "mtime": 1777748042.445334,
+    "ast_hash": "e6023aa01aa24f37760dbe7d6e86141f",
+    "semantic_hash": "e6023aa01aa24f37760dbe7d6e86141f"
+  },
+  ".claude/commands/add-endpoint.md": {
+    "mtime": 1779633740.3748899,
+    "ast_hash": "6c028cdf9cf20d0419056ab0ea2b7324",
+    "semantic_hash": "6c028cdf9cf20d0419056ab0ea2b7324"
+  },
+  ".claude/commands/add-error-type.md": {
+    "mtime": 1780228670.9163024,
+    "ast_hash": "8f5cf69d6d9722c34f3d19b2f0dc4543",
+    "semantic_hash": "8f5cf69d6d9722c34f3d19b2f0dc4543"
+  },
+  ".claude/commands/add-exception-handler-test.md": {
+    "mtime": 1779633740.3758907,
+    "ast_hash": "2069d1d7f51e21409979e12bdf7d45f5",
+    "semantic_hash": "2069d1d7f51e21409979e12bdf7d45f5"
+  },
+  ".claude/commands/add-filter-test.md": {
+    "mtime": 1779633740.376891,
+    "ast_hash": "54b8240bc72a069e307ac04a58c1d406",
+    "semantic_hash": "54b8240bc72a069e307ac04a58c1d406"
+  },
+  ".claude/commands/add-migration.md": {
+    "mtime": 1780228670.9163024,
+    "ast_hash": "074b6f0f3762a81ff94c8e5e9d914dfe",
+    "semantic_hash": "074b6f0f3762a81ff94c8e5e9d914dfe"
+  },
+  ".claude/commands/add-test.md": {
+    "mtime": 1779633740.3778894,
+    "ast_hash": "5a9001afcc04d1f3f8a4490ea9b643fc",
+    "semantic_hash": "5a9001afcc04d1f3f8a4490ea9b643fc"
+  },
+  ".claude/commands/check-api-contract.md": {
+    "mtime": 1780228670.9163024,
+    "ast_hash": "e1816958bbff8436a934d69a2d137178",
+    "semantic_hash": "e1816958bbff8436a934d69a2d137178"
+  },
+  ".claude/commands/check-security.md": {
+    "mtime": 1784127148.3576057,
+    "ast_hash": "358af82fa8341cc5338647d3571b1bf8",
+    "semantic_hash": ""
+  },
+  ".claude/commands/check-structure.md": {
+    "mtime": 1779633740.3788905,
+    "ast_hash": "35eba70eac916ae2b979e62b14e6bf76",
+    "semantic_hash": "35eba70eac916ae2b979e62b14e6bf76"
+  },
+  ".claude/commands/commit.md": {
+    "mtime": 1777748042.3684053,
+    "ast_hash": "c6d2b252b845c954899eb2aa069563d8",
+    "semantic_hash": "c6d2b252b845c954899eb2aa069563d8"
+  },
+  ".claude/commands/create-pr.md": {
+    "mtime": 1777748042.3684053,
+    "ast_hash": "cb992be665f1f3059f611f197a195e9b",
+    "semantic_hash": "cb992be665f1f3059f611f197a195e9b"
+  },
+  ".claude/commands/explain.md": {
+    "mtime": 1777748042.3694062,
+    "ast_hash": "a32e472609d9fb5a5d8ca16b45230c99",
+    "semantic_hash": "a32e472609d9fb5a5d8ca16b45230c99"
+  },
+  ".claude/commands/new-feature.md": {
+    "mtime": 1777748042.3694062,
+    "ast_hash": "7f5d2212f31bdc09f12f3b0bb430c8f3",
+    "semantic_hash": "7f5d2212f31bdc09f12f3b0bb430c8f3"
+  },
+  ".claude/commands/project-status.md": {
+    "mtime": 1777748042.3704062,
+    "ast_hash": "89df7c209d2b37ac5499343d90971155",
+    "semantic_hash": "89df7c209d2b37ac5499343d90971155"
+  },
+  ".claude/commands/review-pr.md": {
+    "mtime": 1777748042.3704062,
+    "ast_hash": "e183645abb476e7b90408fe5cb886f0b",
+    "semantic_hash": "e183645abb476e7b90408fe5cb886f0b"
+  },
+  ".claude/commands/update-deps.md": {
+    "mtime": 1777748042.3714073,
+    "ast_hash": "00c8f9582bfab2c5d5ba4b2f0ec5a3f9",
+    "semantic_hash": "00c8f9582bfab2c5d5ba4b2f0ec5a3f9"
+  },
+  ".github/pull_request_template.md": {
+    "mtime": 1777748042.3734095,
+    "ast_hash": "fe0f6b84ebe03755a0444523b2e667fe",
+    "semantic_hash": "fe0f6b84ebe03755a0444523b2e667fe"
+  },
+  ".github/workflows/deploy.yml": {
+    "mtime": 1777748042.3744094,
+    "ast_hash": "1077d930fff611d04fa83f2956462e69",
+    "semantic_hash": "1077d930fff611d04fa83f2956462e69"
+  },
+  "CHANGELOG.md": {
+    "mtime": 1779658402.813096,
+    "ast_hash": "a1dc88ddc22d7c16b1266afebeb5ac85",
+    "semantic_hash": "a1dc88ddc22d7c16b1266afebeb5ac85"
+  },
+  "CLAUDE.md": {
+    "mtime": 1784127173.1278694,
+    "ast_hash": "fc723aaf355314dad07b234093e45f74",
+    "semantic_hash": ""
+  },
+  "CONTRIBUTING.md": {
+    "mtime": 1777748042.3777163,
+    "ast_hash": "18ba212b8a5180b7b5a393948e1616ca",
+    "semantic_hash": "18ba212b8a5180b7b5a393948e1616ca"
+  },
+  "README.es.md": {
+    "mtime": 1784127183.3752909,
+    "ast_hash": "ba5f189ba765d4ad6a0dbc9f46cf7d60",
+    "semantic_hash": ""
+  },
+  "README.md": {
+    "mtime": 1784127181.9069705,
+    "ast_hash": "aef1253f6c5b1ff8d2a5fcc4314b9f15",
+    "semantic_hash": ""
+  },
+  "SECURITY.md": {
+    "mtime": 1777748042.380716,
+    "ast_hash": "ec3594d1985430407ea46e48865b9b2e",
+    "semantic_hash": "ec3594d1985430407ea46e48865b9b2e"
+  },
+  "src/main/resources/banner.txt": {
+    "mtime": 1777748042.421785,
+    "ast_hash": "3f7b162cc1941657b5c4ce6ed67ee86d",
+    "semantic_hash": "3f7b162cc1941657b5c4ce6ed67ee86d"
+  },
+  "src/main/resources/templates/layout.html": {
+    "mtime": 1777748042.4293063,
+    "ast_hash": "4aa985acdbf607466306960e1d676cf2",
+    "semantic_hash": "4aa985acdbf607466306960e1d676cf2"
+  },
+  "src/main/resources/templates/password-reset-email.html": {
+    "mtime": 1777748042.4293063,
+    "ast_hash": "d8b074b2fa97afcac6270612bfeb8f81",
+    "semantic_hash": "d8b074b2fa97afcac6270612bfeb8f81"
+  },
+  "src/main/resources/templates/verify-email.html": {
+    "mtime": 1777748042.4303055,
+    "ast_hash": "15fc9e11aad2c8dbc5a2dbf3c256ccfd",
+    "semantic_hash": "15fc9e11aad2c8dbc5a2dbf3c256ccfd"
+  },
+  "src/test/java/galindo/raul/virtualclubs/config/security/filters/JwtAuthLoginFilterTest.java": {
+    "mtime": 1784127357.4169934,
+    "ast_hash": "12b19c906e8974ee6514eab040cffccd",
+    "semantic_hash": ""
+  },
+  ".github/workflows/graphify.yml": {
+    "mtime": 1784117118.9532683,
+    "ast_hash": "ab8da4809766b01dbe6e2c9c9a451f7f",
+    "semantic_hash": ""
+  }
+}

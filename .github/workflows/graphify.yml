@@ -1,4 +1,30 @@
-name: graphify.yml
+name: Update knowledge graph
+
 on:
+  push:
+    branches: [development]
 
 jobs:
+  update-graph:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install graphifyy
+      - run: graphify update .
+      - name: Commit updated graph
+        run: |
+          git config user.name "graphify-bot"
+          git config user.email "bot@virtualclubs"
+          git add graphify-out/
+          git diff --staged --quiet || git commit -m "chore: update knowledge graph"
+          git push
+      - name: Notify hub repo
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/raulgl422/virtualclubs-graph-hub/dispatches \
+            -d '{"event_type":"graph-updated"}'
