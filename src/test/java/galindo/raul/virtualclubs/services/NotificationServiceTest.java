@@ -18,9 +18,11 @@ import java.util.Locale;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 /**
@@ -128,6 +130,17 @@ class NotificationServiceTest {
         ArgumentCaptor<EmailRequest> captor = ArgumentCaptor.forClass(EmailRequest.class);
         verify(emailService).sendEmail(captor.capture());
         assertThat(captor.getValue().toName()).isEqualTo("anon@test.com");
+    }
+
+    @Test
+    void sendVerificationEmail_fallaCreacionDeToken_nuncaEnviaEmail() {
+        when(userTokenService.createTokenFor(user, TokenType.EMAIL_VERIFICATION))
+                .thenThrow(new RuntimeException("error de base de datos"));
+
+        assertThatThrownBy(() -> notificationService.sendVerificationEmail(user, Locale.forLanguageTag("es")))
+                .isInstanceOf(RuntimeException.class);
+
+        verifyNoInteractions(emailService);
     }
 
     // ─────────────────────────────────────────────────────────────
